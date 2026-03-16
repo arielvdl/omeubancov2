@@ -1,43 +1,103 @@
-import { Tabs } from 'expo-router';
 import React from 'react';
-import { Platform } from 'react-native';
-
-import { HapticTab } from '@/components/HapticTab';
-import { IconSymbol } from '@/components/ui/IconSymbol';
-import TabBarBackground from '@/components/ui/TabBarBackground';
-import { Colors } from '@/constants/Colors';
-import { useColorScheme } from '@/hooks/useColorScheme';
+import { Tabs } from 'expo-router';
+import { useTranslation } from 'react-i18next';
+import { MaterialCommunityIcons } from '@expo/vector-icons';
+import { View } from 'react-native';
+import { haptics } from '@/src/utils/haptics';
 
 export default function TabLayout() {
-  const colorScheme = useColorScheme();
+  const { t } = useTranslation();
 
   return (
     <Tabs
       screenOptions={{
-        tabBarActiveTintColor: Colors[colorScheme ?? 'light'].tint,
         headerShown: false,
-        tabBarButton: HapticTab,
-        tabBarBackground: TabBarBackground,
-        tabBarStyle: Platform.select({
-          ios: {
-            // Use a transparent background on iOS to show the blur effect
-            position: 'absolute',
-          },
-          default: {},
-        }),
-      }}>
+        tabBarActiveTintColor: '#1a1a0e',
+        tabBarInactiveTintColor: '#6b6b5a',
+        tabBarStyle: {
+          backgroundColor: '#ffffff',
+          borderTopWidth: 0,
+          elevation: 12,
+          shadowColor: '#000',
+          shadowOffset: { width: 0, height: -4 },
+          shadowOpacity: 0.06,
+          shadowRadius: 20,
+          height: 96,
+          paddingBottom: 30,
+          paddingTop: 12,
+          borderTopLeftRadius: 28,
+          borderTopRightRadius: 28,
+        },
+        tabBarLabelStyle: {
+          fontFamily: 'PlusJakartaSans_600SemiBold',
+          fontSize: 12,
+          marginTop: 4,
+        },
+      }}
+      screenListeners={{
+        tabPress: () => {
+          haptics.selection();
+        },
+      }}
+    >
       <Tabs.Screen
         name="index"
         options={{
-          title: 'Home',
-          tabBarIcon: ({ color }) => <IconSymbol size={28} name="house.fill" color={color} />,
+          title: t('tabs.home'),
+          tabBarIcon: ({ focused, color }) => (
+            <View className="">
+              <MaterialCommunityIcons
+                name={focused ? 'home' : 'home-outline'}
+                size={26}
+                color={color}
+              />
+            </View>
+          ),
         }}
       />
       <Tabs.Screen
-        name="explore"
+        name="history"
         options={{
-          title: 'Explore',
-          tabBarIcon: ({ color }) => <IconSymbol size={28} name="paperplane.fill" color={color} />,
+          title: t('tabs.history'),
+          tabBarIcon: ({ focused, color }) => (
+            <View className="">
+              <MaterialCommunityIcons
+                name={focused ? 'clock' : 'clock-outline'}
+                size={26}
+                color={color}
+              />
+            </View>
+          ),
+        }}
+      />
+      <Tabs.Screen
+        name="settings"
+        options={{
+          title: t('tabs.family', { defaultValue: 'Família' }),
+          tabBarIcon: ({ focused, color }) => (
+            <View className="">
+              <MaterialCommunityIcons
+                name={focused ? 'account-group' : 'account-group-outline'}
+                size={26}
+                color={color}
+              />
+            </View>
+          ),
+        }}
+      />
+      <Tabs.Screen
+        name="profile"
+        options={{
+          title: t('tabs.profile'),
+          tabBarIcon: ({ focused, color }) => (
+            <View className="">
+              <MaterialCommunityIcons
+                name={focused ? 'account' : 'account-outline'}
+                size={26}
+                color={color}
+              />
+            </View>
+          ),
         }}
       />
     </Tabs>
