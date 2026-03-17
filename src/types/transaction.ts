@@ -14,6 +14,7 @@ export interface Transaction {
   scheduledDepositId: string | null;
   createdBy: CreatedBy;
   createdAt: string;
+  receiptUrl?: string | null;
 }
 
 export interface TransactionFilters {

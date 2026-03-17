@@ -9,7 +9,9 @@ export interface DepositPayload {
 
 export interface WithdrawPayload {
   amount: number;
+  category: string;
   description: string;
+  receiptUrl?: string;
 }
 
 export const transactionsApi = {

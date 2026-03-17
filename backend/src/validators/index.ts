@@ -49,7 +49,9 @@ export const depositSchema = z.object({
 
 export const withdrawSchema = z.object({
   amount: z.number().int().positive('Amount must be a positive integer (in cents)'),
+  category: z.enum(['compra', 'presente', 'tarefa', 'bonus', 'outro']).default('compra'),
   description: z.string().max(500).optional().default(''),
+  receiptUrl: z.string().url().max(500).optional(),
 });
 
 export const createScheduleSchema = z

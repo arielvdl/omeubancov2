@@ -2,6 +2,7 @@ import { Hono } from 'hono';
 import { authMiddleware, requireParent } from '../auth/guards.js';
 import { childRepo } from '../repositories/child.repo.js';
 import { transactionRepo } from '../repositories/transaction.repo.js';
+import type { SelectTransaction } from '../repositories/transaction.repo.js';
 import { depositSchema, withdrawSchema, paginationSchema } from '../validators/index.js';
 import {
   NotFoundError,
@@ -30,6 +31,7 @@ transactionsRoutes.post('/children/:id/deposit', requireParent, async (c) => {
 
   const rawSql = childRepo.getRawSql();
   let resultBalance = 0;
+  let createdTx: SelectTransaction | null = null;
 
   await rawSql.begin(async (txSql) => {
     const locked = await childRepo.findByIdForUpdate(txSql, childId);
@@ -39,7 +41,7 @@ transactionsRoutes.post('/children/:id/deposit', requireParent, async (c) => {
 
     const newBalance = locked.balance + data.amount;
 
-    await transactionRepo.createInTx(txSql, {
+    createdTx = await transactionRepo.createInTx(txSql, {
       childId,
       familyId: user.familyId,
       type: 'deposit',
@@ -66,6 +68,7 @@ transactionsRoutes.post('/children/:id/deposit', requireParent, async (c) => {
     {
       success: true,
       balanceAfter: resultBalance,
+      transaction: createdTx,
     },
     201
   );
@@ -91,6 +94,7 @@ transactionsRoutes.post('/children/:id/withdraw', async (c) => {
 
   const rawSql = childRepo.getRawSql();
   let resultBalance = 0;
+  let createdTx: SelectTransaction | null = null;
 
   await rawSql.begin(async (txSql) => {
     const locked = await childRepo.findByIdForUpdate(txSql, childId);
@@ -104,15 +108,16 @@ transactionsRoutes.post('/children/:id/withdraw', async (c) => {
 
     const newBalance = locked.balance - data.amount;
 
-    await transactionRepo.createInTx(txSql, {
+    createdTx = await transactionRepo.createInTx(txSql, {
       childId,
       familyId: user.familyId,
       type: 'withdrawal',
-      category: 'compra',
+      category: data.category,
       amount: data.amount,
       balanceAfter: newBalance,
       description: data.description || '',
       createdBy: user.role === 'parent' ? 'parent' : 'child',
+      receiptUrl: data.receiptUrl,
     });
 
     await childRepo.updateBalanceInTx(txSql, childId, newBalance);
@@ -124,13 +129,14 @@ transactionsRoutes.post('/children/:id/withdraw', async (c) => {
     familyId: user.familyId,
     action: 'transaction.withdrawal',
     actor: user.role === 'parent' ? 'parent' : `child:${childId}`,
-    details: { childId, amount: data.amount },
+    details: { childId, amount: data.amount, category: data.category },
   });
 
   return c.json(
     {
       success: true,
       balanceAfter: resultBalance,
+      transaction: createdTx,
     },
     201
   );

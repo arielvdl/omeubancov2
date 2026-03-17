@@ -19,4 +19,5 @@ export const transactions = pgTable('transactions', {
   scheduledDepositId: uuid('scheduled_deposit_id').references(() => scheduledDeposits.id),
   createdBy: varchar('created_by', { length: 10 }).notNull(),
   createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
+  receiptUrl: varchar('receipt_url', { length: 500 }),
 });

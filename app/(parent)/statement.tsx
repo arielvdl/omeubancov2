@@ -1,15 +1,75 @@
-import React, { useState, useMemo } from 'react';
-import { View, Text, ScrollView, Pressable } from 'react-native';
+import React, { useState, useMemo, useCallback, useRef } from 'react';
+import { View, Text, Pressable } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
+import BottomSheet from '@gorhom/bottom-sheet';
 import { SafeArea } from '@/src/components/layout/SafeArea';
 import { Header } from '@/src/components/layout/Header';
 import { Card } from '@/src/components/ui/Card';
 import { Avatar } from '@/src/components/ui/Avatar';
 import { TransactionList } from '@/src/components/transaction/TransactionList';
+import { TransactionDetailSheet } from '@/src/components/transaction/TransactionDetailSheet';
 import { useBankStore } from '@/src/stores/useBankStore';
 import { useTransactionStore } from '@/src/stores/useTransactionStore';
 import { useCurrency } from '@/src/hooks/useCurrency';
+import { haptics } from '@/src/utils/haptics';
+import type { Transaction } from '@/src/types/transaction';
+
+const BAR_MAX_HEIGHT = 160;
+
+function ChildBalanceChart({
+  children,
+  selectedChildId,
+  onSelect,
+  format,
+}: {
+  children: { id: string; balance: number; avatarUrl?: string | null }[];
+  selectedChildId: string | null;
+  onSelect: (id: string) => void;
+  format: (cents: number) => string;
+}) {
+  const maxBalance = Math.max(...children.map((c) => c.balance), 1);
+
+  return (
+    <View style={{ height: 220 }} className="px-4 pb-4 pt-2 items-center justify-end">
+      <View className="flex-row items-end justify-center gap-6 flex-1 w-full">
+        {children.map((child) => {
+          const isSelected = child.id === selectedChildId;
+          const barHeight = Math.max((child.balance / maxBalance) * BAR_MAX_HEIGHT, 8);
+
+          return (
+            <Pressable
+              key={child.id}
+              onPress={() => onSelect(child.id)}
+              className="items-center"
+              style={{ opacity: isSelected ? 1 : 0.45 }}
+            >
+              {/* Balance label */}
+              <Text className="text-[11px] font-sans-semibold text-text mb-1">
+                {format(child.balance)}
+              </Text>
+              {/* Bar */}
+              <View
+                style={{
+                  width: 48,
+                  height: barHeight,
+                  backgroundColor: '#FFD600',
+                  borderRadius: 10,
+                  borderBottomLeftRadius: 4,
+                  borderBottomRightRadius: 4,
+                }}
+              />
+              {/* Avatar at base */}
+              <View className="mt-2">
+                <Avatar avatarId={child.avatarUrl ?? undefined} size="sm" />
+              </View>
+            </Pressable>
+          );
+        })}
+      </View>
+    </View>
+  );
+}
 
 export default function StatementScreen() {
   const { t } = useTranslation();
@@ -21,8 +81,16 @@ export default function StatementScreen() {
   const [selectedChildId, setSelectedChildId] = useState<string | null>(
     children[0]?.id ?? null,
   );
+  const [selectedTx, setSelectedTx] = useState<Transaction | null>(null);
+  const bottomSheetRef = useRef<BottomSheet>(null);
 
   const selectedChild = children.find((c) => c.id === selectedChildId);
+
+  const handleTransactionPress = useCallback((tx: Transaction) => {
+    haptics.selection();
+    setSelectedTx(tx);
+    bottomSheetRef.current?.snapToIndex(0);
+  }, []);
 
   const transactions = useMemo(() => {
     if (!selectedChildId) return [];
@@ -45,39 +113,19 @@ export default function StatementScreen() {
     <SafeArea>
       <Header title={t('parent.statement')} showBack onBack={() => router.back()} />
 
-      {/* Child Tabs */}
-      <ScrollView horizontal showsHorizontalScrollIndicator={false} className="px-6 mb-5">
-        <View className="flex-row gap-3">
-          {children.map((child) => {
-            const isSelected = child.id === selectedChildId;
-            return (
-              <Pressable
-                key={child.id}
-                onPress={() => setSelectedChildId(child.id)}
-                className={`flex-row items-center px-5 py-2.5 rounded-full ${
-                  isSelected ? 'bg-primary' : 'bg-surface'
-                }`}
-                style={!isSelected ? {
-                  shadowColor: '#000',
-                  shadowOffset: { width: 0, height: 1 },
-                  shadowOpacity: 0.05,
-                  shadowRadius: 8,
-                  elevation: 2,
-                } : undefined}
-              >
-                <Avatar avatarId={child.avatarUrl ?? undefined} size="sm" />
-                <Text
-                  className={`text-sm font-sans-medium ml-2 ${
-                    isSelected ? 'text-text' : 'text-text-secondary'
-                  }`}
-                >
-                  {child.name}
-                </Text>
-              </Pressable>
-            );
-          })}
+      {/* Balance comparison chart */}
+      {children.length > 0 && (
+        <View className="px-6 mb-5">
+          <Card>
+            <ChildBalanceChart
+              children={children}
+              selectedChildId={selectedChildId}
+              onSelect={setSelectedChildId}
+              format={format}
+            />
+          </Card>
         </View>
-      </ScrollView>
+      )}
 
       {/* Summary */}
       {selectedChild && (
@@ -120,8 +168,12 @@ export default function StatementScreen() {
         <TransactionList
           transactions={transactions}
           emptyMessage={t('history.emptyState')}
+          onItemPress={handleTransactionPress}
         />
       </View>
+
+      {/* Detail Bottom Sheet */}
+      <TransactionDetailSheet ref={bottomSheetRef} transaction={selectedTx} />
     </SafeArea>
   );
 }

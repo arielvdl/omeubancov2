@@ -77,7 +77,8 @@
         {
           "faceIDPermission": "Permitir que $(PRODUCT_NAME) use o Face ID para autenticação dos pais."
         }
-      ]
+      ],
+      "@react-native-community/datetimepicker"
     ],
     "experiments": {
       "typedRoutes": true

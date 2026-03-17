@@ -79,7 +79,7 @@ export default function BalanceStatsScreen() {
     return Math.max(...balanceHistory.map((p) => p.balance));
   }, [balanceHistory]);
 
-  const chartWidth = screenWidth - 56;
+  const chartWidth = screenWidth - 104;
 
   if (!selectedChild) return null;
 
@@ -123,7 +123,7 @@ export default function BalanceStatsScreen() {
             <BalanceLineChart
               data={balanceHistory}
               width={chartWidth}
-              height={200}
+              height={240}
             />
           ) : (
             <View className="items-center py-10">

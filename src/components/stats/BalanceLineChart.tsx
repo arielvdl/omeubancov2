@@ -27,7 +27,7 @@ export function BalanceLineChart({ data, width, height }: BalanceLineChartProps)
     );
   }
 
-  const padding = { top: 20, right: 16, bottom: 32, left: 16 };
+  const padding = { top: 20, right: 16, bottom: 56, left: 16 };
   const chartW = width - padding.left - padding.right;
   const chartH = height - padding.top - padding.bottom;
 
@@ -106,7 +106,7 @@ export function BalanceLineChart({ data, width, height }: BalanceLineChartProps)
       </Svg>
 
       {/* Date labels */}
-      <View className="flex-row justify-between" style={{ paddingHorizontal: padding.left, marginTop: -24 }}>
+      <View className="flex-row justify-between" style={{ paddingHorizontal: padding.left }}>
         {dateLabels.map((dl, i) => (
           <Text
             key={i}

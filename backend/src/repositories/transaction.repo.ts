@@ -56,13 +56,15 @@ export const transactionRepo = {
       description: string;
       scheduledDepositId?: string;
       createdBy: string;
+      receiptUrl?: string;
     }
-  ): Promise<void> {
+  ): Promise<SelectTransaction> {
     const scheduledId = data.scheduledDepositId ?? null;
-    await txSql`
+    const receiptUrl = data.receiptUrl ?? null;
+    const result = await txSql`
       INSERT INTO transactions (
         child_id, family_id, type, category, amount, balance_after,
-        description, scheduled_deposit_id, created_by
+        description, scheduled_deposit_id, created_by, receipt_url
       ) VALUES (
         ${data.childId}::uuid,
         ${data.familyId}::uuid,
@@ -72,9 +74,26 @@ export const transactionRepo = {
         ${data.balanceAfter},
         ${data.description},
         ${scheduledId},
-        ${data.createdBy}
+        ${data.createdBy},
+        ${receiptUrl}
       )
+      RETURNING *
     `;
+    const row = result[0];
+    return {
+      id: row.id,
+      childId: row.child_id,
+      familyId: row.family_id,
+      type: row.type,
+      category: row.category,
+      amount: row.amount,
+      balanceAfter: row.balance_after,
+      description: row.description,
+      scheduledDepositId: row.scheduled_deposit_id,
+      createdBy: row.created_by,
+      createdAt: row.created_at,
+      receiptUrl: row.receipt_url,
+    };
   },
 
   async getSummary(

@@ -1,7 +1,7 @@
 import React, { forwardRef, useCallback, useMemo } from 'react';
-import { View, Text } from 'react-native';
+import { View, Text, Image } from 'react-native';
 import { useTranslation } from 'react-i18next';
-import BottomSheet, { BottomSheetBackdrop, BottomSheetView } from '@gorhom/bottom-sheet';
+import BottomSheet, { BottomSheetBackdrop, BottomSheetScrollView } from '@gorhom/bottom-sheet';
 import type { BottomSheetBackdropProps } from '@gorhom/bottom-sheet';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import type { Transaction } from '@/src/types/transaction';
@@ -24,7 +24,7 @@ export const TransactionDetailSheet = forwardRef<BottomSheet, TransactionDetailS
     const { t } = useTranslation();
     const { format, locale } = useCurrency();
 
-    const snapPoints = useMemo(() => ['50%'], []);
+    const snapPoints = useMemo(() => [transaction?.receiptUrl ? '75%' : '50%'], [transaction?.receiptUrl]);
 
     const renderBackdrop = useCallback(
       (props: BottomSheetBackdropProps) => (
@@ -82,9 +82,9 @@ export const TransactionDetailSheet = forwardRef<BottomSheet, TransactionDetailS
         backgroundStyle={{ backgroundColor: '#faf9f0' }}
         handleIndicatorStyle={{ backgroundColor: '#d1d5db', width: 40 }}
       >
-        <BottomSheetView style={{ flex: 1, paddingHorizontal: 24, paddingBottom: 24 }}>
+        <BottomSheetScrollView contentContainerStyle={{ paddingHorizontal: 24, paddingBottom: 32 }}>
           {/* Header */}
-          <View className="items-center mb-6">
+          <View className="items-center mb-6 pt-2">
             <TransactionIcon category={transaction.category} type={transaction.type} size={48} />
             <Text className="text-[18px] font-sans-bold text-text mt-3 text-center">
               {transaction.description || t(`categories.${transaction.category}`)}
@@ -115,7 +115,21 @@ export const TransactionDetailSheet = forwardRef<BottomSheet, TransactionDetailS
               </View>
             ))}
           </View>
-        </BottomSheetView>
+
+          {/* Receipt Image */}
+          {transaction.receiptUrl && (
+            <View className="mt-5">
+              <Text className="text-[14px] font-sans-semibold text-text-secondary mb-3">
+                {t('history.receipt', { defaultValue: 'Comprovante' })}
+              </Text>
+              <Image
+                source={{ uri: transaction.receiptUrl }}
+                style={{ width: '100%', height: 200, borderRadius: 12 }}
+                resizeMode="cover"
+              />
+            </View>
+          )}
+        </BottomSheetScrollView>
       </BottomSheet>
     );
   },

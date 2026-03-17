@@ -10,6 +10,7 @@ export interface CreateChildPayload {
 export interface UpdateChildPayload {
   name?: string;
   avatarUrl?: string;
+  birthDate?: string | null;
 }
 
 export interface UpdateFamilyPayload {
@@ -47,6 +48,22 @@ export const uploadApi = {
       type: mimeType,
     } as unknown as Blob);
     return apiClient.post<{ url: string }>('/upload/avatar', formData, {
+      headers: { 'Content-Type': 'multipart/form-data' },
+      timeout: 30000,
+    });
+  },
+
+  uploadReceipt: (fileUri: string) => {
+    const formData = new FormData();
+    const filename = fileUri.split('/').pop() ?? 'receipt.jpg';
+    const ext = filename.split('.').pop()?.toLowerCase();
+    const mimeType = ext === 'png' ? 'image/png' : ext === 'webp' ? 'image/webp' : 'image/jpeg';
+    formData.append('file', {
+      uri: fileUri,
+      name: filename,
+      type: mimeType,
+    } as unknown as Blob);
+    return apiClient.post<{ url: string }>('/upload/receipt', formData, {
       headers: { 'Content-Type': 'multipart/form-data' },
       timeout: 30000,
     });
