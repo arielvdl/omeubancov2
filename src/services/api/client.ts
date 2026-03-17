@@ -1,8 +1,11 @@
 import axios from 'axios';
 import * as SecureStore from 'expo-secure-store';
+import { logger } from '@/src/utils/logger';
 
 const API_BASE_URL =
   process.env.EXPO_PUBLIC_API_URL ?? 'http://localhost:3000/api/v1';
+
+logger.info('[API] Base URL:', API_BASE_URL);
 
 export const apiClient = axios.create({
   baseURL: API_BASE_URL,
@@ -28,6 +31,7 @@ apiClient.interceptors.response.use(
   (response) => response,
   (error) => {
     if (error.response?.status === 401) {
+      logger.warn('[API] 401 Unauthorized — clearing token');
       SecureStore.deleteItemAsync('auth_token');
     }
     return Promise.reject(error);

@@ -91,7 +91,7 @@ export default function DashboardScreen() {
           <RefreshControl
             refreshing={refreshing}
             onRefresh={onRefresh}
-            tintColor="#f5e63d"
+            tintColor="#FFD600"
           />
         }
         showsVerticalScrollIndicator={false}
@@ -138,7 +138,14 @@ export default function DashboardScreen() {
         {/* Balance Card */}
         {selectedChild && (
           <View className="mb-9">
-            <BalanceCard child={selectedChild} />
+            <BalanceCard
+              child={selectedChild}
+              transactions={recentTransactions.length > 0 ? transactions.filter((t) => t.childId === selectedChild.id) : undefined}
+              onMeterPress={() => {
+                haptics.light();
+                router.push('/(modals)/balance-stats');
+              }}
+            />
           </View>
         )}
 

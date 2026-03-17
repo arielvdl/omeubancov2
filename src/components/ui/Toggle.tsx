@@ -24,7 +24,7 @@ export function Toggle({ label, value, onValueChange, description }: ToggleProps
         onValueChange={onValueChange}
         trackColor={{
           false: Platform.OS === 'ios' ? '#e5e5d8' : '#d1d5db',
-          true: '#f5e63d',
+          true: '#FFD600',
         }}
         thumbColor={Platform.OS === 'android' ? (value ? '#e5c60a' : '#f4f3f4') : undefined}
         ios_backgroundColor="#e5e5d8"

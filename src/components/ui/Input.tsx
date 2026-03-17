@@ -50,7 +50,7 @@ export function Input({
           <MaterialCommunityIcons
             name={icon}
             size={iconSize}
-            color={error ? '#ef4444' : isFocused ? '#f5e63d' : '#6b6b5a'}
+            color={error ? '#ef4444' : isFocused ? '#FFD600' : '#6b6b5a'}
             style={{ marginRight: 10 }}
           />
         )}

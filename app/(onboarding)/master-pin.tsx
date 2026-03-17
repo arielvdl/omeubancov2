@@ -49,7 +49,7 @@ export default function MasterPinScreen() {
     try {
       await setMasterPin(pin);
       haptics.success();
-      router.push('/(onboarding)/add-children');
+      router.push('/(onboarding)/passkey-setup');
     } catch {
       haptics.error();
     } finally {
@@ -80,7 +80,7 @@ export default function MasterPinScreen() {
           <MaterialCommunityIcons
             name="lock-outline"
             size={56}
-            color="#f5e63d"
+            color="#FFD600"
             style={{ marginBottom: 24 }}
           />
           <Text

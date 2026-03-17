@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useMemo, useRef } from 'react';
 import { View, Text } from 'react-native';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import Animated, {
@@ -7,30 +7,47 @@ import Animated, {
   withSpring,
   interpolateColor,
 } from 'react-native-reanimated';
+import type { Transaction } from '@/src/types/transaction';
 
 type MeterSize = 'md' | 'lg';
 
 interface BalanceMeterProps {
   balance: number;
+  transactions?: Transaction[];
   size?: MeterSize;
 }
 
-function getLevel(balance: number): { percent: number; max: number } {
-  if (balance <= 0) return { percent: 0, max: 100 };
+function getSmartLevel(balance: number, transactions?: Transaction[]): { percent: number; peakBalance: number } {
+  if (!transactions || transactions.length === 0) {
+    return getFallbackLevel(balance);
+  }
 
-  const thresholds = [500, 1000, 2500, 5000, 10000, 25000, 50000, 100000, 500000, 1000000];
-  const max = thresholds.find((t) => balance <= t) ?? balance * 1.5;
-  const percent = Math.min((balance / max) * 100, 100);
-  return { percent, max };
+  // Peak balance = highest balanceAfter in history
+  const peakBalance = Math.max(
+    ...transactions.map((tx) => tx.balanceAfter),
+    balance,
+  );
+
+  if (peakBalance <= 0) return { percent: 0, peakBalance: 0 };
+
+  const percent = Math.min((balance / peakBalance) * 100, 100);
+  return { percent: Math.max(percent, 0), peakBalance };
 }
 
-function getMood(percent: number): { emoji: string; label: string; color: string } {
-  if (percent <= 5) return { emoji: '😢', label: 'Vazio', color: '#ef4444' };
-  if (percent <= 20) return { emoji: '😟', label: 'Pouco', color: '#f97316' };
-  if (percent <= 40) return { emoji: '🙂', label: 'Crescendo', color: '#eab308' };
-  if (percent <= 60) return { emoji: '😊', label: 'Legal', color: '#84cc16' };
-  if (percent <= 80) return { emoji: '😄', label: 'Muito bom', color: '#22c55e' };
-  return { emoji: '🤩', label: 'Incrível', color: '#10b981' };
+function getFallbackLevel(balance: number): { percent: number; peakBalance: number } {
+  if (balance <= 0) return { percent: 0, peakBalance: 0 };
+  const thresholds = [500, 1000, 2500, 5000, 10000, 25000, 50000, 100000, 500000, 1000000];
+  const max = thresholds.find((t) => balance <= t) ?? balance * 1.5;
+  return { percent: Math.min((balance / max) * 100, 100), peakBalance: max };
+}
+
+function getMood(percent: number): { label: string; color: string; icon: keyof typeof MaterialCommunityIcons.glyphMap } {
+  if (percent <= 5) return { label: 'Vazio', color: '#ef4444', icon: 'battery-outline' };
+  if (percent <= 20) return { label: 'Baixo', color: '#f97316', icon: 'battery-10' };
+  if (percent <= 40) return { label: 'Crescendo', color: '#eab308', icon: 'battery-30' };
+  if (percent <= 60) return { label: 'Legal', color: '#84cc16', icon: 'battery-50' };
+  if (percent <= 80) return { label: 'Muito bom', color: '#22c55e', icon: 'battery-70' };
+  return { label: 'Cheio!', color: '#10b981', icon: 'battery' };
 }
 
 type IconName = keyof typeof MaterialCommunityIcons.glyphMap;
@@ -43,13 +60,16 @@ const SCALE_MARKERS: { at: number; icon: IconName }[] = [
   { at: 100, icon: 'circle-slice-8' },
 ];
 
-const sizeConfig: Record<MeterSize, { barHeight: number; emoji: number; label: number; marker: number; gap: number }> = {
-  md: { barHeight: 20, emoji: 24, label: 14, marker: 14, gap: 10 },
-  lg: { barHeight: 28, emoji: 32, label: 17, marker: 18, gap: 14 },
+const sizeConfig: Record<MeterSize, { barHeight: number; iconSize: number; label: number; marker: number; gap: number }> = {
+  md: { barHeight: 20, iconSize: 20, label: 14, marker: 14, gap: 10 },
+  lg: { barHeight: 28, iconSize: 26, label: 17, marker: 18, gap: 14 },
 };
 
-export function BalanceMeter({ balance, size = 'md' }: BalanceMeterProps) {
-  const { percent } = getLevel(balance);
+export function BalanceMeter({ balance, transactions, size = 'md' }: BalanceMeterProps) {
+  const { percent } = useMemo(
+    () => getSmartLevel(balance, transactions),
+    [balance, transactions],
+  );
   const mood = getMood(percent);
   const prevPercent = useRef(percent);
   const animatedWidth = useSharedValue(percent);
@@ -80,7 +100,12 @@ export function BalanceMeter({ balance, size = 'md' }: BalanceMeterProps) {
       {/* Mood indicator */}
       <View className="flex-row items-center justify-between" style={{ marginBottom: cfg.gap }}>
         <View className="flex-row items-center">
-          <Text style={{ fontSize: cfg.emoji, marginRight: 8 }}>{mood.emoji}</Text>
+          <MaterialCommunityIcons
+            name={mood.icon}
+            size={cfg.iconSize}
+            color={mood.color}
+            style={{ marginRight: 8 }}
+          />
           <Text
             className="font-sans-semibold"
             style={{ color: mood.color, fontSize: cfg.label }}
@@ -88,6 +113,11 @@ export function BalanceMeter({ balance, size = 'md' }: BalanceMeterProps) {
             {mood.label}
           </Text>
         </View>
+        <MaterialCommunityIcons
+          name="chart-bar"
+          size={cfg.iconSize}
+          color="#9ca3af"
+        />
       </View>
 
       {/* Bar background */}

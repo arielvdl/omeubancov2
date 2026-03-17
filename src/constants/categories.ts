@@ -11,7 +11,7 @@ export interface CategoryConfig {
 }
 
 export const CATEGORIES: CategoryConfig[] = [
-  { key: 'mesada', labelPtBR: 'Mesada', labelEnUS: 'Allowance', icon: 'calendar-clock', color: '#f5e63d' },
+  { key: 'mesada', labelPtBR: 'Mesada', labelEnUS: 'Allowance', icon: 'calendar-clock', color: '#FFD600' },
   { key: 'presente', labelPtBR: 'Presente', labelEnUS: 'Gift', icon: 'gift-outline', color: '#22c55e' },
   { key: 'compra', labelPtBR: 'Compra', labelEnUS: 'Purchase', icon: 'shopping-outline', color: '#ef4444' },
   { key: 'tarefa', labelPtBR: 'Tarefa', labelEnUS: 'Task', icon: 'check-circle-outline', color: '#3b82f6' },

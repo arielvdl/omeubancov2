@@ -1,6 +1,7 @@
 import React, { useState, useMemo, useCallback, useEffect, useRef } from 'react';
 import { View, Text, TextInput, Pressable, ScrollView } from 'react-native';
 import { useTranslation } from 'react-i18next';
+import { useRouter } from 'expo-router';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import BottomSheet from '@gorhom/bottom-sheet';
 import { SafeArea } from '@/src/components/layout/SafeArea';
@@ -32,6 +33,7 @@ const TYPE_FILTERS: FilterChip[] = [
 
 export default function HistoryScreen() {
   const { t } = useTranslation();
+  const router = useRouter();
   const selectedChild = useSelectedChild();
   const allTransactions = useTransactionStore((s) => s.transactions);
   const isLoading = useTransactionStore((s) => s.isLoading);
@@ -154,6 +156,19 @@ export default function HistoryScreen() {
                 </Text>
               </View>
             </View>
+            <Pressable
+              onPress={() => {
+                haptics.selection();
+                router.push('/(modals)/balance-stats');
+              }}
+              className="flex-row items-center justify-center mt-4 pt-3"
+              style={{ borderTopWidth: 1, borderTopColor: '#e5e5d8' }}
+            >
+              <MaterialCommunityIcons name="chart-bar" size={18} color="#6b6b5a" />
+              <Text className="text-[14px] font-sans-semibold text-text-secondary ml-2">
+                {t('stats.viewStats')}
+              </Text>
+            </Pressable>
           </Card>
         </View>
       )}

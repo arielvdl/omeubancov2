@@ -35,10 +35,29 @@ export interface UpdateSchedulePayload {
   timezone?: string;
 }
 
+export const uploadApi = {
+  uploadAvatar: (fileUri: string) => {
+    const formData = new FormData();
+    const filename = fileUri.split('/').pop() ?? 'avatar.jpg';
+    const ext = filename.split('.').pop()?.toLowerCase();
+    const mimeType = ext === 'png' ? 'image/png' : ext === 'webp' ? 'image/webp' : 'image/jpeg';
+    formData.append('file', {
+      uri: fileUri,
+      name: filename,
+      type: mimeType,
+    } as unknown as Blob);
+    return apiClient.post<{ url: string }>('/upload/avatar', formData, {
+      headers: { 'Content-Type': 'multipart/form-data' },
+      timeout: 30000,
+    });
+  },
+};
+
 export const bankApi = {
   // Family
   getFamily: () => apiClient.get('/families'),
   updateFamily: (data: UpdateFamilyPayload) => apiClient.put('/families', data),
+  deleteFamily: () => apiClient.delete('/families'),
 
   // Children
   getChildren: () => apiClient.get('/children'),

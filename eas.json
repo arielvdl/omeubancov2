@@ -15,18 +15,24 @@
       "distribution": "internal",
       "ios": {
         "buildConfiguration": "Release"
+      },
+      "env": {
+        "EXPO_PUBLIC_API_URL": "https://omeubanco-api-548984743318.southamerica-east1.run.app/api/v1"
       }
     },
     "production": {
-      "autoIncrement": true
+      "autoIncrement": true,
+      "env": {
+        "EXPO_PUBLIC_API_URL": "https://omeubanco-api-548984743318.southamerica-east1.run.app/api/v1"
+      }
     }
   },
   "submit": {
     "production": {
       "ios": {
-        "appleId": "",
-        "ascAppId": "",
-        "appleTeamId": ""
+        "appleId": "ariel@ecommerceexperience.co",
+        "ascAppId": "6760633223",
+        "appleTeamId": "ND8DU74P4S"
       }
     }
   }

@@ -9,7 +9,8 @@ import { Avatar } from '@/src/components/ui/Avatar';
 import { Button } from '@/src/components/ui/Button';
 import { useAuthStore } from '@/src/stores/useAuthStore';
 import { useBankStore } from '@/src/stores/useBankStore';
-import { bankApi } from '@/src/services/api/bank';
+import { bankApi, uploadApi } from '@/src/services/api/bank';
+import { isPhotoUri } from '@/src/utils/avatar';
 import { haptics } from '@/src/utils/haptics';
 import type { Child } from '@/src/types/bank';
 
@@ -54,9 +55,21 @@ export default function SignatureScreen() {
         const createdChildren: Child[] = [];
 
         for (const oc of onboardingChildren) {
+          // Upload photo to cloud if it's a local file URI
+          let avatarUrl = oc.avatarId;
+          if (isPhotoUri(avatarUrl) && avatarUrl.startsWith('file://')) {
+            try {
+              const { data: uploadData } = await uploadApi.uploadAvatar(avatarUrl);
+              avatarUrl = uploadData.url;
+            } catch {
+              // Keep emoji avatar if upload fails
+              avatarUrl = oc.avatarId;
+            }
+          }
+
           const { data } = await bankApi.createChild({
             name: oc.name,
-            avatarUrl: oc.avatarId,
+            avatarUrl,
           });
           createdChildren.push({
             id: data.id,

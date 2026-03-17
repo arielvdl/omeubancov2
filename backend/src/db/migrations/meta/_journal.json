@@ -8,6 +8,13 @@
       "when": 1773626848541,
       "tag": "0000_futuristic_natasha_romanoff",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1773629921025,
+      "tag": "0001_breezy_wolfpack",
+      "breakpoints": true
     }
   ]
 }

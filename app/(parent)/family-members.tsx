@@ -174,7 +174,7 @@ export default function FamilyMembersScreen() {
                     }`}
                     style={
                       isSelected
-                        ? { borderWidth: 2, borderColor: '#f5e63d' }
+                        ? { borderWidth: 2, borderColor: '#FFD600' }
                         : { borderWidth: 2, borderColor: 'transparent' }
                     }
                   >
@@ -188,7 +188,7 @@ export default function FamilyMembersScreen() {
                       </Text>
                     </View>
                     {isSelected && (
-                      <MaterialCommunityIcons name="check-circle" size={22} color="#f5e63d" />
+                      <MaterialCommunityIcons name="check-circle" size={22} color="#FFD600" />
                     )}
                     {isOwner && !isSelected && (
                       <Pressable

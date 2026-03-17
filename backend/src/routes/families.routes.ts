@@ -1,5 +1,5 @@
 import { Hono } from 'hono';
-import { authMiddleware, requireParent } from '../auth/guards.js';
+import { authMiddleware, requireParent, requireFamilyOwner } from '../auth/guards.js';
 import { familyRepo } from '../repositories/family.repo.js';
 import { updateFamilySchema } from '../validators/index.js';
 import { NotFoundError } from '../middleware/error-handler.js';
@@ -53,4 +53,17 @@ familiesRoutes.put('/', async (c) => {
     timezone: family.timezone,
     updatedAt: family.updatedAt,
   });
+});
+
+familiesRoutes.delete('/', requireFamilyOwner, async (c) => {
+  const user = c.get('user');
+  const family = await familyRepo.findById(user.familyId);
+
+  if (!family) {
+    throw new NotFoundError('Family');
+  }
+
+  await familyRepo.delete(user.familyId);
+
+  return c.body(null, 204);
 });

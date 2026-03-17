@@ -7,17 +7,19 @@ import Animated, {
   withSpring,
 } from 'react-native-reanimated';
 import type { Child } from '@/src/types/bank';
+import type { Transaction } from '@/src/types/transaction';
 import { BalanceDisplay } from '@/src/components/balance/BalanceDisplay';
 import { BalanceMeter } from '@/src/components/balance/BalanceMeter';
 
 interface BalanceCardProps {
   child: Child;
-  onPress?: () => void;
+  transactions?: Transaction[];
+  onMeterPress?: () => void;
 }
 
 const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
 
-export function BalanceCard({ child, onPress }: BalanceCardProps) {
+export function BalanceCard({ child, transactions, onMeterPress }: BalanceCardProps) {
   const { t } = useTranslation();
   const scale = useSharedValue(1);
 
@@ -25,7 +27,7 @@ export function BalanceCard({ child, onPress }: BalanceCardProps) {
     transform: [{ scale: scale.value }],
   }));
 
-  const content = (
+  return (
     <View className="bg-surface rounded-3xl p-6">
       {/* Balance area */}
       <View className="bg-gray-100 rounded-2xl px-6 py-5 items-center">
@@ -35,27 +37,23 @@ export function BalanceCard({ child, onPress }: BalanceCardProps) {
         <BalanceDisplay balance={child.balance} size="lg" />
       </View>
 
-      {/* Game-like meter */}
-      <BalanceMeter balance={child.balance} />
+      {/* Game-like meter — tappable */}
+      {onMeterPress ? (
+        <AnimatedPressable
+          onPress={onMeterPress}
+          onPressIn={() => {
+            scale.value = withSpring(0.97, { damping: 15, stiffness: 400 });
+          }}
+          onPressOut={() => {
+            scale.value = withSpring(1, { damping: 15, stiffness: 400 });
+          }}
+          style={animatedStyle}
+        >
+          <BalanceMeter balance={child.balance} transactions={transactions} />
+        </AnimatedPressable>
+      ) : (
+        <BalanceMeter balance={child.balance} transactions={transactions} />
+      )}
     </View>
   );
-
-  if (onPress) {
-    return (
-      <AnimatedPressable
-        onPress={onPress}
-        onPressIn={() => {
-          scale.value = withSpring(0.97, { damping: 15, stiffness: 400 });
-        }}
-        onPressOut={() => {
-          scale.value = withSpring(1, { damping: 15, stiffness: 400 });
-        }}
-        style={animatedStyle}
-      >
-        {content}
-      </AnimatedPressable>
-    );
-  }
-
-  return content;
 }

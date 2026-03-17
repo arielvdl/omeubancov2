@@ -17,6 +17,7 @@ interface AuthStoreState {
   googleName: string | null;
   googlePhoto: string | null;
   mathChallengeEnabled: boolean;
+  passkeyEnabled: boolean;
 
   setOnboardingComplete: (complete: boolean) => void;
   setAuth: (
@@ -33,6 +34,7 @@ interface AuthStoreState {
   setLocale: (locale: string) => void;
   setGoogleUser: (email: string, name: string, photo: string) => void;
   setMathChallengeEnabled: (enabled: boolean) => void;
+  setPasskeyEnabled: (enabled: boolean) => void;
   logout: () => void;
   loadPersistedState: () => Promise<void>;
 }
@@ -53,6 +55,7 @@ export const useAuthStore = create<AuthStoreState>((set, get) => ({
   googleName: null,
   googlePhoto: null,
   mathChallengeEnabled: true,
+  passkeyEnabled: false,
 
   setOnboardingComplete: async (complete: boolean) => {
     await SecureStore.setItemAsync('onboarding_complete', String(complete));
@@ -118,6 +121,11 @@ export const useAuthStore = create<AuthStoreState>((set, get) => ({
     set({ mathChallengeEnabled: enabled });
   },
 
+  setPasskeyEnabled: async (enabled: boolean) => {
+    await SecureStore.setItemAsync('passkey_enabled', String(enabled));
+    set({ passkeyEnabled: enabled });
+  },
+
   setGoogleUser: async (email: string, name: string, photo: string) => {
     await Promise.all([
       SecureStore.setItemAsync('google_email', email),
@@ -158,7 +166,7 @@ export const useAuthStore = create<AuthStoreState>((set, get) => ({
       guardianId, roleLabel,
       masterPin, bankName, currency, locale,
       googleEmail, googleName, googlePhoto,
-      mathChallengeEnabled,
+      mathChallengeEnabled, passkeyEnabled,
     ] = await Promise.all([
       SecureStore.getItemAsync('onboarding_complete'),
       SecureStore.getItemAsync('auth_token'),
@@ -175,6 +183,7 @@ export const useAuthStore = create<AuthStoreState>((set, get) => ({
       SecureStore.getItemAsync('google_name'),
       SecureStore.getItemAsync('google_photo'),
       SecureStore.getItemAsync('math_challenge_enabled'),
+      SecureStore.getItemAsync('passkey_enabled'),
     ]);
     set({
       onboardingComplete: onboardingComplete === 'true',
@@ -192,6 +201,7 @@ export const useAuthStore = create<AuthStoreState>((set, get) => ({
       googleName,
       googlePhoto,
       mathChallengeEnabled: mathChallengeEnabled !== 'false',
+      passkeyEnabled: passkeyEnabled === 'true',
     });
   },
 }));

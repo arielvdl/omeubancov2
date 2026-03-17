@@ -4,5 +4,9 @@
   <dict>
     <key>aps-environment</key>
     <string>development</string>
+    <key>com.apple.developer.associated-domains</key>
+    <array>
+      <string>webcredentials:omeubanco-api-548984743318.southamerica-east1.run.app</string>
+    </array>
   </dict>
 </plist>

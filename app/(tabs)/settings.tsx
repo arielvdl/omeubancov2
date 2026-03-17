@@ -39,7 +39,7 @@ export default function FamilyScreen() {
           style={({ pressed }) => ({
             opacity: pressed ? 0.7 : 1,
             ...(isSelected
-              ? { borderWidth: 2, borderColor: '#f5e63d' }
+              ? { borderWidth: 2, borderColor: '#FFD600' }
               : {
                   shadowColor: '#000',
                   shadowOffset: { width: 0, height: 2 },
@@ -60,7 +60,7 @@ export default function FamilyScreen() {
             </Text>
           </View>
           {isSelected && (
-            <MaterialCommunityIcons name="check-circle" size={28} color="#f5e63d" />
+            <MaterialCommunityIcons name="check-circle" size={28} color="#FFD600" />
           )}
         </Pressable>
       );

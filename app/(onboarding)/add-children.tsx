@@ -249,7 +249,7 @@ export default function AddChildrenScreen() {
                       className="rounded-full"
                       style={{
                         borderWidth: 2,
-                        borderColor: isSelected ? '#f5e63d' : 'transparent',
+                        borderColor: isSelected ? '#FFD600' : 'transparent',
                         padding: 2,
                       }}
                     >

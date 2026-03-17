@@ -11,7 +11,7 @@ import Animated, {
 } from 'react-native-reanimated';
 
 const CONFETTI_COLORS = [
-  '#f5e63d', // primary yellow
+  '#FFD600', // primary yellow
   '#22c55e', // green
   '#ef4444', // red
   '#3b82f6', // blue

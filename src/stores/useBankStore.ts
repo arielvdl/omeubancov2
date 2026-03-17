@@ -16,6 +16,7 @@ interface BankState {
   selectedChildId: string | null;
   transactions: Transaction[];
   isLoading: boolean;
+  hydrated: boolean;
   onboardingChildren: OnboardingChild[];
   contractRules: string[];
   childContractRules: Record<string, string[]>;
@@ -23,6 +24,7 @@ interface BankState {
 
   setFamily: (family: Family) => void;
   setChildren: (children: Child[]) => void;
+  setHydrated: (v: boolean) => void;
   setSelectedChild: (childId: string) => void;
   setTransactions: (transactions: Transaction[]) => void;
   addTransaction: (transaction: Transaction) => void;
@@ -53,12 +55,14 @@ export const useBankStore = create<BankState>((set, get) => ({
   selectedChildId: null,
   transactions: [],
   isLoading: false,
+  hydrated: false,
   onboardingChildren: [],
   contractRules: [],
   childContractRules: {},
   schedules: [],
 
   setFamily: (family) => set({ family }),
+  setHydrated: (v) => set({ hydrated: v }),
 
   setChildren: (children) => {
     set({ children });

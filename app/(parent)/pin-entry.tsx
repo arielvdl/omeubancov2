@@ -122,7 +122,7 @@ export default function PinEntryScreen() {
         </View>
 
         <View className="flex-1 justify-center items-center">
-          <MaterialCommunityIcons name="shield-lock-outline" size={64} color="#f5e63d" />
+          <MaterialCommunityIcons name="shield-lock-outline" size={64} color="#FFD600" />
           <Text className="text-[30px] font-sans-bold text-text mt-6" style={{ lineHeight: 40 }}>
             {t('parent.title')}
           </Text>
@@ -182,7 +182,7 @@ export default function PinEntryScreen() {
                       <MaterialCommunityIcons
                         name="face-recognition"
                         size={32}
-                        color="#f5e63d"
+                        color="#FFD600"
                       />
                     </Pressable>
                   ) : (

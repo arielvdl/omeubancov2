@@ -175,7 +175,7 @@ export default function AcceptInviteScreen() {
                   }`}
                   style={
                     isSelected
-                      ? { borderWidth: 2, borderColor: '#f5e63d' }
+                      ? { borderWidth: 2, borderColor: '#FFD600' }
                       : { borderWidth: 2, borderColor: 'transparent' }
                   }
                 >

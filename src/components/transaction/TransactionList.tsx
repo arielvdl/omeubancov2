@@ -59,7 +59,7 @@ export function TransactionList({
     if (!isLoading) return null;
     return (
       <View className="py-5 items-center">
-        <ActivityIndicator size="small" color="#f5e63d" />
+        <ActivityIndicator size="small" color="#FFD600" />
       </View>
     );
   }, [isLoading]);

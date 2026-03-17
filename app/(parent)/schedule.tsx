@@ -213,7 +213,7 @@ export default function ScheduleScreen() {
                       isSelected ? 'bg-primary-50' : 'bg-surface'
                     }`}
                     style={isSelected
-                      ? { borderWidth: 2, borderColor: '#f5e63d' }
+                      ? { borderWidth: 2, borderColor: '#FFD600' }
                       : {
                           shadowColor: '#000',
                           shadowOffset: { width: 0, height: 1 },
@@ -280,7 +280,7 @@ export default function ScheduleScreen() {
                   isSelected ? 'bg-primary-50' : 'bg-surface'
                 }`}
                 style={isSelected
-                  ? { borderWidth: 2, borderColor: '#f5e63d' }
+                  ? { borderWidth: 2, borderColor: '#FFD600' }
                   : {
                       shadowColor: '#000',
                       shadowOffset: { width: 0, height: 1 },
@@ -320,7 +320,7 @@ export default function ScheduleScreen() {
                         isSelected ? 'bg-primary-50' : 'bg-surface'
                       }`}
                       style={isSelected
-                        ? { borderWidth: 2, borderColor: '#f5e63d' }
+                        ? { borderWidth: 2, borderColor: '#FFD600' }
                         : {
                             shadowColor: '#000',
                             shadowOffset: { width: 0, height: 1 },
@@ -442,7 +442,7 @@ export default function ScheduleScreen() {
                     {country.label}
                   </Text>
                   {isSelected && (
-                    <MaterialCommunityIcons name="check" size={20} color="#f5e63d" />
+                    <MaterialCommunityIcons name="check" size={20} color="#FFD600" />
                   )}
                   {idx < COUNTRIES.length - 1 && !isSelected && (
                     <View className="absolute bottom-0 left-14 right-5 h-px bg-border" />

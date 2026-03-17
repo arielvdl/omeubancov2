@@ -1,6 +1,7 @@
 import * as WebBrowser from 'expo-web-browser';
 import * as Linking from 'expo-linking';
 import { apiClient } from './api/client';
+import { logger } from '@/src/utils/logger';
 
 const API_BASE = process.env.EXPO_PUBLIC_API_URL?.replace('/api/v1', '') ?? '';
 
@@ -16,15 +17,31 @@ export interface GoogleAuthResult {
 export async function startGoogleSignIn(): Promise<GoogleAuthResult | null> {
   // The return URL uses Expo's linking scheme so the browser redirects back to the app
   const returnUrl = Linking.createURL('auth/callback');
+  console.log('[GoogleAuth] returnUrl:', returnUrl);
+  console.log('[GoogleAuth] API_BASE:', API_BASE);
 
-  // Ask backend for the Google auth URL
-  const { data } = await apiClient.get('/auth/google/start', {
-    params: { returnUrl },
-    baseURL: API_BASE,
-  });
+  logger.info('[GoogleAuth] Starting OAuth flow', { API_BASE });
+
+  let data: any;
+  try {
+    const response = await apiClient.get('/auth/google/start', {
+      params: { returnUrl },
+      baseURL: API_BASE,
+    });
+    data = response.data;
+  } catch (err: any) {
+    const status = err?.response?.status;
+    const message = err?.response?.data?.error || err?.message || 'Unknown error';
+    const isNetworkError = !err?.response && (err?.code === 'ECONNABORTED' || err?.message?.includes('Network'));
+    logger.error('[GoogleAuth] Failed to get auth URL', { status, message, isNetworkError, API_BASE });
+    throw Object.assign(new Error(isNetworkError ? 'NETWORK_ERROR' : message), { status, isNetworkError });
+  }
 
   const authUrl = data.authUrl as string;
-  if (!authUrl) throw new Error('No auth URL returned');
+  if (!authUrl) {
+    console.error('[GoogleAuth] No authUrl in response:', data);
+    throw new Error('No auth URL returned');
+  }
 
   // Open browser - it will redirect back to the app when done
   const result = await WebBrowser.openAuthSessionAsync(authUrl, returnUrl);

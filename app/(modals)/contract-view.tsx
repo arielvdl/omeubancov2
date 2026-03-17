@@ -151,7 +151,7 @@ export default function ContractViewScreen() {
           onBack={() => router.back()}
         />
         <View className="flex-1 items-center justify-center">
-          <ActivityIndicator size="large" color="#f5e63d" />
+          <ActivityIndicator size="large" color="#FFD600" />
         </View>
       </SafeArea>
     );

@@ -2,22 +2,30 @@ import { Hono } from 'hono';
 import { familyRepo } from '../repositories/family.repo.js';
 import { generateToken } from '../auth/index.js';
 import { auditLogRepo } from '../repositories/audit-log.repo.js';
-
-const GOOGLE_CLIENT_ID = process.env.GOOGLE_OAUTH_CLIENT_ID ?? '';
-const GOOGLE_CLIENT_SECRET = process.env.GOOGLE_OAUTH_CLIENT_SECRET ?? '';
+import { env } from '../config/index.js';
 
 export const oauthCallbackRoutes = new Hono();
 
 // Step 1: Start Google auth - app calls this to get the auth URL
 oauthCallbackRoutes.get('/google/start', (c) => {
+  if (!env.GOOGLE_OAUTH_CLIENT_ID) {
+    return c.json({ error: 'Google OAuth not configured (missing GOOGLE_OAUTH_CLIENT_ID)' }, 500);
+  }
+
   const returnUrl = c.req.query('returnUrl') ?? '';
-  const origin = new URL(c.req.url).origin.replace('http://', 'https://');
+  const rawOrigin = new URL(c.req.url).origin;
+  // Cloud Run sits behind a load balancer that terminates TLS, so the
+  // request URL arrives as http:// even though the public URL is https://.
+  // Use X-Forwarded-Proto header to detect the real protocol.
+  const proto = c.req.header('x-forwarded-proto') ?? new URL(c.req.url).protocol.replace(':', '');
+  const host = c.req.header('host') ?? new URL(c.req.url).host;
+  const origin = `${proto}://${host}`;
   const redirectUri = `${origin}/auth/google/callback`;
 
   const state = Buffer.from(JSON.stringify({ returnUrl })).toString('base64url');
 
   const params = new URLSearchParams({
-    client_id: GOOGLE_CLIENT_ID,
+    client_id: env.GOOGLE_OAUTH_CLIENT_ID,
     redirect_uri: redirectUri,
     response_type: 'code',
     scope: 'openid profile email',
@@ -49,8 +57,9 @@ oauthCallbackRoutes.get('/google/callback', async (c) => {
   }
 
   try {
-    const backendUrl = new URL(c.req.url).origin;
-    const redirectUri = `${backendUrl}/auth/google/callback`;
+    const proto = c.req.header('x-forwarded-proto') ?? new URL(c.req.url).protocol.replace(':', '');
+    const host = c.req.header('host') ?? new URL(c.req.url).host;
+    const redirectUri = `${proto}://${host}/auth/google/callback`;
 
     // Exchange code for tokens
     const tokenRes = await fetch('https://oauth2.googleapis.com/token', {
@@ -58,8 +67,8 @@ oauthCallbackRoutes.get('/google/callback', async (c) => {
       headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
       body: new URLSearchParams({
         code,
-        client_id: GOOGLE_CLIENT_ID,
-        client_secret: GOOGLE_CLIENT_SECRET,
+        client_id: env.GOOGLE_OAUTH_CLIENT_ID,
+        client_secret: env.GOOGLE_OAUTH_CLIENT_SECRET,
         redirect_uri: redirectUri,
         grant_type: 'authorization_code',
       }),

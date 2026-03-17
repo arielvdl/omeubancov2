@@ -266,7 +266,7 @@ export default function AddBalanceScreen() {
                       isSelected ? 'bg-primary-50' : 'bg-surface'
                     }`}
                     style={isSelected
-                      ? { borderWidth: 2, borderColor: '#f5e63d' }
+                      ? { borderWidth: 2, borderColor: '#FFD600' }
                       : {
                           shadowColor: '#000',
                           shadowOffset: { width: 0, height: 1 },
@@ -463,7 +463,7 @@ export default function AddBalanceScreen() {
                       isSelected ? 'bg-primary-50' : 'bg-surface'
                     }`}
                     style={isSelected
-                      ? { borderWidth: 2, borderColor: '#f5e63d' }
+                      ? { borderWidth: 2, borderColor: '#FFD600' }
                       : {
                           shadowColor: '#000',
                           shadowOffset: { width: 0, height: 1 },

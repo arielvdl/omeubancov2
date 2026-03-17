@@ -140,7 +140,7 @@ export default function ContractScreen() {
               className="flex-row items-center bg-surface rounded-2xl border border-border p-5 mb-3"
               style={({ pressed }) => ({ opacity: pressed ? 0.7 : 1 })}
             >
-              <MaterialCommunityIcons name="content-copy" size={24} color="#f5e63d" />
+              <MaterialCommunityIcons name="content-copy" size={24} color="#FFD600" />
               <Text className="text-base font-sans-semibold text-text ml-3 flex-1">
                 {t('onboarding.contract.inheritContract', { childName: previousChild?.name })}
               </Text>
@@ -152,7 +152,7 @@ export default function ContractScreen() {
               className="flex-row items-center bg-surface rounded-2xl border border-border p-5"
               style={({ pressed }) => ({ opacity: pressed ? 0.7 : 1 })}
             >
-              <MaterialCommunityIcons name="file-plus-outline" size={24} color="#f5e63d" />
+              <MaterialCommunityIcons name="file-plus-outline" size={24} color="#FFD600" />
               <Text className="text-base font-sans-semibold text-text ml-3 flex-1">
                 {t('onboarding.contract.newContract')}
               </Text>

@@ -11,6 +11,7 @@ export default function OnboardingLayout() {
       <Stack.Screen name="welcome" />
       <Stack.Screen name="bank-setup" />
       <Stack.Screen name="master-pin" />
+      <Stack.Screen name="passkey-setup" />
       <Stack.Screen name="add-children" />
       <Stack.Screen name="contract-intro" />
       <Stack.Screen name="contract" />

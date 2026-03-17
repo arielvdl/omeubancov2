@@ -45,4 +45,8 @@ export const familyRepo = {
       .returning();
     return results[0];
   },
+
+  async delete(id: string): Promise<void> {
+    await db.delete(families).where(eq(families.id, id));
+  },
 };

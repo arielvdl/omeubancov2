@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { View, Text, ScrollView, Pressable, Switch, Alert } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { View, Text, ScrollView, Pressable, Switch, Alert, TextInput } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
@@ -9,8 +9,10 @@ import { Card } from '@/src/components/ui/Card';
 import { useSettingsStore } from '@/src/stores/useSettingsStore';
 import { useAuthStore } from '@/src/stores/useAuthStore';
 import { useBankStore } from '@/src/stores/useBankStore';
+import { useParentSessionStore } from '@/src/stores/useParentSessionStore';
 import { useSelectedChild } from '@/src/hooks/useSelectedChild';
 import { bankApi } from '@/src/services/api/bank';
+import { registerPasskey, isPasskeySupported } from '@/src/services/passkey';
 import { haptics } from '@/src/utils/haptics';
 import type { Currency } from '@/src/types/bank';
 
@@ -29,9 +31,23 @@ export default function ParentSettingsScreen() {
   const mathChallengeEnabled = useAuthStore((s) => s.mathChallengeEnabled);
   const setMathChallengeEnabled = useAuthStore((s) => s.setMathChallengeEnabled);
   const isOwner = useAuthStore((s) => s.role === 'parent' && !s.guardianId);
+  const bankName = useAuthStore((s) => s.bankName);
+  const logout = useAuthStore((s) => s.logout);
+  const clearSession = useParentSessionStore((s) => s.clearSession);
   const selectedChild = useSelectedChild();
   const setContractRules = useBankStore((s) => s.setContractRules);
+  const passkeyEnabled = useAuthStore((s) => s.passkeyEnabled);
+  const setPasskeyEnabled = useAuthStore((s) => s.setPasskeyEnabled);
   const [deletingContract, setDeletingContract] = useState(false);
+  const [passkeySupported, setPasskeySupported] = useState(false);
+  const [passkeyLoading, setPasskeyLoading] = useState(false);
+  const [deleteConfirmVisible, setDeleteConfirmVisible] = useState(false);
+  const [deleteConfirmText, setDeleteConfirmText] = useState('');
+  const [deleting, setDeleting] = useState(false);
+
+  useEffect(() => {
+    isPasskeySupported().then(setPasskeySupported);
+  }, []);
 
   const handleCurrencyChange = (newCurrency: Currency) => {
     haptics.selection();
@@ -42,6 +58,63 @@ export default function ParentSettingsScreen() {
   const handleMathChallengeToggle = (value: boolean) => {
     haptics.selection();
     setMathChallengeEnabled(value);
+  };
+
+  const handleLogout = () => {
+    Alert.alert(
+      t('settings.logout'),
+      t('settings.logoutConfirm'),
+      [
+        { text: t('common.cancel'), style: 'cancel' },
+        {
+          text: t('settings.logout'),
+          style: 'destructive',
+          onPress: async () => {
+            clearSession();
+            await logout();
+            router.replace('/(onboarding)/welcome');
+          },
+        },
+      ],
+    );
+  };
+
+  const handleDeleteAccount = () => {
+    Alert.alert(
+      t('settings.deleteAccount'),
+      t('settings.deleteAccountStep1'),
+      [
+        { text: t('common.cancel'), style: 'cancel' },
+        {
+          text: t('common.confirm'),
+          style: 'destructive',
+          onPress: () => setDeleteConfirmVisible(true),
+        },
+      ],
+    );
+  };
+
+  const handleConfirmDelete = async () => {
+    if (deleteConfirmText.trim().toLowerCase() !== (bankName ?? '').trim().toLowerCase()) {
+      haptics.error();
+      Alert.alert(t('common.error'), t('settings.deleteAccountNameMismatch'));
+      return;
+    }
+    setDeleting(true);
+    try {
+      await bankApi.deleteFamily();
+      haptics.success();
+      clearSession();
+      await logout();
+      router.replace('/(onboarding)/welcome');
+    } catch {
+      haptics.error();
+      Alert.alert(t('common.error'), t('settings.deleteAccountError'));
+    } finally {
+      setDeleting(false);
+      setDeleteConfirmVisible(false);
+      setDeleteConfirmText('');
+    }
   };
 
   const handleDeleteContract = () => {
@@ -221,11 +294,68 @@ export default function ParentSettingsScreen() {
             <Switch
               value={mathChallengeEnabled}
               onValueChange={handleMathChallengeToggle}
-              trackColor={{ false: '#d1d5db', true: '#f5e63d' }}
+              trackColor={{ false: '#d1d5db', true: '#FFD600' }}
               thumbColor="#ffffff"
             />
           </View>
         </Card>
+
+        {/* Passkey */}
+        {passkeySupported && (
+          <Card
+            title={t('auth.passkeySection')}
+            className="mb-6"
+          >
+            <Text className="text-[15px] font-sans text-text-secondary mb-4">
+              {t('auth.passkeySectionHint')}
+            </Text>
+
+            <Pressable
+              onPress={async () => {
+                if (passkeyEnabled) {
+                  return;
+                }
+                setPasskeyLoading(true);
+                haptics.medium();
+                try {
+                  const success = await registerPasskey();
+                  if (success) {
+                    await setPasskeyEnabled(true);
+                    haptics.success();
+                    Alert.alert(t('common.success'), t('auth.passkeySuccess'));
+                  }
+                } catch {
+                  haptics.error();
+                  Alert.alert(t('common.error'), t('auth.passkeyError'));
+                } finally {
+                  setPasskeyLoading(false);
+                }
+              }}
+              disabled={passkeyLoading}
+              className="flex-row items-center py-4 px-5 rounded-2xl bg-background-light"
+              style={({ pressed }) => ({ opacity: pressed ? 0.7 : 1 })}
+            >
+              <MaterialCommunityIcons
+                name="shield-key-outline"
+                size={24}
+                color={passkeyEnabled ? '#22c55e' : '#1a1a14'}
+              />
+              <View className="flex-1 ml-3.5">
+                <Text className="text-[17px] font-sans-semibold text-text">
+                  {passkeyEnabled ? t('auth.managePasskey') : t('auth.registerPasskey')}
+                </Text>
+                <Text className="text-[13px] font-sans text-text-secondary mt-0.5">
+                  {passkeyEnabled ? t('auth.passkeyRegistered') : t('auth.passkeyNotRegistered')}
+                </Text>
+              </View>
+              {passkeyLoading ? (
+                <Text className="text-[13px] font-sans text-text-secondary">...</Text>
+              ) : (
+                <MaterialCommunityIcons name="chevron-right" size={24} color="#9ca3af" />
+              )}
+            </Pressable>
+          </Card>
+        )}
 
         {/* Family */}
         <Card
@@ -348,7 +478,7 @@ export default function ParentSettingsScreen() {
                   }`}
                   style={
                     isActive
-                      ? { borderWidth: 2, borderColor: '#f5e63d' }
+                      ? { borderWidth: 2, borderColor: '#FFD600' }
                       : undefined
                   }
                 >
@@ -369,7 +499,7 @@ export default function ParentSettingsScreen() {
                       <MaterialCommunityIcons
                         name="check-circle"
                         size={24}
-                        color="#f5e63d"
+                        color="#FFD600"
                       />
                     </View>
                   )}
@@ -377,6 +507,103 @@ export default function ParentSettingsScreen() {
               );
             })}
           </View>
+        </Card>
+
+        {/* Account */}
+        <Card
+          title={t('settings.accountSection', { defaultValue: 'Conta' })}
+          className="mb-6"
+        >
+          <Text className="text-[15px] font-sans text-text-secondary mb-4">
+            {t('settings.accountSectionHint', {
+              defaultValue: 'Gerencie sua sessão e conta.',
+            })}
+          </Text>
+
+          {/* Logout */}
+          <Pressable
+            onPress={() => {
+              haptics.medium();
+              handleLogout();
+            }}
+            className="flex-row items-center py-4 px-5 rounded-2xl bg-background-light mb-3"
+            style={({ pressed }) => ({ opacity: pressed ? 0.7 : 1 })}
+          >
+            <MaterialCommunityIcons name="logout" size={24} color="#ef4444" />
+            <View className="flex-1 ml-3.5">
+              <Text className="text-[17px] font-sans-semibold text-red-500">
+                {t('settings.logout')}
+              </Text>
+            </View>
+            <MaterialCommunityIcons name="chevron-right" size={24} color="#9ca3af" />
+          </Pressable>
+
+          {/* Delete Account (owner only) */}
+          {isOwner && !deleteConfirmVisible && (
+            <Pressable
+              onPress={() => {
+                haptics.heavy();
+                handleDeleteAccount();
+              }}
+              className="flex-row items-center py-4 px-5 rounded-2xl bg-red-50"
+              style={({ pressed }) => ({ opacity: pressed ? 0.7 : 1 })}
+            >
+              <MaterialCommunityIcons name="delete-forever-outline" size={24} color="#ef4444" />
+              <View className="flex-1 ml-3.5">
+                <Text className="text-[17px] font-sans-semibold text-red-500">
+                  {t('settings.deleteAccount')}
+                </Text>
+                <Text className="text-[13px] font-sans text-red-400 mt-0.5">
+                  {t('settings.deleteAccountConfirm')}
+                </Text>
+              </View>
+            </Pressable>
+          )}
+
+          {/* Delete confirmation inline */}
+          {isOwner && deleteConfirmVisible && (
+            <View className="rounded-2xl bg-red-50 p-5">
+              <Text className="text-[15px] font-sans-semibold text-red-500 mb-3">
+                {t('settings.deleteAccountTypeName', {
+                  defaultValue: 'Digite o nome do banco para confirmar',
+                })}
+              </Text>
+              <TextInput
+                value={deleteConfirmText}
+                onChangeText={setDeleteConfirmText}
+                placeholder={bankName ?? ''}
+                placeholderTextColor="#d1d5db"
+                className="bg-white rounded-xl px-4 py-3 text-[16px] font-sans text-text border border-red-200 mb-3"
+                autoFocus
+                editable={!deleting}
+              />
+              <View className="flex-row gap-3">
+                <Pressable
+                  onPress={() => {
+                    setDeleteConfirmVisible(false);
+                    setDeleteConfirmText('');
+                  }}
+                  disabled={deleting}
+                  className="flex-1 py-3 rounded-xl bg-white items-center border border-border"
+                  style={({ pressed }) => ({ opacity: pressed ? 0.7 : 1 })}
+                >
+                  <Text className="text-[15px] font-sans-semibold text-text">
+                    {t('common.cancel')}
+                  </Text>
+                </Pressable>
+                <Pressable
+                  onPress={handleConfirmDelete}
+                  disabled={deleting}
+                  className="flex-1 py-3 rounded-xl bg-red-500 items-center"
+                  style={({ pressed }) => ({ opacity: pressed || deleting ? 0.5 : 1 })}
+                >
+                  <Text className="text-[15px] font-sans-semibold text-white">
+                    {deleting ? t('common.loading') : t('common.confirm')}
+                  </Text>
+                </Pressable>
+              </View>
+            </View>
+          )}
         </Card>
       </ScrollView>
     </SafeArea>

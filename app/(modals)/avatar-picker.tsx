@@ -9,7 +9,7 @@ import { Avatar } from '@/src/components/ui/Avatar';
 import { Button } from '@/src/components/ui/Button';
 import { useBankStore } from '@/src/stores/useBankStore';
 import { useSelectedChild } from '@/src/hooks/useSelectedChild';
-import { bankApi } from '@/src/services/api/bank';
+import { bankApi, uploadApi } from '@/src/services/api/bank';
 import { AVATARS } from '@/src/constants/avatars';
 import { haptics } from '@/src/utils/haptics';
 import { processAndSaveAvatar } from '@/src/utils/avatar';
@@ -31,7 +31,21 @@ export default function AvatarPickerScreen() {
     setSaving(true);
 
     try {
-      const avatarValue = photoUri ?? selectedAvatarId;
+      let avatarValue = photoUri ?? selectedAvatarId;
+
+      // Upload photo to cloud storage if it's a local file
+      if (photoUri) {
+        try {
+          const { data } = await uploadApi.uploadAvatar(photoUri);
+          avatarValue = data.url;
+        } catch (uploadErr) {
+          console.error('[Avatar] Upload failed:', uploadErr);
+          Alert.alert(t('common.error'), t('common.errorGeneric'));
+          setSaving(false);
+          return;
+        }
+      }
+
       updateChild(selectedChild.id, { avatarUrl: avatarValue });
 
       // Sync with backend
@@ -136,7 +150,7 @@ export default function AvatarPickerScreen() {
                 className={`rounded-full p-1.5 ${
                   isSelected ? 'border-3 border-primary bg-primary-50' : 'border-2 border-transparent'
                 }`}
-                style={isSelected ? { borderWidth: 3, borderColor: '#f5e63d' } : {}}
+                style={isSelected ? { borderWidth: 3, borderColor: '#FFD600' } : {}}
               >
                 <Avatar avatarId={avatar.id} size="lg" />
               </Pressable>

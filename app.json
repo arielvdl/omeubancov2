@@ -12,18 +12,31 @@
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.queroomeubanco.app",
-      "appleTeamId": "ND8DU74P4S"
+      "appleTeamId": "ND8DU74P4S",
+      "infoPlist": {
+        "ITSAppUsesNonExemptEncryption": false
+      },
+      "associatedDomains": [
+        "webcredentials:omeubanco-api-548984743318.southamerica-east1.run.app"
+      ]
     },
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/adaptive-icon.png",
-        "backgroundColor": "#f8f8f5"
+        "backgroundColor": "#FFD600"
       },
       "edgeToEdgeEnabled": true,
       "permissions": [
         "android.permission.RECORD_AUDIO",
-        "android.permission.CAMERA"
-      ]
+        "android.permission.CAMERA",
+        "android.permission.USE_BIOMETRIC",
+        "android.permission.USE_FINGERPRINT",
+        "android.permission.RECORD_AUDIO",
+        "android.permission.CAMERA",
+        "android.permission.USE_BIOMETRIC",
+        "android.permission.USE_FINGERPRINT"
+      ],
+      "package": "com.queroomeubanco.app"
     },
     "web": {
       "bundler": "metro",
@@ -38,7 +51,7 @@
           "image": "./assets/images/splash-icon.png",
           "imageWidth": 200,
           "resizeMode": "contain",
-          "backgroundColor": "#f5e63d"
+          "backgroundColor": "#FFD600"
         }
       ],
       "expo-secure-store",
@@ -54,7 +67,7 @@
         "expo-notifications",
         {
           "icon": "./assets/images/icon.png",
-          "color": "#f5e63d"
+          "color": "#FFD600"
         }
       ],
       "expo-font",

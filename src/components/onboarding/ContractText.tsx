@@ -165,7 +165,7 @@ export function ContractText({ bankName, rules, onRulesChange }: ContractTextPro
           className="flex-row items-center justify-between"
         >
           <View className="flex-row items-center">
-            <MaterialCommunityIcons name="lightbulb-outline" size={20} color="#f5e63d" />
+            <MaterialCommunityIcons name="lightbulb-outline" size={20} color="#FFD600" />
             <Text className="text-base font-sans-semibold text-text ml-2">
               {t('onboarding.contract.presetTitle')}
             </Text>
@@ -196,7 +196,7 @@ export function ContractText({ bankName, rules, onRulesChange }: ContractTextPro
                   <MaterialCommunityIcons
                     name={isAdded ? 'check-circle' : 'plus-circle-outline'}
                     size={18}
-                    color={isAdded ? '#22c55e' : '#f5e63d'}
+                    color={isAdded ? '#22c55e' : '#FFD600'}
                   />
                   <Text
                     className={`text-base font-sans ml-2 flex-1 ${

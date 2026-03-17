@@ -94,7 +94,7 @@ export default function AppSettingsScreen() {
                   }`}
                   style={isActive ? {
                     borderWidth: 2,
-                    borderColor: '#f5e63d',
+                    borderColor: '#FFD600',
                   } : undefined}
                 >
                   <Text
@@ -145,6 +145,37 @@ export default function AppSettingsScreen() {
               {t('settings.creditsText', {
                 defaultValue: 'Feito com amor para educação financeira infantil',
               })}
+            </Text>
+          </View>
+        </Card>
+
+        {/* Legal */}
+        <Card title={t('settings.legalSection', { defaultValue: 'Legal' })} className="mb-6">
+          <Pressable
+            onPress={() => {
+              haptics.light();
+              router.push('/(modals)/privacy-policy');
+            }}
+            className="flex-row items-center justify-between py-4"
+          >
+            <View className="flex-row items-center">
+              <MaterialCommunityIcons name="shield-check-outline" size={22} color="#6b6b5a" />
+              <Text className="text-[17px] font-sans-semibold text-text ml-3.5">
+                {t('settings.privacyPolicy')}
+              </Text>
+            </View>
+            <MaterialCommunityIcons name="chevron-right" size={22} color="#6b6b5a" />
+          </Pressable>
+          <View className="h-px bg-border" />
+          <View className="flex-row items-center justify-between py-4">
+            <View className="flex-row items-center">
+              <MaterialCommunityIcons name="file-document-outline" size={22} color="#6b6b5a" />
+              <Text className="text-[17px] font-sans-semibold text-text ml-3.5">
+                {t('settings.termsOfService')}
+              </Text>
+            </View>
+            <Text className="text-[13px] font-sans text-text-secondary">
+              Em breve
             </Text>
           </View>
         </Card>

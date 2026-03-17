@@ -17,6 +17,7 @@ import { useAuthStore } from "@/src/stores/useAuthStore";
 import { useBankStore } from "@/src/stores/useBankStore";
 import { useSettingsStore } from "@/src/stores/useSettingsStore";
 import { bankApi } from "@/src/services/api/bank";
+import { logger } from "@/src/utils/logger";
 
 SplashScreen.preventAutoHideAsync().catch(() => {});
 
@@ -39,6 +40,7 @@ export default function RootLayout() {
 
       // If user has a valid token, hydrate children and family from API
       const { token, setOnboardingComplete } = useAuthStore.getState();
+      logger.info('[App] API URL:', process.env.EXPO_PUBLIC_API_URL);
       if (token) {
         try {
           const [childrenRes, familyRes] = await Promise.all([
@@ -54,8 +56,11 @@ export default function RootLayout() {
             // No children in DB — force onboarding regardless of local flag
             await setOnboardingComplete(false);
           }
-        } catch {
-          // API unavailable -- app will work with cached/empty state
+          useBankStore.getState().setHydrated(true);
+          logger.info('[App] Hydration complete', { children: childrenRes.data?.length ?? 0 });
+        } catch (err) {
+          useBankStore.getState().setHydrated(false);
+          logger.warn('[App] API unavailable during hydration', err);
         }
       }
 

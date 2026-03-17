@@ -99,6 +99,7 @@ export default function BankSetupScreen() {
           error={errors.bankName}
           icon="bank-outline"
           maxLength={30}
+          size="lg"
         />
 
         <Text className="text-[15px] font-sans-semibold text-text mb-3.5">
@@ -118,7 +119,7 @@ export default function BankSetupScreen() {
                   : 'bg-surface'
               }`}
               style={selectedCurrency === c.value
-                ? { borderWidth: 2, borderColor: '#f5e63d' }
+                ? { borderWidth: 2, borderColor: '#FFD600' }
                 : {
                     shadowColor: '#000',
                     shadowOffset: { width: 0, height: 1 },
