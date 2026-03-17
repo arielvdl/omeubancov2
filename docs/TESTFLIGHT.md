@@ -422,3 +422,4 @@ xcodebuild -exportArchive \
 | 1.0.0 (3) | 2026-03-16 03:30 | Atualizacoes diversas |
 | 1.0.0 (4) | 2026-03-16 14:48 | Fix: splash border, passkey RP_ID, Google OAuth error handling |
 | 1.0.0 (5) | 2026-03-16 | Fix: .env.production para API URL, hydration resilience, logger |
+| 1.0.0 (6) | 2026-03-17 | Passkey: debug logging, base64url normalization, error handling, privacy policy, stats |
