@@ -43,6 +43,8 @@ uploadRoutes.post('/avatar', authMiddleware, requireParent, async (c) => {
     },
   });
 
+  try { await gcsFile.makePublic(); } catch { /* bucket-level access may already be public */ }
+
   const publicUrl = `https://storage.googleapis.com/${BUCKET_NAME}/${filename}`;
 
   return c.json({ url: publicUrl });
@@ -78,6 +80,8 @@ uploadRoutes.post('/receipt', authMiddleware, async (c) => {
       cacheControl: 'public, max-age=31536000',
     },
   });
+
+  try { await gcsFile.makePublic(); } catch { /* bucket-level access may already be public */ }
 
   const publicUrl = `https://storage.googleapis.com/${BUCKET_NAME}/${filename}`;
 

@@ -23,6 +23,10 @@ apiClient.interceptors.request.use(async (config) => {
   if (locale) {
     config.headers['Accept-Language'] = locale;
   }
+  // Let Axios set the correct Content-Type (with boundary) for FormData
+  if (config.data instanceof FormData) {
+    delete config.headers['Content-Type'];
+  }
   return config;
 });
 

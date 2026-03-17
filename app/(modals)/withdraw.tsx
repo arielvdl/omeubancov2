@@ -139,8 +139,9 @@ export default function WithdrawScreen() {
       try {
         const uploadRes = await uploadApi.uploadReceipt(receiptUri);
         receiptUrl = uploadRes.data.url;
-      } catch {
-        // upload failed — proceed without receipt
+      } catch (uploadErr) {
+        console.warn('[Withdraw] Receipt upload failed:', uploadErr);
+        // proceed without receipt
       }
     }
 

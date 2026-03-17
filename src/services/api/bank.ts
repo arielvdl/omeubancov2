@@ -48,7 +48,6 @@ export const uploadApi = {
       type: mimeType,
     } as unknown as Blob);
     return apiClient.post<{ url: string }>('/upload/avatar', formData, {
-      headers: { 'Content-Type': 'multipart/form-data' },
       timeout: 30000,
     });
   },
@@ -64,7 +63,6 @@ export const uploadApi = {
       type: mimeType,
     } as unknown as Blob);
     return apiClient.post<{ url: string }>('/upload/receipt', formData, {
-      headers: { 'Content-Type': 'multipart/form-data' },
       timeout: 30000,
     });
   },

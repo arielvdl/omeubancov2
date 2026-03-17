@@ -1,5 +1,5 @@
 import React, { useState, useCallback } from 'react';
-import { View, Text, ScrollView, Pressable, ActivityIndicator, Platform } from 'react-native';
+import { View, Text, ScrollView, Pressable, ActivityIndicator, Platform, Modal } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import DateTimePicker from '@react-native-community/datetimepicker';
@@ -25,14 +25,19 @@ export default function ProfileScreen() {
 
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [isUpdatingDate, setIsUpdatingDate] = useState(false);
+  const [tempDate, setTempDate] = useState<Date>(new Date());
 
-  const handleDateChange = useCallback(
-    async (_event: unknown, selectedDate?: Date) => {
-      if (Platform.OS === 'android') {
-        setShowDatePicker(false);
-      }
-      if (!selectedDate || !selectedChild) return;
-      const dateStr = selectedDate.toISOString().split('T')[0];
+  const openDatePicker = useCallback(() => {
+    setTempDate(
+      selectedChild?.birthDate ? new Date(selectedChild.birthDate + 'T12:00:00') : new Date(),
+    );
+    setShowDatePicker(true);
+  }, [selectedChild]);
+
+  const saveBirthDate = useCallback(
+    async (date: Date) => {
+      if (!selectedChild) return;
+      const dateStr = date.toISOString().split('T')[0];
       if (dateStr === selectedChild.birthDate) return;
       setIsUpdatingDate(true);
       try {
@@ -42,11 +47,27 @@ export default function ProfileScreen() {
         // silently fail — data remains unchanged
       } finally {
         setIsUpdatingDate(false);
-        if (Platform.OS === 'ios') setShowDatePicker(false);
       }
     },
     [selectedChild, updateChild],
   );
+
+  const handleDateChange = useCallback(
+    (_event: unknown, date?: Date) => {
+      if (Platform.OS === 'android') {
+        setShowDatePicker(false);
+        if (date) saveBirthDate(date);
+      } else if (date) {
+        setTempDate(date);
+      }
+    },
+    [saveBirthDate],
+  );
+
+  const confirmDate = useCallback(() => {
+    setShowDatePicker(false);
+    saveBirthDate(tempDate);
+  }, [tempDate, saveBirthDate]);
 
   if (!selectedChild) {
     return (
@@ -106,7 +127,7 @@ export default function ProfileScreen() {
         {/* Info */}
         <Card className="mb-6">
           <Pressable
-            onPress={() => setShowDatePicker(true)}
+            onPress={openDatePicker}
             className="flex-row items-center justify-between py-4"
           >
             <Text className="text-[17px] font-sans text-text-secondary">
@@ -128,11 +149,49 @@ export default function ProfileScreen() {
             </View>
           </Pressable>
 
-          {showDatePicker && (
+          {/* iOS: Modal com spinner | Android: dialog nativo */}
+          {showDatePicker && Platform.OS === 'ios' && (
+            <Modal transparent animationType="slide">
+              <Pressable
+                style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.3)' }}
+                onPress={() => setShowDatePicker(false)}
+              />
+              <View
+                style={{
+                  backgroundColor: '#faf9f0',
+                  borderTopLeftRadius: 16,
+                  borderTopRightRadius: 16,
+                  paddingBottom: 34,
+                }}
+              >
+                <View className="flex-row items-center justify-between px-5 pt-4 pb-2">
+                  <Pressable onPress={() => setShowDatePicker(false)}>
+                    <Text className="text-[16px] font-sans text-text-secondary">
+                      {t('common.cancel', { defaultValue: 'Cancelar' })}
+                    </Text>
+                  </Pressable>
+                  <Pressable onPress={confirmDate}>
+                    <Text className="text-[16px] font-sans-bold" style={{ color: '#FFD600' }}>
+                      {t('common.confirm', { defaultValue: 'Confirmar' })}
+                    </Text>
+                  </Pressable>
+                </View>
+                <DateTimePicker
+                  value={tempDate}
+                  mode="date"
+                  display="spinner"
+                  onChange={handleDateChange}
+                  maximumDate={new Date()}
+                  themeVariant="light"
+                />
+              </View>
+            </Modal>
+          )}
+          {showDatePicker && Platform.OS === 'android' && (
             <DateTimePicker
-              value={selectedChild.birthDate ? new Date(selectedChild.birthDate) : new Date()}
+              value={tempDate}
               mode="date"
-              display={Platform.OS === 'ios' ? 'spinner' : 'default'}
+              display="default"
               onChange={handleDateChange}
               maximumDate={new Date()}
             />
