@@ -1,7 +1,7 @@
 export function formatDate(date: string | Date, locale: string = 'pt-BR'): string {
   return new Intl.DateTimeFormat(locale, {
     day: '2-digit',
-    month: 'short',
+    month: '2-digit',
     year: 'numeric',
   }).format(new Date(date));
 }

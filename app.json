@@ -10,7 +10,7 @@
     "backgroundColor": "#f8f8f5",
     "newArchEnabled": true,
     "ios": {
-      "supportsTablet": true,
+      "supportsTablet": false,
       "bundleIdentifier": "com.queroomeubanco.app",
       "appleTeamId": "ND8DU74P4S",
       "infoPlist": {

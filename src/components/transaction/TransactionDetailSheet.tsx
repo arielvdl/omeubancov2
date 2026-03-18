@@ -70,6 +70,15 @@ export const TransactionDetailSheet = forwardRef<BottomSheet, TransactionDetailS
         label: t('history.detailCreatedBy'),
         value: t(CREATED_BY_KEYS[transaction.createdBy] ?? 'history.createdBySystem'),
       },
+      ...(transaction.description
+        ? [
+            {
+              icon: 'text-short' as const,
+              label: t('history.detailReason', { defaultValue: 'Motivo' }),
+              value: transaction.description,
+            },
+          ]
+        : []),
     ];
 
     return (

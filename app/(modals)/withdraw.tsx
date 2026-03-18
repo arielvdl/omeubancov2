@@ -29,12 +29,7 @@ import { haptics } from '@/src/utils/haptics';
 import { transactionsApi } from '@/src/services/api/transactions';
 import { uploadApi } from '@/src/services/api/bank';
 import { useCurrency } from '@/src/hooks/useCurrency';
-import { CATEGORIES } from '@/src/constants/categories';
 import type { TransactionCategory } from '@/src/types/transaction';
-
-const WITHDRAW_CATEGORIES = CATEGORIES.filter((c) =>
-  ['compra', 'presente', 'outro'].includes(c.key)
-);
 
 export default function WithdrawScreen() {
   const { t } = useTranslation();
@@ -47,7 +42,7 @@ export default function WithdrawScreen() {
 
   const [amountText, setAmountText] = useState('');
   const [description, setDescription] = useState('');
-  const [selectedCategory, setSelectedCategory] = useState<TransactionCategory>('compra');
+  const selectedCategory: TransactionCategory = 'compra';
   const [receiptUri, setReceiptUri] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -102,8 +97,9 @@ export default function WithdrawScreen() {
   }, [shakeX]);
 
   const pickReceipt = useCallback(async () => {
-    const result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+    const { status } = await ImagePicker.requestCameraPermissionsAsync();
+    if (status !== 'granted') return;
+    const result = await ImagePicker.launchCameraAsync({
       allowsEditing: true,
       quality: 0.8,
     });
@@ -188,7 +184,7 @@ export default function WithdrawScreen() {
     setTimeout(() => {
       router.back();
     }, 3200);
-  }, [amountText, description, selectedCategory, receiptUri, selectedChild, updateChildBalance, addTransaction, t, router, triggerShake]);
+  }, [amountText, description, receiptUri, selectedChild, updateChildBalance, addTransaction, t, router, triggerShake]);
 
   if (!selectedChild) return null;
 
@@ -310,57 +306,8 @@ export default function WithdrawScreen() {
               </View>
             </Animated.View>
 
-            {/* Category */}
-            <View className="mb-6">
-              <Text className="text-[15px] font-sans-semibold text-text mb-3">
-                {t('parent.category', { defaultValue: 'Categoria' })}
-              </Text>
-              <View className="flex-row flex-wrap gap-3">
-                {WITHDRAW_CATEGORIES.map((cat) => {
-                  const isSelected = selectedCategory === cat.key;
-                  return (
-                    <Pressable
-                      key={cat.key}
-                      onPress={() => {
-                        haptics.selection();
-                        setSelectedCategory(cat.key as TransactionCategory);
-                      }}
-                      className={`px-5 py-2.5 rounded-full ${isSelected ? 'bg-primary-50' : 'bg-surface'}`}
-                      style={
-                        isSelected
-                          ? { borderWidth: 2, borderColor: '#FFD600' }
-                          : {
-                              shadowColor: '#000',
-                              shadowOffset: { width: 0, height: 1 },
-                              shadowOpacity: 0.05,
-                              shadowRadius: 8,
-                              elevation: 2,
-                            }
-                      }
-                    >
-                      <Text
-                        className={`text-[14px] font-sans-semibold ${isSelected ? 'text-text' : 'text-text-secondary'}`}
-                      >
-                        {t(`categories.${cat.key}`)}
-                      </Text>
-                    </Pressable>
-                  );
-                })}
-              </View>
-            </View>
-
-            {/* Description */}
-            <Input
-              label={t('modals.withdraw.description')}
-              value={description}
-              onChangeText={setDescription}
-              placeholder={t('modals.withdraw.descriptionPlaceholder')}
-              icon="text"
-              maxLength={100}
-            />
-
             {/* Receipt */}
-            <View className="mt-4">
+            <View className="mb-4">
               <Text className="text-[15px] font-sans-semibold text-text mb-3">
                 {t('modals.withdraw.receipt', { defaultValue: 'Comprovante' })}
               </Text>
@@ -388,11 +335,21 @@ export default function WithdrawScreen() {
                 >
                   <MaterialCommunityIcons name="camera-outline" size={22} color="#6b7280" />
                   <Text className="text-[14px] font-sans text-text-secondary">
-                    {t('modals.withdraw.addReceipt', { defaultValue: 'Adicionar foto do comprovante' })}
+                    {t('modals.withdraw.addReceipt', { defaultValue: 'Tirar foto do comprovante' })}
                   </Text>
                 </Pressable>
               )}
             </View>
+
+            {/* Description (motivo) */}
+            <Input
+              label={t('modals.withdraw.description')}
+              value={description}
+              onChangeText={setDescription}
+              placeholder={t('modals.withdraw.descriptionPlaceholder')}
+              icon="text"
+              maxLength={100}
+            />
           </View>
 
           {/* Slide to confirm */}

@@ -64,9 +64,11 @@ export const scheduledDepositRepo = {
     nextRunAt: Date,
     lastRunAt: Date
   ): Promise<void> {
+    const nextRunIso = nextRunAt.toISOString();
+    const lastRunIso = lastRunAt.toISOString();
     await txSql`
       UPDATE scheduled_deposits
-      SET next_run_at = ${nextRunAt}, last_run_at = ${lastRunAt}, updated_at = NOW()
+      SET next_run_at = ${nextRunIso}::timestamptz, last_run_at = ${lastRunIso}::timestamptz, updated_at = NOW()
       WHERE id = ${id}::uuid
     `;
   },
