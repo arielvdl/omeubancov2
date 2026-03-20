@@ -1,5 +1,6 @@
 import type { Context } from 'hono';
 import { ZodError } from 'zod';
+import * as Sentry from '@sentry/node';
 import { env } from '../config/index.js';
 
 export class AppError extends Error {
@@ -70,6 +71,8 @@ export function errorHandler(err: Error, c: Context): Response {
     message: err.message,
     stack: env.NODE_ENV === 'development' ? err.stack : undefined,
   });
+
+  Sentry.captureException(err);
 
   return c.json({ error: 'Internal server error' }, 500);
 }

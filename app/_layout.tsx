@@ -13,12 +13,20 @@ import {
   PlusJakartaSans_700Bold,
   PlusJakartaSans_800ExtraBold,
 } from "@expo-google-fonts/plus-jakarta-sans";
+import * as Sentry from "@sentry/react-native";
 import Purchases from "react-native-purchases";
 import { useAuthStore } from "@/src/stores/useAuthStore";
 import { useBankStore } from "@/src/stores/useBankStore";
 import { useSettingsStore } from "@/src/stores/useSettingsStore";
 import { bankApi } from "@/src/services/api/bank";
 import { logger } from "@/src/utils/logger";
+
+Sentry.init({
+  dsn: process.env.EXPO_PUBLIC_SENTRY_DSN,
+  tracesSampleRate: 0.2,
+  sendDefaultPii: false,
+  enabled: !__DEV__,
+});
 
 SplashScreen.preventAutoHideAsync().catch(() => {});
 
