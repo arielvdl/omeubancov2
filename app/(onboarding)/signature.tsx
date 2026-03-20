@@ -76,6 +76,7 @@ export default function SignatureScreen() {
             familyId: data.familyId ?? '',
             name: data.name,
             avatarUrl: data.avatarUrl,
+            mascotId: data.mascotId ?? 'dino',
             balance: data.balance ?? 0,
             birthDate: data.birthDate ?? null,
             createdAt: data.createdAt,

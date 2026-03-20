@@ -68,7 +68,17 @@ export const useBankStore = create<BankState>((set, get) => ({
   setFamily: (family) => set({ family }),
   setHydrated: (v) => set({ hydrated: v }),
 
-  setChildren: (children) => {
+  setChildren: (incoming) => {
+    // Merge: server data wins, but if server mascotId is missing/default and local has a custom value, keep local
+    // This prevents race conditions where GET arrives before PUT is committed
+    const existing = get().children;
+    const children = incoming.map((child) => {
+      const local = existing.find((c) => c.id === child.id);
+      if (local && local.mascotId && local.mascotId !== 'dino' && (!child.mascotId || child.mascotId === 'dino')) {
+        return { ...child, mascotId: local.mascotId };
+      }
+      return child;
+    });
     set({ children });
     const currentId = get().selectedChildId;
     if (children.length > 0) {
@@ -180,6 +190,7 @@ export const useBankStore = create<BankState>((set, get) => ({
       familyId,
       name: oc.name,
       avatarUrl: oc.avatarId,
+      mascotId: 'dino',
       balance: 0,
       birthDate: null,
       createdAt: now,
