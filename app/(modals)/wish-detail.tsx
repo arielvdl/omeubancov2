@@ -66,6 +66,7 @@ export default function WishDetailScreen() {
   const [saving, setSaving] = useState(false);
   const [conquered, setConquered] = useState(false);
   const [photoFullscreen, setPhotoFullscreen] = useState(false);
+  const nameInputRef = useRef<TextInput>(null);
 
   // Conquered animation
   const successScale = useSharedValue(0);
@@ -120,11 +121,14 @@ export default function WishDetailScreen() {
 
   const handleConquer = useCallback(async () => {
     if (!item || !selectedChild) return;
+    const itemId = item.id;
+    const childId = selectedChild.id;
     try {
-      await wishlistApi.conquer(selectedChild.id, item.id);
-      updateItem(item.id, { status: 'conquered', conqueredAt: new Date().toISOString() });
       haptics.success();
       setConquered(true);
+      // API call in background — UI already shows celebration
+      wishlistApi.conquer(childId, itemId).catch(() => {});
+      updateItem(itemId, { status: 'conquered', conqueredAt: new Date().toISOString() });
       setTimeout(() => {
         if (router.canGoBack()) router.back();
       }, 2500);
@@ -144,10 +148,12 @@ export default function WishDetailScreen() {
           text: t('common.confirm'),
           onPress: async () => {
             try {
-              await wishlistApi.archive(selectedChild.id, item.id);
-              updateItem(item.id, { status: 'archived' });
               haptics.light();
               router.back();
+              setTimeout(() => {
+                wishlistApi.archive(selectedChild.id, item.id).catch(() => {});
+                updateItem(item.id, { status: 'archived' });
+              }, 300);
             } catch {
               haptics.error();
             }
@@ -247,10 +253,13 @@ export default function WishDetailScreen() {
           style: 'destructive',
           onPress: async () => {
             try {
-              await wishlistApi.remove(selectedChild.id, item.id);
-              removeItem(item.id);
               haptics.light();
               router.back();
+              // Remove after navigation to avoid render with undefined item
+              setTimeout(() => {
+                wishlistApi.remove(selectedChild.id, item.id).catch(() => {});
+                removeItem(item.id);
+              }, 300);
             } catch {
               haptics.error();
             }
@@ -310,8 +319,6 @@ export default function WishDetailScreen() {
 
   const isActive = item.status === 'active';
   const hasPrice = item.priceCents != null && item.priceCents > 0;
-
-  const nameInputRef = useRef<TextInput>(null);
 
   return (
     <SafeArea edges={['top']}>
