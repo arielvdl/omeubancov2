@@ -1,5 +1,5 @@
 import React, { useState, useCallback, useEffect, useRef } from 'react';
-import { View, Text, ScrollView, Pressable, Alert, KeyboardAvoidingView, Platform, Modal, StatusBar } from 'react-native';
+import { View, Text, TextInput, ScrollView, Pressable, TouchableOpacity, Alert, KeyboardAvoidingView, Platform, Modal, StatusBar } from 'react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import { Image } from 'expo-image';
@@ -167,15 +167,49 @@ export default function WishDetailScreen() {
       Alert.alert(t('wishlist.maxGoalsTitle'), t('wishlist.maxGoalsMessage'));
       return;
     }
-    try {
-      await wishlistApi.setGoal(selectedChild.id, item.id);
-      updateItem(item.id, { isGoal: true });
-      setGoal({ ...item, isGoal: true });
-      haptics.success();
-    } catch {
-      haptics.error();
-    }
-  }, [item, selectedChild, items, updateItem, setGoal, t]);
+    haptics.medium();
+    Alert.alert(
+      t('wishlist.confirmGoalTitle', { defaultValue: 'Definir como meta?' }),
+      t('wishlist.confirmGoalMessage', { defaultValue: 'Essa meta vai aparecer na tela principal para você acompanhar!' }),
+      [
+        {
+          text: t('wishlist.confirmGoalNo', { defaultValue: 'Agora não' }),
+          style: 'cancel',
+        },
+        {
+          text: t('wishlist.confirmGoalYes', { defaultValue: 'Quero sim!' }),
+          style: 'default',
+          onPress: async () => {
+            try {
+              const priceCents = priceText ? Math.round(parseFloat(priceText.replace(',', '.')) * 100) : null;
+              if (priceCents && priceCents > 0) {
+                await wishlistApi.update(selectedChild.id, item.id, {
+                  name: name || null,
+                  note: note || null,
+                  priceCents,
+                  desireLevel,
+                });
+                updateItem(item.id, { name: name || null, note: note || null, priceCents, desireLevel });
+              }
+
+              await wishlistApi.setGoal(selectedChild.id, item.id);
+              const updatedItem = { ...item, isGoal: true, priceCents: priceCents ?? item.priceCents };
+              updateItem(item.id, { isGoal: true, priceCents: priceCents ?? item.priceCents });
+              setGoal(updatedItem);
+              haptics.success();
+              Alert.alert(
+                t('wishlist.goalAddedTitle', { defaultValue: 'Meta definida!' }),
+                t('wishlist.goalAddedMessage', { defaultValue: 'Agora você pode acompanhar quanto falta para conquistar.' }),
+                [{ text: 'OK', onPress: () => router.back() }],
+              );
+            } catch {
+              haptics.error();
+            }
+          },
+        },
+      ],
+    );
+  }, [item, selectedChild, items, updateItem, setGoal, t, router, name, note, priceText, desireLevel]);
 
   const handleUndoConquer = useCallback(async () => {
     if (!item || !selectedChild) return;
@@ -277,19 +311,70 @@ export default function WishDetailScreen() {
   const isActive = item.status === 'active';
   const hasPrice = item.priceCents != null && item.priceCents > 0;
 
+  const nameInputRef = useRef<TextInput>(null);
+
   return (
-    <SafeArea>
-      <Header
-        title={item.name || t('wishlist.noName')}
-        showBack
-        onBack={() => router.back()}
-        rightAction={
-          isActive ? (
-            <Pressable onPress={handleDelete} hitSlop={12}>
-              <MaterialCommunityIcons name="trash-can-outline" size={24} color="#ef4444" />
-            </Pressable>
-          ) : undefined
-        }
+    <SafeArea edges={['top']}>
+      {/* Floating header over image */}
+      <View style={{ position: 'absolute', top: 50, left: 0, right: 0, zIndex: 10, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 16 }}>
+        <Pressable
+          onPress={() => router.back()}
+          hitSlop={12}
+          style={{ backgroundColor: 'rgba(0,0,0,0.4)', borderRadius: 20, padding: 8 }}
+        >
+          <MaterialCommunityIcons name="chevron-left" size={24} color="#ffffff" />
+        </Pressable>
+
+        <Pressable
+          onPress={() => nameInputRef.current?.focus()}
+          hitSlop={8}
+          style={{ backgroundColor: 'rgba(0,0,0,0.4)', borderRadius: 16, paddingHorizontal: 14, paddingVertical: 6, maxWidth: '60%' }}
+        >
+          <Text style={{ color: '#ffffff', fontSize: 16, fontWeight: '700' }} numberOfLines={1}>
+            {item.name || t('wishlist.noName')}
+          </Text>
+        </Pressable>
+
+        {isActive ? (
+          <Pressable
+            onPress={handleDelete}
+            hitSlop={12}
+            style={{ backgroundColor: 'rgba(0,0,0,0.4)', borderRadius: 20, padding: 8 }}
+          >
+            <MaterialCommunityIcons name="trash-can-outline" size={22} color="#ef4444" />
+          </Pressable>
+        ) : (
+          <View style={{ width: 40 }} />
+        )}
+      </View>
+
+      {/* Fixed background image */}
+      <View style={{ position: 'absolute', top: 0, left: 0, right: 0, height: 420 }}>
+        <Image
+          source={{ uri: item.photoUrl }}
+          style={{ width: '100%', height: '100%' }}
+          contentFit="cover"
+          transition={300}
+          cachePolicy="disk"
+          placeholder={{ blurhash: 'L6PZfSi_.AyE_3t7t7R**0o#DgR4' }}
+          placeholderContentFit="cover"
+        />
+
+        {/* Conquered badge overlay */}
+        {item.status === 'conquered' && (
+          <View className="absolute inset-0 bg-black/30 items-center justify-center">
+            <View className="bg-green-500 rounded-full p-4">
+              <MaterialCommunityIcons name="check" size={40} color="#ffffff" />
+            </View>
+          </View>
+        )}
+      </View>
+
+      {/* Fullscreen photo viewer */}
+      <PhotoFullscreenModal
+        visible={photoFullscreen}
+        photoUri={item.photoUrl}
+        onClose={() => setPhotoFullscreen(false)}
       />
 
       <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} className="flex-1">
@@ -298,46 +383,33 @@ export default function WishDetailScreen() {
           keyboardShouldPersistTaps="handled"
           showsVerticalScrollIndicator={false}
         >
-          {/* Photo — cropped center, tap to fullscreen */}
-          <Pressable onPress={() => setPhotoFullscreen(true)}>
-            <Image
-              source={{ uri: item.photoUrl }}
-              style={{ width: '100%', height: 320 }}
-              contentFit="cover"
-              transition={300}
-              cachePolicy="disk"
-              placeholder={{ blurhash: 'L6PZfSi_.AyE_3t7t7R**0o#DgR4' }}
-              placeholderContentFit="cover"
-            />
-
-            {/* Conquered badge overlay */}
-            {item.status === 'conquered' && (
-              <View className="absolute inset-0 bg-black/30 items-center justify-center">
-                <View className="bg-green-500 rounded-full p-4">
-                  <MaterialCommunityIcons name="check" size={40} color="#ffffff" />
-                </View>
-              </View>
-            )}
-
+          {/* Spacer — tappable to open fullscreen */}
+          <Pressable onPress={() => setPhotoFullscreen(true)} style={{ height: 390 }}>
             {/* Expand hint */}
-            <View className="absolute bottom-3 right-3 bg-black/40 rounded-full p-2">
+            <View style={{ position: 'absolute', bottom: 40, right: 16, backgroundColor: 'rgba(0,0,0,0.4)', borderRadius: 20, padding: 8 }}>
               <MaterialCommunityIcons name="arrow-expand" size={18} color="#ffffff" />
             </View>
           </Pressable>
 
-          {/* Fullscreen photo viewer */}
-          <PhotoFullscreenModal
-            visible={photoFullscreen}
-            photoUri={item.photoUrl}
-            onClose={() => setPhotoFullscreen(false)}
-          />
+          {/* Content — overlaps image with rounded top */}
+          <View
+            style={{
+              borderTopLeftRadius: 24,
+              borderTopRightRadius: 24,
+              backgroundColor: '#f8f8f5',
+              minHeight: 500,
+            }}
+          >
+            {/* Drag handle */}
+            <View className="items-center pt-3 pb-1">
+              <View style={{ width: 40, height: 4, borderRadius: 2, backgroundColor: '#d1d5db' }} />
+            </View>
 
-          {/* Content */}
-          <View className="px-7 pt-6" style={{ gap: 4 }}>
-            {/* Date */}
-            <Text className="text-[13px] font-sans text-text-secondary mb-4">
-              {formattedDate}
-            </Text>
+            <View className="px-7 pt-4" style={{ gap: 4 }}>
+              {/* Date */}
+              <Text className="text-[13px] font-sans text-text-secondary mb-4">
+                {formattedDate}
+              </Text>
 
             {/* Desire level */}
             <View className="mb-6">
@@ -359,6 +431,7 @@ export default function WishDetailScreen() {
 
             {/* Name input */}
             <Input
+              ref={nameInputRef}
               label={t('wishlist.nameLabel')}
               value={name}
               onChangeText={setName}
@@ -377,8 +450,8 @@ export default function WishDetailScreen() {
               keyboardType="decimal-pad"
             />
 
-            {/* Goal tip — show when price is filled but not yet a goal */}
-            {isActive && !item.isGoal && priceText.length > 0 && (
+            {/* Goal tip — only when price is empty */}
+            {isActive && !item.isGoal && priceText.length === 0 && (
               <Pressable
                 onPress={() => Alert.alert(t('wishlist.goalHelpTitle'), t('wishlist.goalHelpMessage'))}
                 style={{
@@ -410,17 +483,26 @@ export default function WishDetailScreen() {
               multiline
             />
 
-            {/* Set as goal — above save when item has price */}
-            {isActive && !item.isGoal && hasPrice && (
-              <View style={{ marginBottom: 6 }}>
-                <Button
-                  title={t('wishlist.setAsGoal')}
-                  variant="secondary"
-                  onPress={handleSetGoal}
-                  icon="flag"
-                  fullWidth
-                />
-              </View>
+            {/* Set as goal */}
+            {isActive && !item.isGoal && priceText.length > 0 && parseFloat(priceText.replace(',', '.')) > 0 && (
+              <TouchableOpacity
+                activeOpacity={0.8}
+                onPress={handleSetGoal}
+                style={{
+                  backgroundColor: '#1a1a0e',
+                  borderRadius: 24,
+                  paddingVertical: 16,
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  flexDirection: 'row',
+                  marginBottom: 6,
+                }}
+              >
+                <MaterialCommunityIcons name="flag" size={20} color="#FFD600" />
+                <Text style={{ fontSize: 16, fontWeight: '700', color: '#FFD600', marginLeft: 8 }}>
+                  {t('wishlist.setAsGoalAction', { defaultValue: 'Definir como meta' })}
+                </Text>
+              </TouchableOpacity>
             )}
 
             {/* Save button */}
@@ -465,6 +547,7 @@ export default function WishDetailScreen() {
                 />
               </View>
             )}
+            </View>
           </View>
         </ScrollView>
       </KeyboardAvoidingView>

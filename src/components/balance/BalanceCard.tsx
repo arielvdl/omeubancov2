@@ -40,8 +40,8 @@ export function BalanceCard({ child, transactions, onMeterPress }: BalanceCardPr
         elevation: 3,
       }}
     >
-      {/* Mascot — only if child has one selected */}
-      {child.mascotId && (
+      {/* Mascot — dino is default, 'none' hides it */}
+      {child.mascotId !== 'none' && (
         <View className="items-center mb-2">
           <MascotVideo mascot={getMascotById(child.mascotId)} size={180} />
         </View>

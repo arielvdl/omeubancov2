@@ -15,7 +15,7 @@ import { useBankStore } from '@/src/stores/useBankStore';
 import { useSelectedChild } from '@/src/hooks/useSelectedChild';
 import { bankApi } from '@/src/services/api/bank';
 import { formatDate } from '@/src/i18n/formatters';
-import { useCurrency } from '@/src/hooks/useCurrency';
+
 import { haptics } from '@/src/utils/haptics';
 
 interface ContractData {
@@ -34,12 +34,12 @@ function parseRulesFromContent(content: string): string[] {
 }
 
 export default function ContractViewScreen() {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const router = useRouter();
   const bankName = useAuthStore((s) => s.bankName) ?? '';
   const selectedChild = useSelectedChild();
   const setContractRules = useBankStore((s) => s.setContractRules);
-  const { locale } = useCurrency();
+  const locale = i18n.language;
 
   const [contract, setContract] = useState<ContractData | null>(null);
   const [loading, setLoading] = useState(true);

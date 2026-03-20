@@ -13,8 +13,8 @@ interface TransactionItemProps {
 }
 
 export function TransactionItem({ transaction, onPress, showIcon = true }: TransactionItemProps) {
-  const { t } = useTranslation();
-  const { format, locale } = useCurrency();
+  const { t, i18n } = useTranslation();
+  const { format } = useCurrency();
 
   const isWithdrawal = transaction.type === 'withdrawal';
   const amountPrefix = isWithdrawal ? '-' : '+';
@@ -34,7 +34,7 @@ export function TransactionItem({ transaction, onPress, showIcon = true }: Trans
           {transaction.description || categoryLabel}
         </Text>
         <Text className="text-[14px] font-sans text-text-secondary mt-1" numberOfLines={1}>
-          {categoryLabel} · {formatRelativeDate(transaction.createdAt, locale)}
+          {categoryLabel} · {formatRelativeDate(transaction.createdAt, i18n.language)}
         </Text>
       </View>
       <Text className={`text-[17px] font-sans-bold ${amountColor} ml-3`}>

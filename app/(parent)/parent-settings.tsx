@@ -270,9 +270,9 @@ export default function ParentSettingsScreen() {
                 onPress={async () => {
                   haptics.selection();
                   const prev = selectedChild.mascotId;
-                  useBankStore.getState().updateChild(selectedChild.id, { mascotId: null });
+                  useBankStore.getState().updateChild(selectedChild.id, { mascotId: 'none' });
                   try {
-                    await bankApi.updateChild(selectedChild.id, { mascotId: null });
+                    await bankApi.updateChild(selectedChild.id, { mascotId: 'none' });
                   } catch {
                     useBankStore.getState().updateChild(selectedChild.id, { mascotId: prev });
                   }
@@ -284,18 +284,18 @@ export default function ParentSettingsScreen() {
                   paddingTop: 8,
                   paddingBottom: 10,
                   borderRadius: 20,
-                  backgroundColor: !selectedChild.mascotId ? '#FEF9C3' : '#f5f5f0',
-                  borderWidth: !selectedChild.mascotId ? 2.5 : 0,
+                  backgroundColor: selectedChild.mascotId === 'none' ? '#FEF9C3' : '#f5f5f0',
+                  borderWidth: selectedChild.mascotId === 'none' ? 2.5 : 0,
                   borderColor: '#FFD600',
                 }}
               >
                 <View style={{ width: 80, height: 80, borderRadius: 12, alignItems: 'center', justifyContent: 'center', backgroundColor: '#e8e8e0' }}>
                   <MaterialCommunityIcons name="eye-off-outline" size={32} color="#9ca3af" />
                 </View>
-                <Text style={{ fontSize: 12, fontWeight: '600', marginTop: 6, color: !selectedChild.mascotId ? '#1a1a14' : '#6b6b5a' }}>
+                <Text style={{ fontSize: 12, fontWeight: '600', marginTop: 6, color: selectedChild.mascotId === 'none' ? '#1a1a14' : '#6b6b5a' }}>
                   Nenhum
                 </Text>
-                {!selectedChild.mascotId && (
+                {selectedChild.mascotId === 'none' && (
                   <MaterialCommunityIcons
                     name="check-circle"
                     size={20}
@@ -307,7 +307,7 @@ export default function ParentSettingsScreen() {
 
               {/* Animated mascots */}
               {MASCOTS.map((m) => {
-                const isActive = selectedChild.mascotId === m.id;
+                const isActive = selectedChild.mascotId === m.id || (!selectedChild.mascotId && m.id === 'dino');
                 return (
                   <MascotPickerItem
                     key={m.id}

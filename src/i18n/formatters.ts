@@ -29,14 +29,24 @@ export function formatRelativeDate(date: string | Date, locale: string = 'pt-BR'
   const diffMs = now.getTime() - target.getTime();
   const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
 
-  if (diffDays === 0) return locale.startsWith('pt') ? 'Hoje' : 'Today';
-  if (diffDays === 1) return locale.startsWith('pt') ? 'Ontem' : 'Yesterday';
   if (diffDays < 7) {
-    return locale.startsWith('pt')
-      ? `${diffDays} dias atras`
-      : `${diffDays} days ago`;
+    try {
+      const rtf = new Intl.RelativeTimeFormat(locale, { numeric: 'auto' });
+      return capitalize(rtf.format(-diffDays, 'day'));
+    } catch {
+      // fallback if Intl.RelativeTimeFormat not available
+      if (diffDays === 0) return locale.startsWith('pt') ? 'Hoje' : 'Today';
+      if (diffDays === 1) return locale.startsWith('pt') ? 'Ontem' : 'Yesterday';
+      return locale.startsWith('pt')
+        ? `${diffDays} dias atrás`
+        : `${diffDays} days ago`;
+    }
   }
   return formatDate(date, locale);
+}
+
+function capitalize(s: string): string {
+  return s.charAt(0).toUpperCase() + s.slice(1);
 }
 
 export function formatCurrencyValue(

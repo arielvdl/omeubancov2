@@ -20,8 +20,8 @@ const PRESET_RULES_PT = [
   'Se gastar sem pedir, perde R$ 3,00',
   'Se ajudar nas tarefas de casa, ganha R$ 2,00',
   'Saques precisam ser conversados com os pais',
-  'Se economizar por 1 mes, ganha um bonus de R$ 15,00',
-  'Nao emprestar dinheiro do banco sem permissao',
+  'Se economizar por 1 mês, ganha um bônus de R$ 15,00',
+  'Não emprestar dinheiro do banco sem permissão',
   'Se mentir sobre o uso do dinheiro, perde R$ 5,00',
 ];
 

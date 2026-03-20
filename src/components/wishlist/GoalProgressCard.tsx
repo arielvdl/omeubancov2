@@ -62,7 +62,6 @@ export function GoalStack({ items, balance, childId, onItemPress }: GoalStackPro
         }}
       >
         <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
-          <MaterialCommunityIcons name="flag" size={18} color="#FFD600" />
           <Text style={{ fontSize: 15, fontFamily: 'PlusJakartaSans_700Bold', color: '#1a1a0e' }}>
             {sortedGoals.length === 1 ? t('wishlist.myGoal') : t('wishlist.myGoals')}
           </Text>
@@ -187,8 +186,8 @@ function WalletCardLayer({
           shadowOpacity: 0.08,
           shadowRadius: 10,
           elevation: 4 - index,
-          borderWidth: canBuy ? 2 : 0,
-          borderColor: canBuy ? '#22c55e' : 'transparent',
+          borderWidth: 0,
+          borderColor: 'transparent',
         }}
       >
         <Image
@@ -306,8 +305,8 @@ function GoalCard({
           shadowOpacity: 0.06,
           shadowRadius: 12,
           elevation: 3,
-          borderWidth: canBuy ? 2 : 0,
-          borderColor: canBuy ? '#22c55e' : 'transparent',
+          borderWidth: 0,
+          borderColor: 'transparent',
         }}
       >
         <View style={{ flexDirection: 'row', gap: 12 }}>

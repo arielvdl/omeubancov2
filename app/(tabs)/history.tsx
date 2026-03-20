@@ -1,7 +1,7 @@
-import React, { useState, useMemo, useCallback, useEffect, useRef } from 'react';
+import React, { useState, useMemo, useCallback, useRef } from 'react';
 import { View, Text, TextInput, Pressable, ScrollView } from 'react-native';
 import { useTranslation } from 'react-i18next';
-import { useRouter } from 'expo-router';
+import { useRouter, useFocusEffect } from 'expo-router';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import BottomSheet from '@gorhom/bottom-sheet';
 import { SafeArea } from '@/src/components/layout/SafeArea';
@@ -12,7 +12,9 @@ import { TransactionList } from '@/src/components/transaction/TransactionList';
 import { TransactionDetailSheet } from '@/src/components/transaction/TransactionDetailSheet';
 import { useTransactionStore } from '@/src/stores/useTransactionStore';
 import { useSelectedChild } from '@/src/hooks/useSelectedChild';
+import { useBankStore } from '@/src/stores/useBankStore';
 import { transactionsApi } from '@/src/services/api/transactions';
+import { bankApi } from '@/src/services/api/bank';
 import { useCurrency } from '@/src/hooks/useCurrency';
 import { haptics } from '@/src/utils/haptics';
 import { CATEGORIES } from '@/src/constants/categories';
@@ -39,40 +41,65 @@ export default function HistoryScreen() {
   const isLoading = useTransactionStore((s) => s.isLoading);
   const setLoading = useTransactionStore((s) => s.setLoading);
 
+  const setChildren = useBankStore((s) => s.setChildren);
+
   const [activeFilter, setActiveFilter] = useState<FilterType>('all');
   const [activeCategory, setActiveCategory] = useState<string>('all');
   const [searchText, setSearchText] = useState('');
   const [selectedTx, setSelectedTx] = useState<Transaction | null>(null);
+  const [refreshing, setRefreshing] = useState(false);
   const bottomSheetRef = useRef<BottomSheet>(null);
 
-  useEffect(() => {
+  const fetchAll = useCallback(async () => {
+    if (!selectedChild) return;
+    try {
+      const [txRes, childrenRes] = await Promise.all([
+        transactionsApi.getByChild(selectedChild.id),
+        bankApi.getChildren(),
+      ]);
+      if (Array.isArray(txRes.data)) {
+        useTransactionStore.setState({ transactions: txRes.data });
+      }
+      if (childrenRes.data?.length > 0) {
+        setChildren(childrenRes.data);
+      }
+    } catch {
+      // Keep existing store data on failure
+    }
+  }, [selectedChild?.id, setChildren]);
+
+  useFocusEffect(useCallback(() => {
     if (!selectedChild) return;
     let cancelled = false;
 
-    async function fetchTransactions() {
+    async function load() {
       setLoading(true);
       try {
-        const res = await transactionsApi.getByChild(selectedChild!.id);
-        if (!cancelled && Array.isArray(res.data)) {
-          useTransactionStore.setState({ transactions: res.data });
-        }
-      } catch {
-        // Keep existing store data on failure
+        await fetchAll();
       } finally {
         if (!cancelled) setLoading(false);
       }
     }
 
-    fetchTransactions();
+    load();
     return () => { cancelled = true; };
-  }, [selectedChild?.id, setLoading]);
+  }, [selectedChild?.id, setLoading, fetchAll]));
+
+  const handleRefresh = useCallback(async () => {
+    setRefreshing(true);
+    haptics.selection();
+    await fetchAll();
+    setRefreshing(false);
+  }, [fetchAll]);
 
   const transactions = useMemo(() => {
     if (!selectedChild) return [];
     let filtered = allTransactions.filter((tx) => tx.childId === selectedChild.id);
 
-    if (activeFilter !== 'all') {
-      filtered = filtered.filter((tx) => tx.type === activeFilter);
+    if (activeFilter === 'deposit') {
+      filtered = filtered.filter((tx) => tx.type === 'deposit' || tx.type === 'scheduled');
+    } else if (activeFilter === 'withdrawal') {
+      filtered = filtered.filter((tx) => tx.type === 'withdrawal');
     }
 
     if (activeCategory !== 'all') {
@@ -324,6 +351,8 @@ export default function HistoryScreen() {
               : t('history.emptyState')
           }
           onItemPress={handleTransactionPress}
+          refreshing={refreshing}
+          onRefresh={handleRefresh}
         />
       </View>
 

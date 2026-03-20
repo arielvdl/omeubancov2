@@ -30,7 +30,7 @@ import { transactionsApi } from '@/src/services/api/transactions';
 import { uploadApi } from '@/src/services/api/bank';
 import { useCurrency } from '@/src/hooks/useCurrency';
 import { useSubscriptionStore } from '@/src/stores/useSubscriptionStore';
-import { PaywallPrompt } from '@/src/components/ui/PaywallPrompt';
+import { useCoinSound } from '@/src/utils/sounds';
 import type { TransactionCategory } from '@/src/types/transaction';
 
 export default function WithdrawScreen() {
@@ -42,6 +42,7 @@ export default function WithdrawScreen() {
   const updateChildBalance = useBankStore((s) => s.updateChildBalance);
   const addTransaction = useTransactionStore((s) => s.addTransaction);
   const canUploadReceipt = useSubscriptionStore((s) => s.canUploadReceipt);
+  const coinSound = useCoinSound();
 
   const [amountText, setAmountText] = useState('');
   const [description, setDescription] = useState('');
@@ -201,6 +202,7 @@ export default function WithdrawScreen() {
       setWithdrawnAmount(cents);
       setSuccess(true);
       haptics.success();
+      coinSound.play();
 
       setTimeout(() => {
         if (router.canGoBack()) {
@@ -351,9 +353,16 @@ export default function WithdrawScreen() {
                     <MaterialCommunityIcons name="close" size={18} color="#fff" />
                   </Pressable>
                 </View>
-              ) : canUploadReceipt() ? (
+              ) : (
                 <Pressable
-                  onPress={pickReceipt}
+                  onPress={() => {
+                    if (canUploadReceipt()) {
+                      pickReceipt();
+                    } else {
+                      haptics.light();
+                      router.push('/(modals)/paywall');
+                    }
+                  }}
                   className="flex-row items-center gap-3 px-5 py-4 rounded-2xl bg-surface"
                   style={{
                     shadowColor: '#000',
@@ -368,8 +377,6 @@ export default function WithdrawScreen() {
                     {t('modals.withdraw.addReceipt', { defaultValue: 'Tirar foto do comprovante' })}
                   </Text>
                 </Pressable>
-              ) : (
-                <PaywallPrompt feature="receipt" />
               )}
             </View>
 

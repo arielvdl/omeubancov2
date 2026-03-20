@@ -20,6 +20,7 @@
     "@react-navigation/native": "^7.1.6",
     "axios": "^1.13.6",
     "expo": "^54",
+    "expo-audio": "~1.1.1",
     "expo-auth-session": "~7.0.10",
     "expo-blur": "~15.0.8",
     "expo-camera": "~17.0.10",

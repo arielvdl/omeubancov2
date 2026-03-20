@@ -14,6 +14,7 @@ function mapRow(row: postgres.Row): SelectChild {
     name: row.name,
     pinHash: row.pin_hash,
     avatarUrl: row.avatar_url,
+    mascotId: row.mascot_id,
     balance: row.balance,
     birthDate: row.birth_date,
     createdAt: row.created_at,
@@ -38,7 +39,7 @@ export const childRepo = {
 
   async update(
     id: string,
-    data: Partial<Pick<InsertChild, 'name' | 'avatarUrl' | 'birthDate' | 'pinHash'>>
+    data: Partial<Pick<InsertChild, 'name' | 'avatarUrl' | 'mascotId' | 'birthDate' | 'pinHash'>>
   ): Promise<SelectChild | undefined> {
     const results = await db
       .update(children)

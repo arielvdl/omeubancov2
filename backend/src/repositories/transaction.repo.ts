@@ -17,7 +17,12 @@ export const transactionRepo = {
 
     const conditions = [eq(transactions.childId, childId)];
     if (filters.type) {
-      conditions.push(eq(transactions.type, filters.type));
+      // 'deposit' filter should also include 'scheduled' (automatic deposits)
+      if (filters.type === 'deposit') {
+        conditions.push(sql`${transactions.type} IN ('deposit', 'scheduled')`);
+      } else {
+        conditions.push(eq(transactions.type, filters.type));
+      }
     }
 
     const whereClause = conditions.length === 1 ? conditions[0] : and(...conditions)!;

@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
-import { View, Text, FlatList, RefreshControl, Pressable, useWindowDimensions } from 'react-native';
+import { View, Text, FlatList, RefreshControl, Pressable, TextInput, useWindowDimensions } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
@@ -8,7 +8,10 @@ import Animated, {
   useSharedValue,
   useAnimatedStyle,
   withSpring,
+  withTiming,
+  useAnimatedScrollHandler,
 } from 'react-native-reanimated';
+import { useFocusEffect } from 'expo-router';
 import { SafeArea } from '@/src/components/layout/SafeArea';
 import { useSelectedChild } from '@/src/hooks/useSelectedChild';
 import { useWishlistStore } from '@/src/stores/useWishlistStore';
@@ -45,6 +48,18 @@ export default function WishlistScreen() {
 
   const [refreshing, setRefreshing] = useState(false);
   const [filter, setFilter] = useState<FilterType>('all');
+  const [searchText, setSearchText] = useState('');
+  const [selectedMonth, setSelectedMonth] = useState<string | null>(null);
+  const [showSearch, setShowSearch] = useState(false);
+  const [showMonthFilter, setShowMonthFilter] = useState(false);
+  const headerVisible = useSharedValue(1);
+  const lastScrollY = useSharedValue(0);
+
+  // Reset header visibility when tab gains focus
+  useFocusEffect(useCallback(() => {
+    headerVisible.value = 1;
+    lastScrollY.value = 0;
+  }, []));
 
   const fetchWishlist = useCallback(async () => {
     if (!selectedChild) return;
@@ -83,16 +98,41 @@ export default function WishlistScreen() {
 
   const filteredItems = useMemo(() => {
     if (!selectedChild) return [];
-    const childItems = items.filter((i) => i.childId === selectedChild.id);
+    let result = items.filter((i) => i.childId === selectedChild.id);
     switch (filter) {
       case 'top':
-        return childItems.filter((i) => i.status === 'active' && i.desireLevel === 3);
+        result = result.filter((i) => i.status === 'active' && i.desireLevel === 3);
+        break;
       case 'conquered':
-        return childItems.filter((i) => i.status === 'conquered');
+        result = result.filter((i) => i.status === 'conquered');
+        break;
       default:
-        return childItems.filter((i) => i.status === 'active');
+        result = result.filter((i) => i.status === 'active');
     }
-  }, [items, selectedChild, filter]);
+    if (searchText.trim()) {
+      const q = searchText.trim().toLowerCase();
+      result = result.filter((i) => i.name?.toLowerCase().includes(q));
+    }
+    if (selectedMonth) {
+      result = result.filter((i) => {
+        const d = new Date(i.createdAt);
+        const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
+        return key === selectedMonth;
+      });
+    }
+    return result;
+  }, [items, selectedChild, filter, searchText, selectedMonth]);
+
+  // Available months for filter
+  const availableMonths = useMemo(() => {
+    if (!selectedChild) return [];
+    const months = new Set<string>();
+    items.filter((i) => i.childId === selectedChild.id).forEach((i) => {
+      const d = new Date(i.createdAt);
+      months.add(`${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`);
+    });
+    return Array.from(months).sort((a, b) => b.localeCompare(a));
+  }, [items, selectedChild]);
 
   // Build virtualized grid rows (month headers + item pairs)
   const gridRows = useMemo(() => {
@@ -197,8 +237,8 @@ export default function WishlistScreen() {
     if (row.type === 'header') {
       return (
         <Text
-          className="text-[15px] font-sans-semibold text-text-secondary mb-3 mt-2 px-1"
-          style={{ backgroundColor: '#FAFAF5', paddingVertical: 4 }}
+          className="text-[14px] font-sans-semibold text-text-secondary px-1"
+          style={{ backgroundColor: '#FAFAF5', paddingTop: 12, paddingBottom: 8 }}
         >
           {row.month}
         </Text>
@@ -212,89 +252,72 @@ export default function WishlistScreen() {
     return `fi_${row.data.id}`;
   }, []);
 
+  const headerTranslateY = useAnimatedStyle(() => ({
+    transform: [{ translateY: withTiming(headerVisible.value === 1 ? 0 : -160, { duration: 200 }) }],
+  }));
+
+  const onScrollHandler = useAnimatedScrollHandler({
+    onScroll: (event) => {
+      const y = event.contentOffset.y;
+      if (y > 60 && y > lastScrollY.value + 8) {
+        headerVisible.value = 0;
+      } else if (y < lastScrollY.value - 8 || y <= 10) {
+        headerVisible.value = 1;
+      }
+      lastScrollY.value = y;
+    },
+  });
+
+  const formatMonthLabel = (key: string) => {
+    const [year, month] = key.split('-');
+    const d = new Date(Number(year), Number(month) - 1);
+    const f = d.toLocaleDateString(i18n.language, { month: 'short', year: 'numeric' });
+    return f.charAt(0).toUpperCase() + f.slice(1);
+  };
+
+  // Calculate header height for padding
+  const headerBaseHeight = 100 + (showSearch ? 52 : 0) + (showMonthFilter && availableMonths.length > 0 ? 40 : 0);
+
   return (
     <SafeArea>
-      {/* Fixed header + filters */}
-      <View className="px-7 pt-7 pb-2">
-        <Text className="text-[26px] font-sans-bold text-text mb-5">
-          {t('wishlist.title')}
-        </Text>
-        <View style={{ flexDirection: 'row', gap: 8, alignItems: 'center' }}>
-          {filters.map((f) => {
-            const isActive = filter === f.key;
-            return (
-              <Pressable
-                key={f.key}
-                onPress={() => {
-                  haptics.selection();
-                  setFilter(f.key);
-                }}
-                style={{
-                  paddingHorizontal: 16,
-                  paddingVertical: 10,
-                  borderRadius: 999,
-                  backgroundColor: isActive ? '#FFD600' : '#ffffff',
-                  borderWidth: isActive ? 0 : 1,
-                  borderColor: '#e5e5d8',
-                  justifyContent: 'center',
-                  alignItems: 'center',
-                }}
-              >
-                <Text
-                  style={{
-                    fontSize: 14,
-                    fontFamily: 'PlusJakartaSans_600SemiBold',
-                    color: isActive ? '#1a1a0e' : '#6b6b5a',
-                    lineHeight: 18,
-                    textAlignVertical: 'center',
-                    includeFontPadding: false,
-                  }}
-                >
-                  {f.label}
-                </Text>
-              </Pressable>
-            );
-          })}
-        </View>
-      </View>
-
-      {/* Virtualized list */}
-      {filteredItems.length > 0 ? (
-        wishlistLayout === 'feed' ? (
-          <FlatList
-            data={feedRows}
-            renderItem={renderFeedRow}
-            keyExtractor={getFeedRowKey}
-            contentContainerStyle={{ paddingHorizontal: 28, paddingTop: 16, paddingBottom: 120 }}
-            refreshControl={
-              <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor="#FFD600" />
-            }
-            showsVerticalScrollIndicator={false}
-            initialNumToRender={5}
-            maxToRenderPerBatch={4}
-            windowSize={5}
-            removeClippedSubviews
-            stickyHeaderIndices={feedRows.reduce<number[]>((acc, row, idx) => {
-              if (row.type === 'header') acc.push(idx);
-              return acc;
-            }, [])}
-          />
-        ) : (
-          <FlatList
-            data={gridRows}
-            renderItem={renderRow}
-            keyExtractor={getRowKey}
-            contentContainerStyle={{ paddingHorizontal: 28, paddingTop: 16, paddingBottom: 120 }}
-            refreshControl={
-              <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor="#FFD600" />
-            }
-            showsVerticalScrollIndicator={false}
-            initialNumToRender={8}
-            maxToRenderPerBatch={6}
-            windowSize={5}
-            removeClippedSubviews
-          />
-        )
+      <View style={{ flex: 1 }}>
+        {/* Content fills entire area */}
+        {filteredItems.length > 0 ? (
+          wishlistLayout === 'feed' ? (
+            <Animated.FlatList
+              data={feedRows}
+              renderItem={renderFeedRow}
+              keyExtractor={getFeedRowKey}
+              contentContainerStyle={{ paddingHorizontal: 28, paddingTop: headerBaseHeight, paddingBottom: 120 }}
+              refreshControl={
+                <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor="#FFD600" />
+              }
+              onScroll={onScrollHandler}
+              scrollEventThrottle={16}
+              showsVerticalScrollIndicator={false}
+              initialNumToRender={5}
+              maxToRenderPerBatch={4}
+              windowSize={5}
+              removeClippedSubviews
+            />
+          ) : (
+            <Animated.FlatList
+              data={gridRows}
+              renderItem={renderRow}
+              keyExtractor={getRowKey}
+              contentContainerStyle={{ paddingHorizontal: 28, paddingTop: headerBaseHeight, paddingBottom: 120 }}
+              refreshControl={
+                <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor="#FFD600" />
+              }
+              onScroll={onScrollHandler}
+              scrollEventThrottle={16}
+              showsVerticalScrollIndicator={false}
+              initialNumToRender={8}
+              maxToRenderPerBatch={6}
+              windowSize={5}
+              removeClippedSubviews
+            />
+          )
       ) : (
         <View className="flex-1 items-center justify-center px-8">
           <MaterialCommunityIcons name="heart-outline" size={72} color="#e5e5d8" />
@@ -307,20 +330,149 @@ export default function WishlistScreen() {
         </View>
       )}
 
-      {/* FAB */}
-      <Pressable
-        onPress={handleNewWish}
-        className="absolute bottom-28 right-7 w-14 h-14 rounded-full bg-primary items-center justify-center"
-        style={{
-          shadowColor: '#FFD600',
-          shadowOffset: { width: 0, height: 4 },
-          shadowOpacity: 0.3,
-          shadowRadius: 8,
-          elevation: 6,
-        }}
-      >
-        <MaterialCommunityIcons name="camera-plus" size={26} color="#1a1a0e" />
-      </Pressable>
+        {/* Floating header overlay with glass effect */}
+        <Animated.View
+          style={[
+            headerTranslateY,
+            {
+              position: 'absolute',
+              top: 0,
+              left: 0,
+              right: 0,
+              zIndex: 10,
+              paddingHorizontal: 28,
+              paddingTop: 16,
+              paddingBottom: 12,
+              backgroundColor: 'rgba(248, 248, 245, 0.92)',
+              borderBottomWidth: 1,
+              borderBottomColor: 'rgba(0,0,0,0.04)',
+            },
+          ]}
+        >
+          {/* Title row + icons */}
+          <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 10 }}>
+            <Text className="text-[26px] font-sans-bold text-text">
+              {t('wishlist.title')}
+            </Text>
+            <View style={{ flexDirection: 'row', gap: 14 }}>
+              <Pressable
+                onPress={() => { haptics.light(); setShowSearch(!showSearch); if (showSearch) setSearchText(''); }}
+                hitSlop={8}
+              >
+                <MaterialCommunityIcons name={showSearch ? 'close' : 'magnify'} size={24} color="#6b6b5a" />
+              </Pressable>
+              <Pressable
+                onPress={() => { haptics.light(); setShowMonthFilter(!showMonthFilter); if (showMonthFilter) setSelectedMonth(null); }}
+                hitSlop={8}
+              >
+                <MaterialCommunityIcons
+                  name="calendar-month"
+                  size={24}
+                  color={selectedMonth ? '#FFD600' : '#6b6b5a'}
+                />
+              </Pressable>
+            </View>
+          </View>
+
+          {/* Search bar */}
+          {showSearch && (
+            <View style={{ flexDirection: 'row', alignItems: 'center', backgroundColor: '#f0f0eb', borderRadius: 14, paddingHorizontal: 14, marginBottom: 8, height: 42 }}>
+              <MaterialCommunityIcons name="magnify" size={20} color="#9ca3af" />
+              <TextInput
+                value={searchText}
+                onChangeText={setSearchText}
+                placeholder={t('wishlist.searchPlaceholder', { defaultValue: 'Buscar desejo...' })}
+                placeholderTextColor="#9ca3af"
+                autoFocus
+                style={{ flex: 1, marginLeft: 8, fontSize: 15, fontFamily: 'PlusJakartaSans_400Regular', color: '#1a1a0e' }}
+              />
+              {searchText.length > 0 && (
+                <Pressable onPress={() => setSearchText('')} hitSlop={8}>
+                  <MaterialCommunityIcons name="close-circle" size={18} color="#9ca3af" />
+                </Pressable>
+              )}
+            </View>
+          )}
+
+          {/* Month filter pills */}
+          {showMonthFilter && availableMonths.length > 0 && (
+            <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 6, marginBottom: 6 }}>
+              <Pressable
+                onPress={() => { haptics.selection(); setSelectedMonth(null); }}
+                style={{
+                  paddingHorizontal: 12, paddingVertical: 5, borderRadius: 999,
+                  backgroundColor: !selectedMonth ? '#FFD600' : '#f0f0eb',
+                }}
+              >
+                <Text style={{ fontSize: 12, fontFamily: 'PlusJakartaSans_600SemiBold', color: !selectedMonth ? '#1a1a0e' : '#6b6b5a' }}>
+                  {t('wishlist.filterAll')}
+                </Text>
+              </Pressable>
+              {availableMonths.map((m) => (
+                <Pressable
+                  key={m}
+                  onPress={() => { haptics.selection(); setSelectedMonth(selectedMonth === m ? null : m); }}
+                  style={{
+                    paddingHorizontal: 12, paddingVertical: 5, borderRadius: 999,
+                    backgroundColor: selectedMonth === m ? '#FFD600' : '#f0f0eb',
+                  }}
+                >
+                  <Text style={{ fontSize: 12, fontFamily: 'PlusJakartaSans_600SemiBold', color: selectedMonth === m ? '#1a1a0e' : '#6b6b5a' }}>
+                    {formatMonthLabel(m)}
+                  </Text>
+                </Pressable>
+              ))}
+            </View>
+          )}
+
+          {/* Filter pills */}
+          <View style={{ flexDirection: 'row', gap: 8 }}>
+            {filters.map((f) => {
+              const isActive = filter === f.key;
+              return (
+                <Pressable
+                  key={f.key}
+                  onPress={() => { haptics.selection(); setFilter(f.key); }}
+                  style={{
+                    paddingHorizontal: 14,
+                    paddingVertical: 8,
+                    borderRadius: 999,
+                    backgroundColor: isActive ? '#FFD600' : '#ffffff',
+                    borderWidth: isActive ? 0 : 1,
+                    borderColor: '#e5e5d8',
+                  }}
+                >
+                  <Text
+                    style={{
+                      fontSize: 13,
+                      fontFamily: 'PlusJakartaSans_600SemiBold',
+                      color: isActive ? '#1a1a0e' : '#6b6b5a',
+                    }}
+                  >
+                    {f.label}
+                  </Text>
+                </Pressable>
+              );
+            })}
+          </View>
+        </Animated.View>
+
+        {/* FAB */}
+        <Pressable
+          onPress={handleNewWish}
+          className="absolute bottom-28 right-7 w-14 h-14 rounded-full bg-primary items-center justify-center"
+          style={{
+            zIndex: 20,
+            shadowColor: '#FFD600',
+            shadowOffset: { width: 0, height: 4 },
+            shadowOpacity: 0.3,
+            shadowRadius: 8,
+            elevation: 6,
+          }}
+        >
+          <MaterialCommunityIcons name="camera-plus" size={26} color="#1a1a0e" />
+        </Pressable>
+      </View>
     </SafeArea>
   );
 }
@@ -429,15 +581,15 @@ function FeedCard({ item, onPress }: { item: WishItem; onPress: (item: WishItem)
       style={animatedStyle}
     >
       <View
-        className="bg-surface rounded-2xl overflow-hidden mb-4"
-        style={{ shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.06, shadowRadius: 12, elevation: 3 }}
+        className="bg-surface overflow-hidden mb-4"
+        style={{ borderRadius: 10, shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.06, shadowRadius: 12, elevation: 3 }}
       >
-        {/* Photo */}
-        <View className="relative" style={{ aspectRatio: 4 / 3 }}>
-          <View className="flex-1 bg-[#f0f0e8]">
+        {/* Photo — respect original aspect ratio */}
+        <View className="relative">
+          <View className="bg-[#f0f0e8]">
             <Image
               source={{ uri: item.photoUrl }}
-              style={{ width: '100%', height: '100%' }}
+              style={{ width: '100%', aspectRatio: 1 }}
               contentFit="cover"
               transition={300}
               recyclingKey={item.id}

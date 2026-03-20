@@ -53,7 +53,7 @@ export const scheduledDepositService = {
             category: 'mesada',
             amount: deposit.amount,
             balanceAfter: newBalance,
-            description: `Mesada automatica - ${deposit.frequency}`,
+            description: 'Mesada',
             scheduledDepositId: deposit.id,
             createdBy: 'system',
           });

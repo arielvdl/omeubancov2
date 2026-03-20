@@ -14,14 +14,14 @@ import { useSelectedChild } from '@/src/hooks/useSelectedChild';
 import { useBankStore } from '@/src/stores/useBankStore';
 import { bankApi } from '@/src/services/api/bank';
 import { formatDate } from '@/src/i18n/formatters';
-import { useCurrency } from '@/src/hooks/useCurrency';
+
 
 export default function ProfileScreen() {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const router = useRouter();
   const selectedChild = useSelectedChild();
   const updateChild = useBankStore((s) => s.updateChild);
-  const { locale } = useCurrency();
+  const locale = i18n.language;
 
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [isUpdatingDate, setIsUpdatingDate] = useState(false);

@@ -1,5 +1,5 @@
 import React, { useCallback } from 'react';
-import { View, Text, FlatList, ActivityIndicator } from 'react-native';
+import { View, Text, FlatList, ActivityIndicator, RefreshControl } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import type { Transaction } from '@/src/types/transaction';
 import { TransactionItem } from '@/src/components/transaction/TransactionItem';
@@ -11,6 +11,8 @@ interface TransactionListProps {
   onLoadMore?: () => void;
   emptyMessage?: string;
   onItemPress?: (transaction: Transaction) => void;
+  refreshing?: boolean;
+  onRefresh?: () => void;
 }
 
 export function TransactionList({
@@ -19,6 +21,8 @@ export function TransactionList({
   onLoadMore,
   emptyMessage,
   onItemPress,
+  refreshing = false,
+  onRefresh,
 }: TransactionListProps) {
   const { t } = useTranslation();
 
@@ -76,6 +80,16 @@ export function TransactionList({
       onEndReachedThreshold={0.3}
       showsVerticalScrollIndicator={false}
       contentContainerStyle={{ paddingHorizontal: 24 }}
+      refreshControl={
+        onRefresh ? (
+          <RefreshControl
+            refreshing={refreshing}
+            onRefresh={onRefresh}
+            tintColor="#FFD600"
+            colors={['#FFD600']}
+          />
+        ) : undefined
+      }
     />
   );
 }

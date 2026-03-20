@@ -69,12 +69,33 @@ export default function ContractEditScreen() {
       setContractRules(ruleTexts);
 
       haptics.success();
-      Alert.alert(t('common.success'), t('profile.contractSaved'), [
-        {
-          text: t('common.ok'),
-          onPress: () => router.back(),
-        },
-      ]);
+
+      if (isEditing) {
+        Alert.alert(
+          t('common.success'),
+          t('profile.contractUpdatedNeedsSignature', {
+            defaultValue: 'Contrato atualizado! A criança precisa assinar novamente.',
+          }),
+          [
+            {
+              text: t('common.ok'),
+              onPress: () => {
+                router.back();
+                setTimeout(() => {
+                  router.push('/(modals)/contract-view');
+                }, 300);
+              },
+            },
+          ],
+        );
+      } else {
+        Alert.alert(t('common.success'), t('profile.contractSaved'), [
+          {
+            text: t('common.ok'),
+            onPress: () => router.back(),
+          },
+        ]);
+      }
     } catch {
       haptics.error();
       Alert.alert(t('common.error'), t('common.errorGeneric'));

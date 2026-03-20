@@ -35,8 +35,9 @@ const CREATED_BY_KEYS: Record<string, string> = {
 
 export const TransactionDetailSheet = forwardRef<BottomSheet, TransactionDetailSheetProps>(
   ({ transaction }, ref) => {
-    const { t } = useTranslation();
-    const { format, locale } = useCurrency();
+    const { t, i18n } = useTranslation();
+    const { format } = useCurrency();
+    const locale = i18n.language;
     const [imageFullscreen, setImageFullscreen] = useState(false);
     const [saving, setSaving] = useState(false);
     const [thumbLayout, setThumbLayout] = useState({ x: 0, y: 0, w: 0, h: 0 });

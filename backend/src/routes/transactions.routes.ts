@@ -166,8 +166,14 @@ transactionsRoutes.get('/children/:id/transactions', async (c) => {
     limit: query.limit,
   });
 
+  // Map 'scheduled' type to 'deposit' so frontend treats them the same
+  const data = result.data.map((tx) => ({
+    ...tx,
+    type: tx.type === 'scheduled' ? 'deposit' : tx.type,
+  }));
+
   return c.json({
-    data: result.data,
+    data,
     pagination: {
       page: query.page,
       limit: query.limit,

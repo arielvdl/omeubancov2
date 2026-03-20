@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, forwardRef } from 'react';
 import { View, Text, TextInput, Pressable } from 'react-native';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import type { KeyboardTypeOptions } from 'react-native';
@@ -18,7 +18,7 @@ interface InputProps {
   size?: 'default' | 'lg';
 }
 
-export function Input({
+export const Input = forwardRef<TextInput, InputProps>(function Input({
   label,
   value,
   onChangeText,
@@ -31,7 +31,7 @@ export function Input({
   multiline = false,
   editable = true,
   size = 'default',
-}: InputProps) {
+}, ref) {
   const [isFocused, setIsFocused] = useState(false);
   const [isSecure, setIsSecure] = useState(secureTextEntry);
 
@@ -55,6 +55,7 @@ export function Input({
           />
         )}
         <TextInput
+          ref={ref}
           value={value}
           onChangeText={onChangeText}
           placeholder={placeholder}
@@ -84,4 +85,4 @@ export function Input({
       )}
     </View>
   );
-}
+});

@@ -221,13 +221,23 @@ export default function WishCameraScreen() {
             style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0 }}
             facing="back"
           />
-          {/* Guide overlay — absolute on top of camera */}
+          {/* Guide overlay — camera viewfinder/crosshair */}
           <View className="flex-1 items-center justify-center" pointerEvents="none">
-            <View
-              className="rounded-3xl border-2 border-white/40"
-              style={{ width: 280, height: 280 }}
-            />
-            <Text className="text-[15px] font-sans text-white/60 mt-4">
+            <View style={{ width: 240, height: 240, position: 'relative' }}>
+              {/* Top-left corner */}
+              <View style={{ position: 'absolute', top: 0, left: 0, width: 40, height: 40, borderTopWidth: 3, borderLeftWidth: 3, borderColor: 'rgba(255,255,255,0.5)', borderTopLeftRadius: 8 }} />
+              {/* Top-right corner */}
+              <View style={{ position: 'absolute', top: 0, right: 0, width: 40, height: 40, borderTopWidth: 3, borderRightWidth: 3, borderColor: 'rgba(255,255,255,0.5)', borderTopRightRadius: 8 }} />
+              {/* Bottom-left corner */}
+              <View style={{ position: 'absolute', bottom: 0, left: 0, width: 40, height: 40, borderBottomWidth: 3, borderLeftWidth: 3, borderColor: 'rgba(255,255,255,0.5)', borderBottomLeftRadius: 8 }} />
+              {/* Bottom-right corner */}
+              <View style={{ position: 'absolute', bottom: 0, right: 0, width: 40, height: 40, borderBottomWidth: 3, borderRightWidth: 3, borderColor: 'rgba(255,255,255,0.5)', borderBottomRightRadius: 8 }} />
+              {/* Center crosshair */}
+              <View style={{ position: 'absolute', top: '50%', left: '50%', marginLeft: -12, marginTop: -12 }}>
+                <MaterialCommunityIcons name="crosshairs" size={24} color="rgba(255,255,255,0.4)" />
+              </View>
+            </View>
+            <Text className="text-[15px] font-sans text-white/60 mt-5">
               {t('wishlist.cameraGuide')}
             </Text>
           </View>

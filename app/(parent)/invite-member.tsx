@@ -25,13 +25,18 @@ export default function InviteMemberScreen() {
       const res = await invitationsApi.createInvitation();
       setInvitation(res.data.invitation);
       haptics.success();
-    } catch {
+    } catch (err: any) {
       haptics.error();
-      Alert.alert(t('common.error'), t('common.errorGeneric'));
+      const errorData = err?.response?.data;
+      if (errorData?.error === 'subscription_required') {
+        router.push('/(modals)/paywall');
+      } else {
+        Alert.alert(t('common.error'), t('common.errorGeneric'));
+      }
     } finally {
       setLoading(false);
     }
-  }, [t]);
+  }, [t, router]);
 
   useEffect(() => {
     generateInvite();
