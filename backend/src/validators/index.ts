@@ -24,6 +24,7 @@ export const createChildSchema = z.object({
   name: z.string().min(2).max(100),
   pin: z.string().regex(/^\d{4,6}$/, 'PIN must be 4-6 digits').optional(),
   avatarUrl: z.string().max(500).optional(),
+  mascotId: z.string().max(50).optional(),
   birthDate: z
     .string()
     .regex(/^\d{4}-\d{2}-\d{2}$/, 'Date must be YYYY-MM-DD format')
@@ -34,6 +35,7 @@ export const updateChildSchema = z.object({
   name: z.string().min(2).max(100).optional(),
   pin: z.string().regex(/^\d{4,6}$/, 'PIN must be 4-6 digits').optional(),
   avatarUrl: z.string().max(500).optional().nullable(),
+  mascotId: z.string().max(50).optional().nullable(),
   birthDate: z
     .string()
     .regex(/^\d{4}-\d{2}-\d{2}$/, 'Date must be YYYY-MM-DD format')
@@ -150,6 +152,23 @@ export const passkeyRegisterVerifySchema = z.object({
 
 export const passkeyLoginOptionsSchema = z.object({
   email: z.string().email().optional(),
+});
+
+export const createWishItemSchema = z.object({
+  photoUrl: z.string().url().max(500),
+  name: z.string().max(200).optional(),
+  priceCents: z.number().int().min(0).optional(),
+  desireLevel: z.number().int().min(1).max(3).default(2),
+  note: z.string().max(500).optional(),
+});
+
+export const updateWishItemSchema = z.object({
+  name: z.string().max(200).optional().nullable(),
+  priceCents: z.number().int().min(0).optional().nullable(),
+  desireLevel: z.number().int().min(1).max(3).optional(),
+  status: z.enum(['active', 'conquered', 'archived']).optional(),
+  note: z.string().max(500).optional().nullable(),
+  sortOrder: z.number().int().min(0).optional(),
 });
 
 export const passkeyLoginVerifySchema = z.object({

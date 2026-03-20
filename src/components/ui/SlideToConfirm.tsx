@@ -13,7 +13,7 @@ import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { haptics } from '@/src/utils/haptics';
 
 interface SlideToConfirmProps {
-  onConfirm: () => void;
+  onConfirm: () => void | Promise<void>;
   label: string;
   disabled?: boolean;
   icon?: keyof typeof MaterialCommunityIcons.glyphMap;
@@ -38,8 +38,22 @@ export function SlideToConfirm({
 
   const onSlideComplete = useCallback(() => {
     haptics.success();
-    onConfirm();
-  }, [onConfirm]);
+    try {
+      const result = onConfirm();
+      // If onConfirm returns a Promise, catch any rejection to prevent native crash
+      if (result && typeof (result as Promise<void>).catch === 'function') {
+        (result as Promise<void>).catch((err) => {
+          console.error('[SlideToConfirm] onConfirm rejected:', err);
+          translateX.value = withSpring(0, { damping: 20, stiffness: 300 });
+          hasTriggered.value = false;
+        });
+      }
+    } catch (err) {
+      console.error('[SlideToConfirm] onConfirm threw:', err);
+      translateX.value = withSpring(0, { damping: 20, stiffness: 300 });
+      hasTriggered.value = false;
+    }
+  }, [onConfirm, translateX, hasTriggered]);
 
   const triggerMidHaptic = useCallback(() => {
     haptics.light();

@@ -13,6 +13,7 @@ import {
   PlusJakartaSans_700Bold,
   PlusJakartaSans_800ExtraBold,
 } from "@expo-google-fonts/plus-jakarta-sans";
+import Purchases from "react-native-purchases";
 import { useAuthStore } from "@/src/stores/useAuthStore";
 import { useBankStore } from "@/src/stores/useBankStore";
 import { useSettingsStore } from "@/src/stores/useSettingsStore";
@@ -36,7 +37,25 @@ export default function RootLayout() {
 
   useEffect(() => {
     async function prepare() {
-      await Promise.all([loadPersistedState(), loadSettings()]);
+      await Promise.all([
+        loadPersistedState(),
+        loadSettings(),
+        useBankStore.getState().loadPersistedSelectedChild(),
+      ]);
+
+      // Initialize RevenueCat SDK
+      const rcApiKey = process.env.EXPO_PUBLIC_REVENUECAT_API_KEY;
+      if (rcApiKey) {
+        try {
+          if (__DEV__) {
+            Purchases.setLogLevel(Purchases.LOG_LEVEL.DEBUG);
+          }
+          Purchases.configure({ apiKey: rcApiKey });
+          logger.info('[App] RevenueCat configured');
+        } catch (err) {
+          logger.warn('[App] RevenueCat init failed', err);
+        }
+      }
 
       // If user has a valid token, hydrate children and family from API
       const { token, setOnboardingComplete } = useAuthStore.getState();
@@ -58,6 +77,28 @@ export default function RootLayout() {
           }
           useBankStore.getState().setHydrated(true);
           logger.info('[App] Hydration complete', { children: childrenRes.data?.length ?? 0 });
+
+          // RevenueCat: identify user by familyId
+          const { familyId } = useAuthStore.getState();
+          if (familyId && rcApiKey) {
+            try {
+              await Purchases.logIn(familyId);
+              logger.info('[App] RevenueCat logIn:', familyId);
+            } catch (err) {
+              logger.warn('[App] RevenueCat logIn failed', err);
+            }
+          }
+
+          // Load subscription status
+          try {
+            const { useSubscriptionStore } = await import('@/src/stores/useSubscriptionStore');
+            await Promise.all([
+              useSubscriptionStore.getState().loadSubscription(),
+              useSubscriptionStore.getState().loadLimits(),
+            ]);
+          } catch {
+            // Subscription info not critical for app startup
+          }
         } catch (err) {
           useBankStore.getState().setHydrated(false);
           logger.warn('[App] API unavailable during hydration', err);

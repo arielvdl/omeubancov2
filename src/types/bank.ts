@@ -12,6 +12,7 @@ export interface Child {
   familyId: string;
   name: string;
   avatarUrl: string | null;
+  mascotId: string | null;
   balance: number; // in cents
   birthDate: string | null;
   createdAt: string;

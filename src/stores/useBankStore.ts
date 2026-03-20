@@ -1,7 +1,10 @@
 import { create } from 'zustand';
+import * as SecureStore from 'expo-secure-store';
 import type { Child, Family } from '@/src/types/bank';
 import type { Transaction } from '@/src/types/transaction';
 import type { ScheduledDeposit } from '@/src/types/user';
+
+const SELECTED_CHILD_KEY = 'selected_child_id';
 
 export interface OnboardingChild {
   id: string;
@@ -24,6 +27,7 @@ interface BankState {
 
   setFamily: (family: Family) => void;
   setChildren: (children: Child[]) => void;
+  loadPersistedSelectedChild: () => Promise<void>;
   setHydrated: (v: boolean) => void;
   setSelectedChild: (childId: string) => void;
   setTransactions: (transactions: Transaction[]) => void;
@@ -66,12 +70,28 @@ export const useBankStore = create<BankState>((set, get) => ({
 
   setChildren: (children) => {
     set({ children });
-    if (!get().selectedChildId && children.length > 0) {
-      set({ selectedChildId: children[0].id });
+    const currentId = get().selectedChildId;
+    if (children.length > 0) {
+      // If no selection or current selection is invalid, fallback to first
+      if (!currentId || !children.some((c) => c.id === currentId)) {
+        const firstId = children[0].id;
+        set({ selectedChildId: firstId });
+        SecureStore.setItemAsync(SELECTED_CHILD_KEY, firstId).catch(() => {});
+      }
     }
   },
 
-  setSelectedChild: (childId) => set({ selectedChildId: childId }),
+  loadPersistedSelectedChild: async () => {
+    const savedId = await SecureStore.getItemAsync(SELECTED_CHILD_KEY).catch(() => null);
+    if (savedId) {
+      set({ selectedChildId: savedId });
+    }
+  },
+
+  setSelectedChild: (childId) => {
+    set({ selectedChildId: childId });
+    SecureStore.setItemAsync(SELECTED_CHILD_KEY, childId).catch(() => {});
+  },
 
   setTransactions: (transactions) => set({ transactions }),
 
@@ -97,9 +117,13 @@ export const useBankStore = create<BankState>((set, get) => ({
   addChild: (child) =>
     set((state) => {
       const newChildren = [...state.children, child];
+      const newSelectedId = state.selectedChildId ?? child.id;
+      if (!state.selectedChildId) {
+        SecureStore.setItemAsync(SELECTED_CHILD_KEY, child.id).catch(() => {});
+      }
       return {
         children: newChildren,
-        selectedChildId: state.selectedChildId ?? child.id,
+        selectedChildId: newSelectedId,
       };
     }),
 
@@ -160,11 +184,15 @@ export const useBankStore = create<BankState>((set, get) => ({
       birthDate: null,
       createdAt: now,
     }));
+    const firstId = children[0]?.id ?? null;
     set({
       children,
-      selectedChildId: children[0]?.id ?? null,
+      selectedChildId: firstId,
       onboardingChildren: [],
     });
+    if (firstId) {
+      SecureStore.setItemAsync(SELECTED_CHILD_KEY, firstId).catch(() => {});
+    }
   },
 
   addSchedule: (schedule) =>

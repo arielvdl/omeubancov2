@@ -18,6 +18,8 @@ import { invitationsRoutes } from './routes/invitations.routes.js';
 import { guardiansRoutes } from './routes/guardians.routes.js';
 import { passkeyRoutes } from './routes/passkey.routes.js';
 import { uploadRoutes } from './routes/upload.routes.js';
+import { wishlistRoutes } from './routes/wishlist.routes.js';
+import { subscriptionRoutes, webhookRoutes } from './routes/subscription.routes.js';
 
 export const app = new Hono();
 
@@ -55,6 +57,8 @@ api.route('/', notificationsRoutes);
 api.route('/invitations', invitationsRoutes);
 api.route('/guardians', guardiansRoutes);
 api.route('/upload', uploadRoutes);
+api.route('/', wishlistRoutes);
+api.route('/subscription', subscriptionRoutes);
 
 app.route('/api/v1', api);
 
@@ -65,6 +69,9 @@ app.route('/api/internal', internal);
 
 // OAuth callback routes (outside rate limit)
 app.route('/auth', oauthCallbackRoutes);
+
+// Webhook routes (outside rate limit, own auth)
+app.route('/webhooks', webhookRoutes);
 
 app.notFound((c) => {
   return c.json({ error: 'Not found' }, 404);

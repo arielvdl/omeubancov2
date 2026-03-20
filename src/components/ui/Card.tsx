@@ -25,13 +25,6 @@ export function Card({ children, title, className = '', onPress }: CardProps) {
   const content = (
     <View
       className={`bg-surface rounded-3xl p-6 ${className}`}
-      style={{
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.06,
-        shadowRadius: 16,
-        elevation: 3,
-      }}
     >
       {title && (
         <Text className="text-[18px] font-sans-bold text-text mb-4">

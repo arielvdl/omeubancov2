@@ -1,19 +1,17 @@
 import React from 'react';
 import { Tabs } from 'expo-router';
-import { useTranslation } from 'react-i18next';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { View } from 'react-native';
 import { haptics } from '@/src/utils/haptics';
 
 export default function TabLayout() {
-  const { t } = useTranslation();
-
   return (
     <Tabs
       screenOptions={{
         headerShown: false,
         tabBarActiveTintColor: '#1a1a0e',
         tabBarInactiveTintColor: '#6b6b5a',
+        tabBarShowLabel: false,
         tabBarStyle: {
           backgroundColor: '#ffffff',
           borderTopWidth: 0,
@@ -22,16 +20,11 @@ export default function TabLayout() {
           shadowOffset: { width: 0, height: -4 },
           shadowOpacity: 0.06,
           shadowRadius: 20,
-          height: 96,
-          paddingBottom: 30,
+          height: 88,
+          paddingBottom: 24,
           paddingTop: 12,
           borderTopLeftRadius: 28,
           borderTopRightRadius: 28,
-        },
-        tabBarLabelStyle: {
-          fontFamily: 'PlusJakartaSans_600SemiBold',
-          fontSize: 12,
-          marginTop: 4,
         },
       }}
       screenListeners={{
@@ -43,28 +36,51 @@ export default function TabLayout() {
       <Tabs.Screen
         name="index"
         options={{
-          title: t('tabs.home'),
           tabBarIcon: ({ focused, color }) => (
-            <View className="">
-              <MaterialCommunityIcons
-                name={focused ? 'home' : 'home-outline'}
-                size={26}
-                color={color}
-              />
-            </View>
+            <MaterialCommunityIcons
+              name={focused ? 'home' : 'home-outline'}
+              size={26}
+              color={color}
+            />
           ),
         }}
       />
       <Tabs.Screen
         name="history"
         options={{
-          title: t('tabs.history'),
           tabBarIcon: ({ focused, color }) => (
-            <View className="">
+            <MaterialCommunityIcons
+              name={focused ? 'clock' : 'clock-outline'}
+              size={26}
+              color={color}
+            />
+          ),
+        }}
+      />
+      <Tabs.Screen
+        name="wishlist"
+        options={{
+          tabBarIcon: ({ focused }) => (
+            <View
+              style={{
+                width: 56,
+                height: 56,
+                borderRadius: 28,
+                backgroundColor: '#FFD600',
+                alignItems: 'center',
+                justifyContent: 'center',
+                marginBottom: 20,
+                shadowColor: '#FFD600',
+                shadowOffset: { width: 0, height: 4 },
+                shadowOpacity: focused ? 0.4 : 0.2,
+                shadowRadius: 8,
+                elevation: focused ? 8 : 4,
+              }}
+            >
               <MaterialCommunityIcons
-                name={focused ? 'clock' : 'clock-outline'}
-                size={26}
-                color={color}
+                name="heart"
+                size={28}
+                color="#1a1a0e"
               />
             </View>
           ),
@@ -73,30 +89,24 @@ export default function TabLayout() {
       <Tabs.Screen
         name="settings"
         options={{
-          title: t('tabs.family', { defaultValue: 'Família' }),
           tabBarIcon: ({ focused, color }) => (
-            <View className="">
-              <MaterialCommunityIcons
-                name={focused ? 'account-group' : 'account-group-outline'}
-                size={26}
-                color={color}
-              />
-            </View>
+            <MaterialCommunityIcons
+              name={focused ? 'account-group' : 'account-group-outline'}
+              size={26}
+              color={color}
+            />
           ),
         }}
       />
       <Tabs.Screen
         name="profile"
         options={{
-          title: t('tabs.profile'),
           tabBarIcon: ({ focused, color }) => (
-            <View className="">
-              <MaterialCommunityIcons
-                name={focused ? 'account' : 'account-outline'}
-                size={26}
-                color={color}
-              />
-            </View>
+            <MaterialCommunityIcons
+              name={focused ? 'account' : 'account-outline'}
+              size={26}
+              color={color}
+            />
           ),
         }}
       />

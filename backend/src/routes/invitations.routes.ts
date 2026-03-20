@@ -18,6 +18,16 @@ function generateInviteCode(): string {
 invitationsRoutes.post('/', authMiddleware, requireFamilyOwner, invitationRateLimit, async (c) => {
   const user = c.get('user');
 
+  // Subscription gating: check guardian invite
+  const { subscriptionService } = await import('../services/subscription.service.js');
+  const canInvite = await subscriptionService.checkGuardianInviteAllowed(user.familyId);
+  if (!canInvite) {
+    return c.json({
+      error: 'subscription_required',
+      feature: 'invite_guardian',
+    }, 403);
+  }
+
   const pendingCount = await familyInvitationRepo.countActivePending(user.familyId);
   if (pendingCount >= 10) {
     throw new AppError(429, 'Too many pending invitations');

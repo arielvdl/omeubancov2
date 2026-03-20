@@ -21,6 +21,8 @@ import { useSettingsStore } from '@/src/stores/useSettingsStore';
 import { currencyToCents, isValidAmount } from '@/src/utils/currency';
 import { bankApi } from '@/src/services/api/bank';
 import { haptics } from '@/src/utils/haptics';
+import { useSubscriptionStore } from '@/src/stores/useSubscriptionStore';
+import { PaywallPrompt } from '@/src/components/ui/PaywallPrompt';
 import type { ScheduledDeposit } from '@/src/types/user';
 
 type Frequency = 'daily' | 'weekly' | 'monthly';
@@ -53,6 +55,7 @@ export default function ScheduleScreen() {
   const addSchedule = useBankStore((s) => s.addSchedule);
   const updateSchedule = useBankStore((s) => s.updateSchedule);
   const removeSchedule = useBankStore((s) => s.removeSchedule);
+  const canUseFrequency = useSubscriptionStore((s) => s.canUseFrequency);
 
   const [selectedChildId, setSelectedChildId] = useState(children[0]?.id ?? '');
   const [amountText, setAmountText] = useState('');
@@ -272,12 +275,20 @@ export default function ScheduleScreen() {
         <View className="flex-row gap-3 mb-6">
           {(['daily', 'weekly', 'monthly'] as Frequency[]).map((f) => {
             const isSelected = frequency === f;
+            const isLocked = !canUseFrequency(f);
             return (
               <Pressable
                 key={f}
-                onPress={() => setFrequency(f)}
+                onPress={() => {
+                  if (isLocked) {
+                    haptics.light();
+                    router.push({ pathname: '/(modals)/paywall', params: { feature: 'schedule_frequency' } });
+                    return;
+                  }
+                  setFrequency(f);
+                }}
                 className={`flex-1 py-3.5 rounded-2xl items-center ${
-                  isSelected ? 'bg-primary-50' : 'bg-surface'
+                  isSelected ? 'bg-primary-50' : isLocked ? 'bg-surface opacity-60' : 'bg-surface'
                 }`}
                 style={isSelected
                   ? { borderWidth: 2, borderColor: '#FFD600' }
@@ -290,13 +301,18 @@ export default function ScheduleScreen() {
                     }
                 }
               >
-                <Text
-                  className={`text-[14px] font-sans-semibold ${
-                    isSelected ? 'text-text' : 'text-text-secondary'
-                  }`}
-                >
-                  {frequencyLabel(f)}
-                </Text>
+                <View className="flex-row items-center gap-1.5">
+                  {isLocked && (
+                    <MaterialCommunityIcons name="lock" size={14} color="#6b6b5a" />
+                  )}
+                  <Text
+                    className={`text-[14px] font-sans-semibold ${
+                      isSelected ? 'text-text' : 'text-text-secondary'
+                    }`}
+                  >
+                    {frequencyLabel(f)}
+                  </Text>
+                </View>
               </Pressable>
             );
           })}

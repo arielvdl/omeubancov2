@@ -6,11 +6,13 @@ interface SettingsState {
   currency: string;
   notificationsEnabled: boolean;
   theme: 'light' | 'dark' | 'system';
+  wishlistLayout: 'feed' | 'grid';
 
   setLocale: (locale: string) => void;
   setCurrency: (currency: string) => void;
   setNotificationsEnabled: (enabled: boolean) => void;
   setTheme: (theme: 'light' | 'dark' | 'system') => void;
+  setWishlistLayout: (layout: 'feed' | 'grid') => void;
   loadSettings: () => Promise<void>;
 }
 
@@ -19,6 +21,7 @@ export const useSettingsStore = create<SettingsState>((set) => ({
   currency: 'BRL',
   notificationsEnabled: true,
   theme: 'light',
+  wishlistLayout: 'feed',
 
   setLocale: (locale: string) => {
     SecureStore.setItemAsync('locale', locale);
@@ -40,18 +43,25 @@ export const useSettingsStore = create<SettingsState>((set) => ({
     set({ theme });
   },
 
+  setWishlistLayout: (layout: 'feed' | 'grid') => {
+    SecureStore.setItemAsync('wishlist_layout', layout);
+    set({ wishlistLayout: layout });
+  },
+
   loadSettings: async () => {
-    const [locale, currency, notificationsEnabled, theme] = await Promise.all([
+    const [locale, currency, notificationsEnabled, theme, wishlistLayout] = await Promise.all([
       SecureStore.getItemAsync('locale'),
       SecureStore.getItemAsync('currency'),
       SecureStore.getItemAsync('notifications_enabled'),
       SecureStore.getItemAsync('theme'),
+      SecureStore.getItemAsync('wishlist_layout'),
     ]);
     set({
       locale: locale ?? 'pt-BR',
       currency: currency ?? 'BRL',
       notificationsEnabled: notificationsEnabled !== 'false',
       theme: (theme as 'light' | 'dark' | 'system') ?? 'light',
+      wishlistLayout: (wishlistLayout as 'feed' | 'grid') ?? 'feed',
     });
   },
 }));

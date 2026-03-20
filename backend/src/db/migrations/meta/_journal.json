@@ -15,6 +15,34 @@
       "when": 1773629921025,
       "tag": "0001_breezy_wolfpack",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1773861831844,
+      "tag": "0002_tense_hobgoblin",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1774051200000,
+      "tag": "0003_wish_items",
+      "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1773887619701,
+      "tag": "0004_sturdy_roland_deschain",
+      "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1774063200000,
+      "tag": "0005_add_mascot_id",
+      "breakpoints": true
     }
   ]
 }

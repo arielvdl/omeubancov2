@@ -163,7 +163,7 @@
     "noTransactions": "No transactions yet.",
     "noTransactionsHint": "Transactions will appear here.",
     "deposit": "Deposit",
-    "withdraw": "Withdraw",
+    "withdraw": "Use my money",
     "schedule": "Schedule",
     "switchChild": "Switch child",
     "bankName": "{{name}}"
@@ -270,6 +270,10 @@
     "editChild": "Edit child",
     "removeChild": "Remove child",
     "removeChildConfirm": "Are you sure you want to remove {{name}}? The history will be kept.",
+    "wishlistLayoutSection": "Wish List",
+    "wishlistLayoutHint": "Choose how wishes appear on the screen.",
+    "wishlistLayoutFeed": "Feed",
+    "wishlistLayoutGrid": "Grid",
     "changePin": {
       "title": "Change PIN",
       "description": "Change parent access password",
@@ -338,8 +342,58 @@
   "tabs": {
     "home": "Home",
     "history": "History",
+    "wishlist": "Wishes",
     "settings": "Settings",
     "profile": "Profile"
+  },
+  "wishlist": {
+    "title": "My Wishes",
+    "filterAll": "All",
+    "filterConquered": "Conquered",
+    "empty": "No wishes yet",
+    "emptyHint": "Take a photo of something you want!",
+    "noName": "No name",
+    "nameLabel": "Name",
+    "namePlaceholder": "e.g. Red bicycle",
+    "priceLabel": "How much does it cost?",
+    "noteLabel": "Notes",
+    "notePlaceholder": "e.g. Saw it at the mall",
+    "howMuch": "How much do you want it?",
+    "levelLow": "It's cool",
+    "levelMedium": "Want it!",
+    "levelHigh": "REALLY want!",
+    "conquered": "Got it!",
+    "conqueredSuccess": "Congrats! You got it!",
+    "setAsGoal": "My Goal",
+    "dontWant": "Don't want anymore",
+    "archiveTitle": "Don't want anymore?",
+    "archiveMessage": "This item will be removed from your wish list.",
+    "deleteItem": "Delete",
+    "deleteConfirmTitle": "Delete wish?",
+    "deleteConfirmMessage": "Are you sure you want to delete this item?",
+    "myGoal": "My Goal",
+    "myGoals": "My Goals",
+    "moreGoals": "+{{count}} more goal(s)",
+    "readyBadge": "ready!",
+    "readyToBuy": "Ready to buy!",
+    "readyTitle": "You made it!",
+    "readyMessage": "Your balance is enough for \"{{name}}\". Mark as conquered?",
+    "undoConquer": "Undo conquest",
+    "undoConquerConfirm": "Move this item back to your wish list?",
+    "maxGoalsTitle": "Goal limit",
+    "maxGoalsMessage": "You can have up to 5 goals at the same time. Remove a goal to add another.",
+    "goalTip": "Add a price and save to set this as a goal!",
+    "goalHelpTitle": "How do goals work?",
+    "goalHelpMessage": "1. Add the product price and save\n2. Tap \"My Goal\" to track progress\n3. When your balance is enough, we'll let you know you can buy it!\n4. Tap \"Got it!\" when you buy it",
+    "yourBalance": "Your balance",
+    "remaining": "Remaining",
+    "cameraPermission": "We need camera access to take photos",
+    "cameraGuide": "Frame the product in the photo",
+    "retake": "Retake",
+    "savePhoto": "Save",
+    "saving": "Saving...",
+    "galleryPermission": "We need permission to save to your gallery.",
+    "downloadSuccess": "Photo saved to gallery!"
   },
   "profile": {
     "title": "Profile",
@@ -465,6 +519,52 @@
     "bankNameRequired": "Bank name is required.",
     "bankNameTooShort": "Bank name must be at least 3 characters.",
     "bankNameTooLong": "Bank name must be at most 30 characters."
+  },
+  "subscription": {
+    "title": "Subscribe",
+    "myPlan": "My Plan",
+    "myPlanHint": "Manage your subscription and see your current plan.",
+    "freePlan": "Free Plan",
+    "familiaPlan": "Family Plan",
+    "familiaPlusPlan": "Family+ Plan",
+    "upgradeNow": "Upgrade for more features",
+    "managePlan": "Manage subscription",
+    "heroTitle": "Unlock everything",
+    "heroSubtitle": "Access all features for your family",
+    "monthly": "Monthly",
+    "yearly": "Yearly",
+    "month": "month",
+    "year": "year",
+    "popular": "Most popular",
+    "subscribe": "Subscribe",
+    "currentPlan": "Current plan",
+    "restore": "Restore purchases",
+    "upgrade": "Subscribe",
+    "premiumFeature": "Premium feature",
+    "upgradeHint": "Available on paid plans",
+    "seePlans": "See plans",
+    "features": {
+      "add_child": {
+        "title": "Child limit reached",
+        "description": "Add more children with a family plan"
+      },
+      "receipt": {
+        "title": "Receipt limit",
+        "description": "Unlimited photos with family plan"
+      },
+      "schedule_frequency": {
+        "title": "Premium frequency",
+        "description": "Daily and weekly scheduling with family plan"
+      },
+      "invite_guardian": {
+        "title": "Add family members",
+        "description": "Invite other family members with family plan"
+      },
+      "wish_item": {
+        "title": "Wish list limit reached",
+        "description": "Add unlimited wishes with family plan"
+      }
+    }
   },
   "privacy": {
     "title": "Privacy Policy",

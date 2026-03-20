@@ -19,6 +19,7 @@ childrenRoutes.get('/', requireParent, async (c) => {
       id: child.id,
       name: child.name,
       avatarUrl: child.avatarUrl,
+      mascotId: child.mascotId,
       balance: child.balance,
       birthDate: child.birthDate,
       hasPin: !!child.pinHash,
@@ -32,6 +33,18 @@ childrenRoutes.post('/', requireParent, async (c) => {
   const body = await c.req.json();
   const data = createChildSchema.parse(body);
 
+  // Subscription gating: check child limit
+  const { subscriptionService } = await import('../services/subscription.service.js');
+  const childCheck = await subscriptionService.checkChildLimit(user.familyId);
+  if (!childCheck.allowed) {
+    return c.json({
+      error: 'subscription_required',
+      feature: 'add_child',
+      current: childCheck.current,
+      limit: childCheck.limit,
+    }, 403);
+  }
+
   let pinHash: string | undefined;
   if (data.pin) {
     pinHash = await hashPassword(data.pin);
@@ -42,6 +55,7 @@ childrenRoutes.post('/', requireParent, async (c) => {
     name: data.name,
     pinHash,
     avatarUrl: data.avatarUrl,
+    mascotId: data.mascotId,
     birthDate: data.birthDate,
   });
 
@@ -57,6 +71,7 @@ childrenRoutes.post('/', requireParent, async (c) => {
       id: child.id,
       name: child.name,
       avatarUrl: child.avatarUrl,
+      mascotId: child.mascotId,
       balance: child.balance,
       birthDate: child.birthDate,
       hasPin: !!child.pinHash,
@@ -87,6 +102,7 @@ childrenRoutes.get('/:id', async (c) => {
     id: child.id,
     name: child.name,
     avatarUrl: child.avatarUrl,
+    mascotId: child.mascotId,
     balance: child.balance,
     birthDate: child.birthDate,
     hasPin: !!child.pinHash,
@@ -114,9 +130,10 @@ childrenRoutes.put('/:id', requireParent, async (c) => {
     pinHash = await hashPassword(data.pin);
   }
 
-  const updateData: Partial<{ name: string; avatarUrl: string | null; birthDate: string | null; pinHash: string }> = {};
+  const updateData: Partial<{ name: string; avatarUrl: string | null; mascotId: string | null; birthDate: string | null; pinHash: string }> = {};
   if (data.name !== undefined) updateData.name = data.name;
   if (data.avatarUrl !== undefined) updateData.avatarUrl = data.avatarUrl;
+  if (data.mascotId !== undefined) updateData.mascotId = data.mascotId;
   if (data.birthDate !== undefined) updateData.birthDate = data.birthDate;
   if (pinHash !== undefined) updateData.pinHash = pinHash;
 
@@ -136,6 +153,7 @@ childrenRoutes.put('/:id', requireParent, async (c) => {
     id: child.id,
     name: child.name,
     avatarUrl: child.avatarUrl,
+    mascotId: child.mascotId,
     balance: child.balance,
     birthDate: child.birthDate,
     hasPin: !!child.pinHash,

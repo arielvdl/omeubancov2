@@ -44,14 +44,14 @@ export function Input({
     <View className="mb-6">
       <Text className="text-[16px] font-sans-semibold text-text mb-2.5">{label}</Text>
       <View
-        className={`flex-row items-center bg-background-light rounded-2xl px-5 ${multiline ? 'py-4' : heightClass}`}
+        className={`flex-row ${multiline ? 'items-start' : 'items-center'} bg-background-light rounded-2xl px-5 ${multiline ? 'py-4' : heightClass}`}
       >
         {icon && (
           <MaterialCommunityIcons
             name={icon}
             size={iconSize}
             color={error ? '#ef4444' : isFocused ? '#FFD600' : '#6b6b5a'}
-            style={{ marginRight: 10 }}
+            style={{ marginRight: 10, ...(multiline ? { marginTop: 2 } : {}) }}
           />
         )}
         <TextInput

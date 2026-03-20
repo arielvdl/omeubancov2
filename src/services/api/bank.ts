@@ -10,6 +10,7 @@ export interface CreateChildPayload {
 export interface UpdateChildPayload {
   name?: string;
   avatarUrl?: string;
+  mascotId?: string | null;
   birthDate?: string | null;
 }
 

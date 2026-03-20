@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { View, Text, ScrollView, RefreshControl, Pressable } from 'react-native';
+import { View, Text, ScrollView, RefreshControl, Pressable, TouchableOpacity } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
@@ -18,6 +18,9 @@ import { useSelectedChild } from '@/src/hooks/useSelectedChild';
 import { bankApi } from '@/src/services/api/bank';
 import { transactionsApi } from '@/src/services/api/transactions';
 import { haptics } from '@/src/utils/haptics';
+import { GoalStack } from '@/src/components/wishlist/GoalProgressCard';
+import { useWishlistStore } from '@/src/stores/useWishlistStore';
+import { wishlistApi } from '@/src/services/api/wishlist';
 import type { Transaction } from '@/src/types/transaction';
 
 export default function DashboardScreen() {
@@ -31,9 +34,13 @@ export default function DashboardScreen() {
   const setChildren = useBankStore((s) => s.setChildren);
   const setSelectedChild = useBankStore((s) => s.setSelectedChild);
 
+  const wishItems = useWishlistStore((s) => s.items);
+  const setWishItems = useWishlistStore((s) => s.setItems);
+
   const [refreshing, setRefreshing] = useState(false);
   const [selectedTx, setSelectedTx] = useState<Transaction | null>(null);
   const bottomSheetRef = useRef<BottomSheet>(null);
+
 
   const recentTransactions = useMemo(() => {
     if (!selectedChild) return [];
@@ -42,7 +49,7 @@ export default function DashboardScreen() {
       .slice(0, 5);
   }, [transactions, selectedChild]);
 
-  const fetchData = useCallback(async () => {
+  const fetchChildren = useCallback(async () => {
     if (!token) return;
     try {
       const childrenRes = await bankApi.getChildren();
@@ -53,13 +60,6 @@ export default function DashboardScreen() {
         if (!currentChildId || !stillExists) {
           setSelectedChild(childrenRes.data[0].id);
         }
-        const activeChildId = stillExists && currentChildId
-          ? currentChildId
-          : childrenRes.data[0].id;
-        const txRes = await transactionsApi.getByChild(activeChildId);
-        if (Array.isArray(txRes.data)) {
-          useTransactionStore.setState({ transactions: txRes.data });
-        }
       }
     } catch {
       // Silently handle -- data stays from store cache
@@ -67,14 +67,58 @@ export default function DashboardScreen() {
   }, [token, setChildren, setSelectedChild]);
 
   useEffect(() => {
+    fetchChildren();
+  }, [fetchChildren]);
+
+  // Fetch transactions whenever the selected child changes
+  useEffect(() => {
+    if (!selectedChild) return;
+    let cancelled = false;
+
+    async function fetchData() {
+      try {
+        const [txRes, wishRes] = await Promise.all([
+          transactionsApi.getByChild(selectedChild!.id),
+          wishlistApi.getByChild(selectedChild!.id),
+        ]);
+        if (!cancelled) {
+          if (Array.isArray(txRes.data)) {
+            useTransactionStore.setState({ transactions: txRes.data });
+          }
+          if (Array.isArray(wishRes.data?.data)) {
+            setWishItems(wishRes.data.data);
+          }
+        }
+      } catch {
+        // Keep existing store data on failure
+      }
+    }
+
     fetchData();
-  }, [fetchData]);
+    return () => { cancelled = true; };
+  }, [selectedChild?.id]);
 
   const onRefresh = useCallback(async () => {
     setRefreshing(true);
-    await fetchData();
+    await fetchChildren();
+    if (selectedChild) {
+      try {
+        const [txRes, wishRes] = await Promise.all([
+          transactionsApi.getByChild(selectedChild.id),
+          wishlistApi.getByChild(selectedChild.id),
+        ]);
+        if (Array.isArray(txRes.data)) {
+          useTransactionStore.setState({ transactions: txRes.data });
+        }
+        if (Array.isArray(wishRes.data?.data)) {
+          setWishItems(wishRes.data.data);
+        }
+      } catch {
+        // Keep existing data
+      }
+    }
     setRefreshing(false);
-  }, [fetchData]);
+  }, [fetchChildren, selectedChild, setWishItems]);
 
   const handleTransactionPress = useCallback((tx: Transaction) => {
     haptics.selection();
@@ -150,26 +194,48 @@ export default function DashboardScreen() {
         )}
 
         {/* Quick Actions */}
-        <View className="flex-row gap-3.5 mb-10">
-          <View className="flex-1">
-            <Button
-              title={t('dashboard.withdraw')}
-              onPress={() => router.push('/(modals)/withdraw')}
-              variant="secondary"
-              fullWidth
-              icon="cash-minus"
-            />
-          </View>
-          <View className="flex-1">
-            <Button
-              title={t('dashboard.seeAll')}
-              onPress={() => router.push('/(tabs)/history')}
-              variant="secondary"
-              fullWidth
-              icon="receipt"
-            />
-          </View>
+        <View className="mb-10">
+          <TouchableOpacity
+            activeOpacity={0.85}
+            onPress={() => {
+              haptics.light();
+              router.push('/(modals)/withdraw');
+            }}
+            style={{
+              flexDirection: 'row',
+              alignItems: 'center',
+              justifyContent: 'center',
+              paddingVertical: 18,
+              borderRadius: 16,
+              backgroundColor: '#16a34a',
+              borderBottomWidth: 6,
+              borderBottomColor: '#0f6b2f',
+              shadowColor: 'transparent',
+              shadowOpacity: 0,
+              elevation: 0,
+            }}
+          >
+            <MaterialCommunityIcons name="cash-minus" size={22} color="#ffffff" />
+            <Text style={{ fontSize: 17, fontWeight: '700', color: '#ffffff', marginLeft: 10 }}>
+              {t('dashboard.withdraw')}
+            </Text>
+          </TouchableOpacity>
         </View>
+
+        {/* Goal Wallet Stack — Apple Wallet style */}
+        {selectedChild && wishItems.filter((i) => i.childId === selectedChild.id && i.status === 'active' && i.priceCents != null && i.priceCents > 0).length > 0 && (
+          <View className="mb-8">
+            <GoalStack
+              items={wishItems.filter((i) => i.childId === selectedChild.id)}
+              balance={selectedChild.balance}
+              childId={selectedChild.id}
+              onItemPress={(item) => {
+                haptics.light();
+                router.push({ pathname: '/(modals)/wish-detail', params: { id: item.id } });
+              }}
+            />
+          </View>
+        )}
 
         {/* Recent Transactions */}
         <View className="flex-row items-center justify-between mb-5">

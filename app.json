@@ -17,6 +17,7 @@
         "ITSAppUsesNonExemptEncryption": false
       },
       "associatedDomains": [
+        "webcredentials:api.omeubanco.xyz",
         "webcredentials:omeubanco-api-548984743318.southamerica-east1.run.app"
       ]
     },
@@ -57,6 +58,13 @@
       "expo-secure-store",
       "expo-image-picker",
       [
+        "expo-media-library",
+        {
+          "photosPermission": "Allow $(PRODUCT_NAME) to save receipts to your gallery.",
+          "savePhotosPermission": "Allow $(PRODUCT_NAME) to save receipts to your gallery."
+        }
+      ],
+      [
         "expo-camera",
         {
           "cameraPermission": "Allow $(PRODUCT_NAME) to access your camera."
@@ -78,7 +86,8 @@
           "faceIDPermission": "Permitir que $(PRODUCT_NAME) use o Face ID para autenticação dos pais."
         }
       ],
-      "@react-native-community/datetimepicker"
+      "@react-native-community/datetimepicker",
+      "expo-video"
     ],
     "experiments": {
       "typedRoutes": true

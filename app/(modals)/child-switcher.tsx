@@ -23,7 +23,7 @@ export default function ChildSwitcherScreen() {
     (childId: string) => {
       haptics.selection();
       setSelectedChild(childId);
-      router.back();
+      router.replace('/(tabs)');
     },
     [setSelectedChild, router],
   );

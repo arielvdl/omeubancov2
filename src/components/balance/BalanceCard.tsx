@@ -10,6 +10,8 @@ import type { Child } from '@/src/types/bank';
 import type { Transaction } from '@/src/types/transaction';
 import { BalanceDisplay } from '@/src/components/balance/BalanceDisplay';
 import { BalanceMeter } from '@/src/components/balance/BalanceMeter';
+import { getMascotById } from '@/src/constants/mascots';
+import { MascotVideo } from '@/src/components/mascot/MascotVideo';
 
 interface BalanceCardProps {
   child: Child;
@@ -28,7 +30,23 @@ export function BalanceCard({ child, transactions, onMeterPress }: BalanceCardPr
   }));
 
   return (
-    <View className="bg-surface rounded-3xl p-6">
+    <View
+      className="bg-surface rounded-3xl p-6"
+      style={{
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.06,
+        shadowRadius: 16,
+        elevation: 3,
+      }}
+    >
+      {/* Mascot — only if child has one selected */}
+      {child.mascotId && (
+        <View className="items-center mb-2">
+          <MascotVideo mascot={getMascotById(child.mascotId)} size={180} />
+        </View>
+      )}
+
       {/* Balance area */}
       <View className="bg-gray-100 rounded-2xl px-6 py-5 items-center">
         <Text className="text-[14px] font-sans-medium text-text-secondary mb-1">

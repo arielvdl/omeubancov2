@@ -29,6 +29,17 @@ scheduledRoutes.post('/children/:id/schedules', requireParent, async (c) => {
   const body = await c.req.json();
   const data = createScheduleSchema.parse(body);
 
+  // Subscription gating: check frequency
+  const { subscriptionService } = await import('../services/subscription.service.js');
+  const frequencyAllowed = await subscriptionService.checkFrequencyAllowed(user.familyId, data.frequency);
+  if (!frequencyAllowed) {
+    return c.json({
+      error: 'subscription_required',
+      feature: 'schedule_frequency',
+      frequency: data.frequency,
+    }, 403);
+  }
+
   const child = await childRepo.findById(childId);
   if (!child) throw new NotFoundError('Child');
   if (child.familyId !== user.familyId) throw new ForbiddenError('Access denied');

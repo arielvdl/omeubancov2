@@ -11,6 +11,7 @@ import * as auditLog from './schema/audit-log.js';
 import * as guardians from './schema/guardians.js';
 import * as familyInvitations from './schema/family-invitations.js';
 import * as passkeyCredentials from './schema/passkey-credentials.js';
+import * as subscriptions from './schema/subscriptions.js';
 
 function createPostgresClient() {
   const url = env.DATABASE_URL;
@@ -48,6 +49,7 @@ export const db = drizzle(queryClient, {
     ...guardians,
     ...familyInvitations,
     ...passkeyCredentials,
+    ...subscriptions,
   },
 });
 

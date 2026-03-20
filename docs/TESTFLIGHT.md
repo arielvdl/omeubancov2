@@ -426,3 +426,5 @@ xcodebuild -exportArchive \
 | 1.0.0 (7) | 2026-03-17 | Gráfico comparativo extrato, fix chart overflow, comprovante no saque (categoria + foto) |
 | 1.0.0 (8) | 2026-03-17 | Comprovante aparece no drawer de detalhes, data de nascimento editável no perfil, drawer no extrato do pai |
 | 1.0.0 (9) | 2026-03-17 | Fix: DatePicker em modal iOS, upload receipt com FormData correto, GCS makePublic |
+| 1.0.0 (10) | 2026-03-19 | Domínio customizado api.omeubanco.xyz via Cloudflare + Worker proxy, passkey associated domains atualizado |
+| 1.0.0 (11) | 2026-03-19 | Sistema de assinaturas RevenueCat + IAP, paywall, gating em 5 pontos (children, receipts, schedules, invitations, wishlist), lista de desejos |

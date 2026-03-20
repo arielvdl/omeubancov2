@@ -13,6 +13,8 @@ import { useBankStore } from '@/src/stores/useBankStore';
 import { useCurrency } from '@/src/hooks/useCurrency';
 import { haptics } from '@/src/utils/haptics';
 import { bankApi } from '@/src/services/api/bank';
+import { useSubscriptionStore } from '@/src/stores/useSubscriptionStore';
+import { PaywallPrompt } from '@/src/components/ui/PaywallPrompt';
 import type { Guardian, FamilyInvitation } from '@/src/types/invitation';
 
 export default function FamilyMembersScreen() {
@@ -27,6 +29,8 @@ export default function FamilyMembersScreen() {
   const [guardians, setGuardians] = useState<Guardian[]>([]);
   const [invitations, setInvitations] = useState<FamilyInvitation[]>([]);
   const [refreshing, setRefreshing] = useState(false);
+  const canAddChild = useSubscriptionStore((s) => s.canAddChild);
+  const canInviteGuardian = useSubscriptionStore((s) => s.canInviteGuardian);
 
   const loadData = useCallback(async () => {
     try {
@@ -207,19 +211,23 @@ export default function FamilyMembersScreen() {
 
           {/* Add child button */}
           {isOwner && (
-            <Pressable
-              onPress={() => {
-                haptics.light();
-                router.push('/(onboarding)/add-children');
-              }}
-              className="flex-row items-center justify-center py-3.5 mt-4 rounded-2xl bg-background-light"
-              style={({ pressed }) => ({ opacity: pressed ? 0.7 : 1 })}
-            >
-              <MaterialCommunityIcons name="plus-circle-outline" size={20} color="#22c55e" />
-              <Text className="text-[15px] font-sans-semibold text-text ml-2">
-                {t('onboarding.addChildren.addChild')}
-              </Text>
-            </Pressable>
+            canAddChild() ? (
+              <Pressable
+                onPress={() => {
+                  haptics.light();
+                  router.push('/(onboarding)/add-children');
+                }}
+                className="flex-row items-center justify-center py-3.5 mt-4 rounded-2xl bg-background-light"
+                style={({ pressed }) => ({ opacity: pressed ? 0.7 : 1 })}
+              >
+                <MaterialCommunityIcons name="plus-circle-outline" size={20} color="#22c55e" />
+                <Text className="text-[15px] font-sans-semibold text-text ml-2">
+                  {t('onboarding.addChildren.addChild')}
+                </Text>
+              </Pressable>
+            ) : (
+              <PaywallPrompt feature="add_child" />
+            )
           )}
         </Card>
 
@@ -280,19 +288,23 @@ export default function FamilyMembersScreen() {
 
           {/* Invite button */}
           {isOwner && (
-            <Pressable
-              onPress={() => {
-                haptics.light();
-                router.push('/(parent)/invite-member');
-              }}
-              className="flex-row items-center justify-center py-3.5 mt-4 rounded-2xl bg-background-light"
-              style={({ pressed }) => ({ opacity: pressed ? 0.7 : 1 })}
-            >
-              <MaterialCommunityIcons name="account-plus" size={20} color="#22c55e" />
-              <Text className="text-[15px] font-sans-semibold text-text ml-2">
-                {t('invitation.inviteFamily')}
-              </Text>
-            </Pressable>
+            canInviteGuardian() ? (
+              <Pressable
+                onPress={() => {
+                  haptics.light();
+                  router.push('/(parent)/invite-member');
+                }}
+                className="flex-row items-center justify-center py-3.5 mt-4 rounded-2xl bg-background-light"
+                style={({ pressed }) => ({ opacity: pressed ? 0.7 : 1 })}
+              >
+                <MaterialCommunityIcons name="account-plus" size={20} color="#22c55e" />
+                <Text className="text-[15px] font-sans-semibold text-text ml-2">
+                  {t('invitation.inviteFamily')}
+                </Text>
+              </Pressable>
+            ) : (
+              <PaywallPrompt feature="invite_guardian" />
+            )
           )}
         </Card>
 

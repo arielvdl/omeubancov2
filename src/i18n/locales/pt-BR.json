@@ -163,7 +163,7 @@
     "noTransactions": "Nenhuma movimentação ainda.",
     "noTransactionsHint": "As movimentações aparecerão aqui.",
     "deposit": "Depositar",
-    "withdraw": "Sacar",
+    "withdraw": "Usar meu dinheiro",
     "schedule": "Agendar",
     "switchChild": "Trocar criança",
     "bankName": "{{name}}"
@@ -272,6 +272,10 @@
     "editChild": "Editar criança",
     "removeChild": "Remover criança",
     "removeChildConfirm": "Tem certeza que deseja remover {{name}}? O histórico será mantido.",
+    "wishlistLayoutSection": "Lista de Desejos",
+    "wishlistLayoutHint": "Escolha como os desejos aparecem na tela.",
+    "wishlistLayoutFeed": "Feed",
+    "wishlistLayoutGrid": "Grade",
     "changePin": {
       "title": "Alterar PIN",
       "description": "Mude a senha de acesso dos pais",
@@ -340,8 +344,58 @@
   "tabs": {
     "home": "Início",
     "history": "Histórico",
+    "wishlist": "Desejos",
     "settings": "Configurações",
     "profile": "Perfil"
+  },
+  "wishlist": {
+    "title": "Meus Desejos",
+    "filterAll": "Todos",
+    "filterConquered": "Conquistas",
+    "empty": "Nenhum desejo ainda",
+    "emptyHint": "Tire uma foto de algo que você quer!",
+    "noName": "Sem nome",
+    "nameLabel": "Nome",
+    "namePlaceholder": "Ex: Bicicleta vermelha",
+    "priceLabel": "Quanto custa?",
+    "noteLabel": "Observação",
+    "notePlaceholder": "Ex: Vi na loja do shopping",
+    "howMuch": "Quanto você quer?",
+    "levelLow": "Achei legal",
+    "levelMedium": "Quero!",
+    "levelHigh": "Quero MUITO!",
+    "conquered": "Conquistei!",
+    "conqueredSuccess": "Parabéns! Você conquistou!",
+    "setAsGoal": "Minha Meta",
+    "dontWant": "Não quero mais",
+    "archiveTitle": "Não quer mais?",
+    "archiveMessage": "Este item vai sair da sua lista de desejos.",
+    "deleteItem": "Excluir",
+    "deleteConfirmTitle": "Excluir desejo?",
+    "deleteConfirmMessage": "Tem certeza que quer apagar este item da lista?",
+    "myGoal": "Minha Meta",
+    "myGoals": "Minhas Metas",
+    "moreGoals": "+{{count}} meta(s)",
+    "readyBadge": "pronto!",
+    "readyToBuy": "Pode comprar!",
+    "readyTitle": "Você conseguiu!",
+    "readyMessage": "Seu saldo é suficiente para \"{{name}}\". Quer marcar como conquistado?",
+    "undoConquer": "Desmarcar conquista",
+    "undoConquerConfirm": "Voltar este item para a lista de desejos?",
+    "maxGoalsTitle": "Limite de metas",
+    "maxGoalsMessage": "Você pode ter no máximo 5 metas ao mesmo tempo. Remova uma meta para adicionar outra.",
+    "goalTip": "Coloque o valor e salve para poder definir como meta!",
+    "goalHelpTitle": "Como funcionam as metas?",
+    "goalHelpMessage": "1. Coloque o valor do produto e salve\n2. Toque em \"Minha Meta\" para acompanhar\n3. Quando seu saldo for suficiente, vamos te avisar que você pode comprar!\n4. Toque em \"Conquistei!\" quando comprar",
+    "yourBalance": "Seu saldo",
+    "remaining": "Faltam",
+    "cameraPermission": "Precisamos de acesso à câmera para tirar fotos",
+    "cameraGuide": "Enquadre o produto na foto",
+    "retake": "Tirar outra",
+    "savePhoto": "Salvar",
+    "saving": "Salvando...",
+    "galleryPermission": "Precisamos de permissão para salvar na galeria.",
+    "downloadSuccess": "Foto salva na galeria!"
   },
   "profile": {
     "title": "Perfil",
@@ -467,6 +521,52 @@
     "bankNameRequired": "O nome do banco é obrigatório.",
     "bankNameTooShort": "O nome do banco deve ter pelo menos 3 caracteres.",
     "bankNameTooLong": "O nome do banco deve ter no máximo 30 caracteres."
+  },
+  "subscription": {
+    "title": "Assinar",
+    "myPlan": "Meu Plano",
+    "myPlanHint": "Gerencie sua assinatura e veja seu plano atual.",
+    "freePlan": "Plano Gratuito",
+    "familiaPlan": "Plano Família",
+    "familiaPlusPlan": "Plano Família+",
+    "upgradeNow": "Faça upgrade para mais recursos",
+    "managePlan": "Gerenciar assinatura",
+    "heroTitle": "Desbloqueie tudo",
+    "heroSubtitle": "Acesse todas as funcionalidades para sua família",
+    "monthly": "Mensal",
+    "yearly": "Anual",
+    "month": "mês",
+    "year": "ano",
+    "popular": "Mais popular",
+    "subscribe": "Assinar",
+    "currentPlan": "Plano atual",
+    "restore": "Restaurar compras",
+    "upgrade": "Assinar",
+    "premiumFeature": "Recurso premium",
+    "upgradeHint": "Disponível nos planos pagos",
+    "seePlans": "Ver planos",
+    "features": {
+      "add_child": {
+        "title": "Limite de crianças atingido",
+        "description": "Adicione mais crianças com um plano familiar"
+      },
+      "receipt": {
+        "title": "Limite de comprovantes",
+        "description": "Fotos ilimitadas com plano familiar"
+      },
+      "schedule_frequency": {
+        "title": "Frequência premium",
+        "description": "Agendamento diário e semanal com plano familiar"
+      },
+      "invite_guardian": {
+        "title": "Adicione pessoas da família",
+        "description": "Convide outros responsáveis com plano familiar"
+      },
+      "wish_item": {
+        "title": "Limite de desejos atingido",
+        "description": "Adicione desejos ilimitados com plano familiar"
+      }
+    }
   },
   "privacy": {
     "title": "Política de Privacidade",

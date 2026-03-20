@@ -14,6 +14,9 @@ import { useSelectedChild } from '@/src/hooks/useSelectedChild';
 import { bankApi } from '@/src/services/api/bank';
 import { registerPasskey, isPasskeySupported } from '@/src/services/passkey';
 import { haptics } from '@/src/utils/haptics';
+import { useSubscriptionStore } from '@/src/stores/useSubscriptionStore';
+import { MASCOTS, getMascotById } from '@/src/constants/mascots';
+import { MascotPickerItem } from '@/src/components/mascot/MascotPickerItem';
 import type { Currency } from '@/src/types/bank';
 
 const CURRENCIES: { value: Currency; label: string; icon: string }[] = [
@@ -44,6 +47,9 @@ export default function ParentSettingsScreen() {
   const [deleteConfirmVisible, setDeleteConfirmVisible] = useState(false);
   const [deleteConfirmText, setDeleteConfirmText] = useState('');
   const [deleting, setDeleting] = useState(false);
+  const subscriptionEntitlement = useSubscriptionStore((s) => s.entitlement);
+  const wishlistLayout = useSettingsStore((s) => s.wishlistLayout);
+  const setWishlistLayout = useSettingsStore((s) => s.setWishlistLayout);
 
   useEffect(() => {
     isPasskeySupported().then(setPasskeySupported);
@@ -241,6 +247,205 @@ export default function ParentSettingsScreen() {
             </Pressable>
           </Card>
         )}
+
+        {/* Mascot Picker — per child */}
+        {selectedChild && (
+          <Card
+            title={t('parent.mascotSection', { defaultValue: 'Mascote de {{name}}' }).replace('{{name}}', selectedChild.name)}
+            className="mb-6"
+          >
+            <Text className="text-[15px] font-sans text-text-secondary mb-4">
+              {t('parent.mascotHint', {
+                defaultValue: 'Escolha o mascote animado que aparece na tela de {{name}}.',
+                name: selectedChild.name,
+              })}
+            </Text>
+            <ScrollView
+              horizontal
+              showsHorizontalScrollIndicator={false}
+              contentContainerStyle={{ gap: 12, paddingRight: 4 }}
+            >
+              {/* None option */}
+              <Pressable
+                onPress={async () => {
+                  haptics.selection();
+                  const prev = selectedChild.mascotId;
+                  useBankStore.getState().updateChild(selectedChild.id, { mascotId: null });
+                  try {
+                    await bankApi.updateChild(selectedChild.id, { mascotId: null });
+                  } catch {
+                    useBankStore.getState().updateChild(selectedChild.id, { mascotId: prev });
+                  }
+                }}
+                style={{
+                  width: 100,
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  paddingTop: 8,
+                  paddingBottom: 10,
+                  borderRadius: 20,
+                  backgroundColor: !selectedChild.mascotId ? '#FEF9C3' : '#f5f5f0',
+                  borderWidth: !selectedChild.mascotId ? 2.5 : 0,
+                  borderColor: '#FFD600',
+                }}
+              >
+                <View style={{ width: 80, height: 80, borderRadius: 12, alignItems: 'center', justifyContent: 'center', backgroundColor: '#e8e8e0' }}>
+                  <MaterialCommunityIcons name="eye-off-outline" size={32} color="#9ca3af" />
+                </View>
+                <Text style={{ fontSize: 12, fontWeight: '600', marginTop: 6, color: !selectedChild.mascotId ? '#1a1a14' : '#6b6b5a' }}>
+                  Nenhum
+                </Text>
+                {!selectedChild.mascotId && (
+                  <MaterialCommunityIcons
+                    name="check-circle"
+                    size={20}
+                    color="#FFD600"
+                    style={{ position: 'absolute', top: 4, right: 4 }}
+                  />
+                )}
+              </Pressable>
+
+              {/* Animated mascots */}
+              {MASCOTS.map((m) => {
+                const isActive = selectedChild.mascotId === m.id;
+                return (
+                  <MascotPickerItem
+                    key={m.id}
+                    mascot={m}
+                    isActive={isActive}
+                    onSelect={async () => {
+                      haptics.selection();
+                      const prev = selectedChild.mascotId;
+                      useBankStore.getState().updateChild(selectedChild.id, { mascotId: m.id });
+                      try {
+                        await bankApi.updateChild(selectedChild.id, { mascotId: m.id });
+                      } catch {
+                        useBankStore.getState().updateChild(selectedChild.id, { mascotId: prev });
+                      }
+                    }}
+                  />
+                );
+              })}
+            </ScrollView>
+          </Card>
+        )}
+
+        {/* Wishlist Layout */}
+        <Card
+          title={t('parent.wishlistLayoutSection')}
+          className="mb-6"
+        >
+          <Text className="text-[15px] font-sans text-text-secondary mb-4">
+            {t('parent.wishlistLayoutHint')}
+          </Text>
+          <View className="flex-row" style={{ gap: 12 }}>
+            <Pressable
+              onPress={() => {
+                haptics.selection();
+                setWishlistLayout('feed');
+              }}
+              className={`flex-1 items-center py-4 rounded-2xl ${
+                wishlistLayout === 'feed' ? 'bg-primary-50' : 'bg-background-light'
+              }`}
+              style={
+                wishlistLayout === 'feed'
+                  ? { borderWidth: 2, borderColor: '#FFD600' }
+                  : undefined
+              }
+            >
+              <MaterialCommunityIcons
+                name="view-agenda-outline"
+                size={24}
+                color={wishlistLayout === 'feed' ? '#1a1a14' : '#6b6b5a'}
+              />
+              <Text
+                className={`text-[15px] font-sans-semibold mt-2 ${
+                  wishlistLayout === 'feed' ? 'text-text' : 'text-text-secondary'
+                }`}
+              >
+                {t('parent.wishlistLayoutFeed')}
+              </Text>
+              {wishlistLayout === 'feed' && (
+                <MaterialCommunityIcons
+                  name="check-circle"
+                  size={18}
+                  color="#FFD600"
+                  style={{ position: 'absolute', top: 4, right: 4 }}
+                />
+              )}
+            </Pressable>
+            <Pressable
+              onPress={() => {
+                haptics.selection();
+                setWishlistLayout('grid');
+              }}
+              className={`flex-1 items-center py-4 rounded-2xl ${
+                wishlistLayout === 'grid' ? 'bg-primary-50' : 'bg-background-light'
+              }`}
+              style={
+                wishlistLayout === 'grid'
+                  ? { borderWidth: 2, borderColor: '#FFD600' }
+                  : undefined
+              }
+            >
+              <MaterialCommunityIcons
+                name="view-grid-outline"
+                size={24}
+                color={wishlistLayout === 'grid' ? '#1a1a14' : '#6b6b5a'}
+              />
+              <Text
+                className={`text-[15px] font-sans-semibold mt-2 ${
+                  wishlistLayout === 'grid' ? 'text-text' : 'text-text-secondary'
+                }`}
+              >
+                {t('parent.wishlistLayoutGrid')}
+              </Text>
+              {wishlistLayout === 'grid' && (
+                <MaterialCommunityIcons
+                  name="check-circle"
+                  size={18}
+                  color="#FFD600"
+                  style={{ position: 'absolute', top: 4, right: 4 }}
+                />
+              )}
+            </Pressable>
+          </View>
+        </Card>
+
+        {/* Subscription */}
+        <Card
+          title={t('subscription.myPlan', { defaultValue: 'Meu Plano' })}
+          className="mb-6"
+        >
+          <Text className="text-[15px] font-sans text-text-secondary mb-4">
+            {t('subscription.myPlanHint', { defaultValue: 'Gerencie sua assinatura e veja seu plano atual.' })}
+          </Text>
+          <Pressable
+            onPress={() => {
+              haptics.light();
+              router.push('/(modals)/paywall');
+            }}
+            className="flex-row items-center py-4 px-5 rounded-2xl bg-background-light"
+            style={({ pressed }) => ({ opacity: pressed ? 0.7 : 1 })}
+          >
+            <MaterialCommunityIcons name="star-circle" size={24} color="#FFD600" />
+            <View className="flex-1 ml-3.5">
+              <Text className="text-[17px] font-sans-semibold text-text">
+                {subscriptionEntitlement === 'free'
+                  ? t('subscription.freePlan', { defaultValue: 'Plano Gratuito' })
+                  : subscriptionEntitlement === 'familia'
+                  ? t('subscription.familiaPlan', { defaultValue: 'Plano Família' })
+                  : t('subscription.familiaPlusPlan', { defaultValue: 'Plano Família+' })}
+              </Text>
+              <Text className="text-[13px] font-sans text-text-secondary mt-0.5">
+                {subscriptionEntitlement === 'free'
+                  ? t('subscription.upgradeNow', { defaultValue: 'Faça upgrade para mais recursos' })
+                  : t('subscription.managePlan', { defaultValue: 'Gerenciar assinatura' })}
+              </Text>
+            </View>
+            <MaterialCommunityIcons name="chevron-right" size={24} color="#9ca3af" />
+          </Pressable>
+        </Card>
 
         {/* Security */}
         <Card

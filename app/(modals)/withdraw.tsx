@@ -29,6 +29,8 @@ import { haptics } from '@/src/utils/haptics';
 import { transactionsApi } from '@/src/services/api/transactions';
 import { uploadApi } from '@/src/services/api/bank';
 import { useCurrency } from '@/src/hooks/useCurrency';
+import { useSubscriptionStore } from '@/src/stores/useSubscriptionStore';
+import { PaywallPrompt } from '@/src/components/ui/PaywallPrompt';
 import type { TransactionCategory } from '@/src/types/transaction';
 
 export default function WithdrawScreen() {
@@ -39,11 +41,16 @@ export default function WithdrawScreen() {
   const selectedChild = useSelectedChild();
   const updateChildBalance = useBankStore((s) => s.updateChildBalance);
   const addTransaction = useTransactionStore((s) => s.addTransaction);
+  const canUploadReceipt = useSubscriptionStore((s) => s.canUploadReceipt);
 
   const [amountText, setAmountText] = useState('');
   const [description, setDescription] = useState('');
   const selectedCategory: TransactionCategory = 'compra';
   const [receiptUri, setReceiptUri] = useState<string | null>(null);
+  const [receiptUpload, setReceiptUpload] = useState<{
+    promise: Promise<string | undefined>;
+    resolved?: string;
+  } | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState(false);
@@ -101,90 +108,113 @@ export default function WithdrawScreen() {
     if (status !== 'granted') return;
     const result = await ImagePicker.launchCameraAsync({
       allowsEditing: true,
-      quality: 0.8,
+      quality: 0.7,
     });
     if (!result.canceled && result.assets[0]) {
-      setReceiptUri(result.assets[0].uri);
+      const uri = result.assets[0].uri;
+      setReceiptUri(uri);
+      // Start upload immediately in background
+      const uploadPromise = uploadApi.uploadReceipt(uri)
+        .then((res) => {
+          const url = res.data?.url;
+          setReceiptUpload((prev) => prev ? { ...prev, resolved: url } : prev);
+          return url;
+        })
+        .catch((err) => {
+          console.warn('[Withdraw] Background receipt upload failed:', err);
+          return undefined;
+        });
+      setReceiptUpload({ promise: uploadPromise });
     }
   }, []);
 
   const handleWithdraw = useCallback(async () => {
-    if (!selectedChild) return;
-    setError('');
-
-    const numericValue = parseFloat(amountText.replace(',', '.'));
-    if (isNaN(numericValue) || numericValue <= 0) {
-      triggerShake();
-      setError(t('validation.amountInvalid'));
-      return;
-    }
-
-    const cents = currencyToCents(numericValue);
-    if (!isValidAmount(cents)) return;
-
-    if (cents > selectedChild.balance) {
-      triggerShake();
-      setError(t('modals.withdraw.insufficientBalance'));
-      return;
-    }
-
-    setLoading(true);
-
-    let receiptUrl: string | undefined;
-    if (receiptUri) {
-      try {
-        const uploadRes = await uploadApi.uploadReceipt(receiptUri);
-        receiptUrl = uploadRes.data.url;
-      } catch (uploadErr) {
-        console.warn('[Withdraw] Receipt upload failed:', uploadErr);
-        // proceed without receipt
-      }
-    }
-
     try {
-      const response = await transactionsApi.withdraw(selectedChild.id, {
-        amount: cents,
-        category: selectedCategory,
-        description: sanitizeInput(description) || t('modals.withdraw.title'),
-        receiptUrl,
-      });
+      if (!selectedChild) return;
+      setError('');
 
-      const { balanceAfter } = response.data;
-      updateChildBalance(selectedChild.id, balanceAfter);
-
-      if (response.data.transaction) {
-        addTransaction(response.data.transaction);
+      const numericValue = parseFloat(amountText.replace(',', '.'));
+      if (isNaN(numericValue) || numericValue <= 0) {
+        triggerShake();
+        setError(t('validation.amountInvalid'));
+        return;
       }
-    } catch {
-      const newBalance = subtractCents(selectedChild.balance, cents);
-      updateChildBalance(selectedChild.id, newBalance);
 
-      const localTx = {
-        id: `tx_${Date.now()}_${Math.random().toString(36).slice(2, 7)}`,
-        childId: selectedChild.id,
-        familyId: selectedChild.familyId,
-        type: 'withdrawal' as const,
-        category: selectedCategory,
-        amount: cents,
-        balanceAfter: newBalance,
-        description: sanitizeInput(description) || t('modals.withdraw.title'),
-        scheduledDepositId: null,
-        createdBy: 'child' as const,
-        createdAt: new Date().toISOString(),
-        receiptUrl: receiptUrl ?? null,
-      };
-      addTransaction(localTx);
+      const cents = currencyToCents(numericValue);
+      if (!isValidAmount(cents)) return;
+
+      if (cents > selectedChild.balance) {
+        triggerShake();
+        setError(t('modals.withdraw.insufficientBalance'));
+        return;
+      }
+
+      setLoading(true);
+
+      // Use already-uploaded receipt or await the in-progress upload
+      let receiptUrl: string | undefined;
+      if (receiptUpload) {
+        receiptUrl = receiptUpload.resolved ?? await receiptUpload.promise;
+      }
+
+      try {
+        const response = await transactionsApi.withdraw(selectedChild.id, {
+          amount: cents,
+          category: selectedCategory,
+          description: sanitizeInput(description) || t('modals.withdraw.title'),
+          receiptUrl,
+        });
+
+        const balanceAfter = response.data?.balanceAfter;
+        if (typeof balanceAfter === 'number') {
+          updateChildBalance(selectedChild.id, balanceAfter);
+        } else {
+          updateChildBalance(selectedChild.id, subtractCents(selectedChild.balance, cents));
+        }
+
+        if (response.data?.transaction) {
+          addTransaction(response.data.transaction);
+        }
+      } catch (apiErr) {
+        console.warn('[Withdraw] API failed, creating local tx:', apiErr);
+        const newBalance = subtractCents(selectedChild.balance, cents);
+        updateChildBalance(selectedChild.id, newBalance);
+
+        const localTx = {
+          id: `tx_${Date.now()}_${Math.random().toString(36).slice(2, 7)}`,
+          childId: selectedChild.id,
+          familyId: selectedChild.familyId,
+          type: 'withdrawal' as const,
+          category: selectedCategory,
+          amount: cents,
+          balanceAfter: newBalance,
+          description: sanitizeInput(description) || t('modals.withdraw.title'),
+          scheduledDepositId: null,
+          createdBy: 'child' as const,
+          createdAt: new Date().toISOString(),
+          receiptUrl: receiptUrl ?? null,
+        };
+        addTransaction(localTx);
+      }
+
+      setLoading(false);
+      setWithdrawnAmount(cents);
+      setSuccess(true);
+      haptics.success();
+
+      setTimeout(() => {
+        if (router.canGoBack()) {
+          router.back();
+        } else {
+          router.replace('/(tabs)');
+        }
+      }, 3200);
+    } catch (err) {
+      console.error('[Withdraw] Unexpected crash prevented:', err);
+      setLoading(false);
+      setError(t('common.genericError', { defaultValue: 'Algo deu errado. Tente novamente.' }));
     }
-
-    setLoading(false);
-    setWithdrawnAmount(cents);
-    setSuccess(true);
-    haptics.success();
-
-    setTimeout(() => {
-      router.back();
-    }, 3200);
-  }, [amountText, description, receiptUri, selectedChild, updateChildBalance, addTransaction, t, router, triggerShake]);
+  }, [amountText, description, receiptUpload, selectedChild, updateChildBalance, addTransaction, t, router, triggerShake]);
 
   if (!selectedChild) return null;
 
@@ -315,13 +345,13 @@ export default function WithdrawScreen() {
                 <View className="rounded-2xl overflow-hidden">
                   <Image source={{ uri: receiptUri }} style={{ width: '100%', height: 160, borderRadius: 12 }} resizeMode="cover" />
                   <Pressable
-                    onPress={() => setReceiptUri(null)}
+                    onPress={() => { setReceiptUri(null); setReceiptUpload(null); }}
                     className="absolute top-2 right-2 bg-black/50 rounded-full p-1"
                   >
                     <MaterialCommunityIcons name="close" size={18} color="#fff" />
                   </Pressable>
                 </View>
-              ) : (
+              ) : canUploadReceipt() ? (
                 <Pressable
                   onPress={pickReceipt}
                   className="flex-row items-center gap-3 px-5 py-4 rounded-2xl bg-surface"
@@ -338,6 +368,8 @@ export default function WithdrawScreen() {
                     {t('modals.withdraw.addReceipt', { defaultValue: 'Tirar foto do comprovante' })}
                   </Text>
                 </Pressable>
+              ) : (
+                <PaywallPrompt feature="receipt" />
               )}
             </View>
 

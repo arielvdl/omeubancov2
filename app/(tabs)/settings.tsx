@@ -21,10 +21,12 @@ export default function FamilyScreen() {
 
   const handleSelect = useCallback(
     (childId: string) => {
+      if (childId === selectedChildId) return;
       haptics.selection();
       setSelectedChild(childId);
+      router.replace('/(tabs)');
     },
-    [setSelectedChild],
+    [setSelectedChild, selectedChildId, router],
   );
 
   const renderItem = useCallback(
