@@ -39,7 +39,6 @@ uploadRoutes.post('/avatar', authMiddleware, requireParent, async (c) => {
   try {
     await gcsFile.save(buffer, {
       contentType: file.type,
-      public: true,
       metadata: {
         cacheControl: 'public, max-age=31536000',
       },
@@ -49,7 +48,6 @@ uploadRoutes.post('/avatar', authMiddleware, requireParent, async (c) => {
     throw new AppError(500, 'Failed to upload file to storage');
   }
 
-  try { await gcsFile.makePublic(); } catch { /* bucket-level access may already be public */ }
 
   const publicUrl = `https://storage.googleapis.com/${BUCKET_NAME}/${filename}`;
 
@@ -96,7 +94,6 @@ uploadRoutes.post('/receipt', authMiddleware, async (c) => {
   try {
     await gcsFile.save(buffer, {
       contentType: file.type,
-      public: true,
       metadata: {
         cacheControl: 'public, max-age=31536000',
       },
@@ -106,7 +103,6 @@ uploadRoutes.post('/receipt', authMiddleware, async (c) => {
     throw new AppError(500, 'Failed to upload file to storage');
   }
 
-  try { await gcsFile.makePublic(); } catch { /* bucket-level access may already be public */ }
 
   const publicUrl = `https://storage.googleapis.com/${BUCKET_NAME}/${filename}`;
 
@@ -140,7 +136,6 @@ uploadRoutes.post('/wishlist', authMiddleware, async (c) => {
   try {
     await gcsFile.save(buffer, {
       contentType: file.type,
-      public: true,
       metadata: {
         cacheControl: 'public, max-age=31536000',
       },
@@ -150,7 +145,6 @@ uploadRoutes.post('/wishlist', authMiddleware, async (c) => {
     throw new AppError(500, 'Failed to upload file to storage');
   }
 
-  try { await gcsFile.makePublic(); } catch { /* bucket-level access may already be public */ }
 
   const publicUrl = `https://storage.googleapis.com/${BUCKET_NAME}/${filename}`;
 
