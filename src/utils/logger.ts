@@ -1,3 +1,5 @@
+import * as Sentry from '@sentry/react-native';
+
 interface LogEntry {
   level: 'info' | 'warn' | 'error';
   message: string;
@@ -29,6 +31,29 @@ function addEntry(level: LogEntry['level'], message: string, data?: unknown) {
   } else {
     logFn(tag, message);
   }
+
+  // Auto-capture errors to Sentry
+  if (level === 'error') {
+    if (data instanceof Error) {
+      Sentry.captureException(data, { extra: { message } });
+    } else {
+      Sentry.captureMessage(message, {
+        level: 'error',
+        extra: { data },
+      });
+    }
+  }
+}
+
+/**
+ * Capture an error to Sentry with context.
+ * Use in catch blocks for critical flows.
+ */
+export function captureError(error: unknown, context?: string) {
+  const err = error instanceof Error ? error : new Error(String(error));
+  Sentry.captureException(err, {
+    extra: { context },
+  });
 }
 
 export const logger = {

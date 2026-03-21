@@ -14,12 +14,12 @@ import {
   PlusJakartaSans_800ExtraBold,
 } from "@expo-google-fonts/plus-jakarta-sans";
 import * as Sentry from "@sentry/react-native";
-import Purchases from "react-native-purchases";
 import { useAuthStore } from "@/src/stores/useAuthStore";
 import { useBankStore } from "@/src/stores/useBankStore";
 import { useSettingsStore } from "@/src/stores/useSettingsStore";
 import { bankApi } from "@/src/services/api/bank";
-import { logger } from "@/src/utils/logger";
+import { logger, captureError } from "@/src/utils/logger";
+import { useNotifications } from "@/src/hooks/useNotifications";
 
 Sentry.init({
   dsn: process.env.EXPO_PUBLIC_SENTRY_DSN,
@@ -34,6 +34,10 @@ export default function RootLayout() {
   const [appReady, setAppReady] = useState(false);
   const loadPersistedState = useAuthStore((s) => s.loadPersistedState);
   const loadSettings = useSettingsStore((s) => s.loadSettings);
+  const token = useAuthStore((s) => s.token);
+
+  // Register push notifications when authenticated
+  useNotifications(!!token);
 
   const [fontsLoaded] = useFonts({
     PlusJakartaSans_400Regular,
@@ -51,10 +55,13 @@ export default function RootLayout() {
         useBankStore.getState().loadPersistedSelectedChild(),
       ]);
 
-      // Initialize RevenueCat SDK
+      // Initialize RevenueCat SDK (dynamic import to prevent native crash if module fails to load)
       const rcApiKey = process.env.EXPO_PUBLIC_REVENUECAT_API_KEY;
+      let Purchases: typeof import('react-native-purchases').default | null = null;
       if (rcApiKey) {
         try {
+          const mod = await import('react-native-purchases');
+          Purchases = mod.default;
           if (__DEV__) {
             Purchases.setLogLevel(Purchases.LOG_LEVEL.DEBUG);
           }
@@ -62,6 +69,7 @@ export default function RootLayout() {
           logger.info('[App] RevenueCat configured');
         } catch (err) {
           logger.warn('[App] RevenueCat init failed', err);
+          Purchases = null;
         }
       }
 
@@ -88,7 +96,7 @@ export default function RootLayout() {
 
           // RevenueCat: identify user by familyId
           const { familyId } = useAuthStore.getState();
-          if (familyId && rcApiKey) {
+          if (familyId && Purchases) {
             try {
               await Purchases.logIn(familyId);
               logger.info('[App] RevenueCat logIn:', familyId);
@@ -109,7 +117,7 @@ export default function RootLayout() {
           }
         } catch (err) {
           useBankStore.getState().setHydrated(false);
-          logger.warn('[App] API unavailable during hydration', err);
+          captureError(err, 'App hydration');
         }
       }
 

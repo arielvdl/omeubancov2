@@ -16,6 +16,7 @@
   "dependencies": {
     "@google-cloud/storage": "^7.19.0",
     "@hono/node-server": "^1.14.0",
+    "@sentry/node": "^10.45.0",
     "@simplewebauthn/server": "^13.3.0",
     "bcryptjs": "^2.4.3",
     "drizzle-orm": "^0.38.0",

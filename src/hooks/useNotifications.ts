@@ -5,19 +5,22 @@ import {
   addNotificationListener,
 } from '@/src/services/notifications';
 
-export function useNotifications() {
+export function useNotifications(enabled = true) {
   const notificationListener = useRef<Notifications.EventSubscription>(null);
 
   useEffect(() => {
-    registerForPushNotifications();
+    if (!enabled) return;
+
+    registerForPushNotifications().catch((err) => {
+      console.warn('[Notifications] Registration failed:', err);
+    });
 
     notificationListener.current = addNotificationListener((notification) => {
-      // Handle incoming notification while app is foregrounded
       console.log('Notification received:', notification.request.content.title);
     });
 
     return () => {
       notificationListener.current?.remove();
     };
-  }, []);
+  }, [enabled]);
 }

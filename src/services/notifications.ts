@@ -1,6 +1,8 @@
 import * as Notifications from 'expo-notifications';
+import Constants from 'expo-constants';
 import { Platform } from 'react-native';
 import { apiClient } from './api/client';
+import { captureError } from '../utils/logger';
 
 Notifications.setNotificationHandler({
   handleNotification: async () => ({
@@ -24,14 +26,24 @@ export async function registerForPushNotifications(): Promise<string | null> {
 
   if (finalStatus !== 'granted') return null;
 
-  const tokenData = await Notifications.getExpoPushTokenAsync();
+  const projectId = Constants.expoConfig?.extra?.eas?.projectId;
+  if (!projectId) {
+    console.warn('[Notifications] Missing Expo projectId — push token not generated');
+    return null;
+  }
+
+  const tokenData = await Notifications.getExpoPushTokenAsync({ projectId });
   const token = tokenData.data;
 
   // Register device with backend
-  await apiClient.post('/devices', {
-    pushToken: token,
-    platform: Platform.OS,
-  });
+  try {
+    await apiClient.post('/devices', {
+      pushToken: token,
+      platform: Platform.OS,
+    });
+  } catch (err) {
+    captureError(err, 'Device push token registration');
+  }
 
   return token;
 }

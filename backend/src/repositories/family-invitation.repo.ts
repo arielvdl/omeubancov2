@@ -1,4 +1,4 @@
-import { eq, and, sql } from 'drizzle-orm';
+import { eq, and, sql, gt } from 'drizzle-orm';
 import { db } from '../db/index.js';
 import { familyInvitations } from '../db/schema/family-invitations.js';
 
@@ -56,7 +56,8 @@ export const familyInvitationRepo = {
       .where(
         and(
           eq(familyInvitations.familyId, familyId),
-          eq(familyInvitations.status, 'pending')
+          eq(familyInvitations.status, 'pending'),
+          gt(familyInvitations.expiresAt, new Date())
         )
       );
     return result[0]?.count ?? 0;

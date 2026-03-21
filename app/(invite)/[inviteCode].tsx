@@ -16,6 +16,7 @@ import { SafeArea } from '@/src/components/layout/SafeArea';
 import { invitationsApi } from '@/src/services/api/invitations';
 import { useAuthStore } from '@/src/stores/useAuthStore';
 import { haptics } from '@/src/utils/haptics';
+import { captureError } from '@/src/utils/logger';
 import type { InvitationInfo } from '@/src/types/invitation';
 
 const ROLE_OPTIONS = [
@@ -79,6 +80,17 @@ export default function AcceptInviteScreen() {
       return;
     }
 
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email.trim())) {
+      Alert.alert(t('common.error'), t('invitation.invalidEmail'));
+      return;
+    }
+
+    if (password.length < 6) {
+      Alert.alert(t('common.error'), t('invitation.passwordTooShort'));
+      return;
+    }
+
     setSubmitting(true);
     try {
       const res = await invitationsApi.guardianRegister({
@@ -92,9 +104,13 @@ export default function AcceptInviteScreen() {
       const { token, family, guardianId, roleLabel: rl } = res.data;
       await setAuth(token, family.id, 'parent', undefined, guardianId, rl);
       haptics.success();
-      router.replace('/(tabs)');
+      router.replace({
+        pathname: '/(invite)/welcome-family',
+        params: { familyName: family.name, roleLabel: rl },
+      });
     } catch (err: any) {
       haptics.error();
+      captureError(err, 'Guardian registration');
       const msg = err?.response?.data?.error ?? t('common.errorGeneric');
       Alert.alert(t('common.error'), msg);
     } finally {
@@ -260,7 +276,12 @@ export default function AcceptInviteScreen() {
 
           {/* Login link */}
           <Pressable
-            onPress={() => router.replace('/')}
+            onPress={() =>
+              router.replace({
+                pathname: '/',
+                params: { inviteCode },
+              })
+            }
             className="items-center py-2"
           >
             <Text className="text-[14px] font-sans text-text-secondary underline">

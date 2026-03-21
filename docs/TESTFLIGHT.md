@@ -428,3 +428,5 @@ xcodebuild -exportArchive \
 | 1.0.0 (9) | 2026-03-17 | Fix: DatePicker em modal iOS, upload receipt com FormData correto, GCS makePublic |
 | 1.0.0 (10) | 2026-03-19 | Domínio customizado api.omeubanco.xyz via Cloudflare + Worker proxy, passkey associated domains atualizado |
 | 1.0.0 (11) | 2026-03-19 | Sistema de assinaturas RevenueCat + IAP, paywall, gating em 5 pontos (children, receipts, schedules, invitations, wishlist), lista de desejos |
+| 1.0.0 (12) | 2026-03-19 | Sentry error tracking, mesada automatica, pull-to-refresh extrato, fix wishlist crash |
+| 1.0.0 (13) | 2026-03-20 | Melhorias fluxo invite: rename "Area da Familia", tela welcome pos-registro, QR salvavel, Sentry em 11 catch blocks criticos, transaction no guardian-register |

@@ -26,6 +26,7 @@ import { useSelectedChild } from '@/src/hooks/useSelectedChild';
 import { currencyToCents, isValidAmount, subtractCents } from '@/src/utils/currency';
 import { sanitizeInput } from '@/src/utils/validation';
 import { haptics } from '@/src/utils/haptics';
+import { captureError } from '@/src/utils/logger';
 import { transactionsApi } from '@/src/services/api/transactions';
 import { uploadApi } from '@/src/services/api/bank';
 import { useCurrency } from '@/src/hooks/useCurrency';
@@ -177,7 +178,7 @@ export default function WithdrawScreen() {
           addTransaction(response.data.transaction);
         }
       } catch (apiErr) {
-        console.warn('[Withdraw] API failed, creating local tx:', apiErr);
+        captureError(apiErr, 'Withdraw API call');
         const newBalance = subtractCents(selectedChild.balance, cents);
         updateChildBalance(selectedChild.id, newBalance);
 
@@ -212,7 +213,7 @@ export default function WithdrawScreen() {
         }
       }, 3200);
     } catch (err) {
-      console.error('[Withdraw] Unexpected crash prevented:', err);
+      captureError(err, 'Withdraw unexpected crash');
       setLoading(false);
       setError(t('common.genericError', { defaultValue: 'Algo deu errado. Tente novamente.' }));
     }

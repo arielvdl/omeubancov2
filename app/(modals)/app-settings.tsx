@@ -111,9 +111,9 @@ export default function AppSettingsScreen() {
         </Card>
 
         {/* Parent Area */}
-        <Card title={t('settings.parentArea', { defaultValue: 'Área dos pais' })} className="mb-6">
+        <Card title={t('settings.parentArea', { defaultValue: 'Área da Família' })} className="mb-6">
           <Button
-            title={t('settings.parentAccess', { defaultValue: 'Acessar área dos pais' })}
+            title={t('settings.parentAccess', { defaultValue: 'Acessar área da família' })}
             onPress={() =>
               router.push({
                 pathname: '/(parent)/pin-entry',

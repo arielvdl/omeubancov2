@@ -1,6 +1,8 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { View, Text, Pressable, Alert, Share } from 'react-native';
 import * as Clipboard from 'expo-clipboard';
+import { Paths, File as ExpoFile } from 'expo-file-system';
+import * as MediaLibrary from 'expo-media-library';
 import { useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
@@ -10,14 +12,17 @@ import { Header } from '@/src/components/layout/Header';
 import { Card } from '@/src/components/ui/Card';
 import { invitationsApi } from '@/src/services/api/invitations';
 import { haptics } from '@/src/utils/haptics';
+import { captureError } from '@/src/utils/logger';
 import type { FamilyInvitation } from '@/src/types/invitation';
 
 export default function InviteMemberScreen() {
   const { t } = useTranslation();
   const router = useRouter();
+  const qrRef = useRef<any>(null);
   const [invitation, setInvitation] = useState<FamilyInvitation | null>(null);
   const [loading, setLoading] = useState(false);
   const [copied, setCopied] = useState(false);
+  const [savingQr, setSavingQr] = useState(false);
 
   const generateInvite = useCallback(async () => {
     setLoading(true);
@@ -31,6 +36,7 @@ export default function InviteMemberScreen() {
       if (errorData?.error === 'subscription_required') {
         router.push('/(modals)/paywall');
       } else {
+        captureError(err, 'Create invitation');
         Alert.alert(t('common.error'), t('common.errorGeneric'));
       }
     } finally {
@@ -61,6 +67,36 @@ export default function InviteMemberScreen() {
     }
   };
 
+  const handleSaveQr = async () => {
+    if (!qrRef.current || savingQr) return;
+    setSavingQr(true);
+    try {
+      const { status } = await MediaLibrary.requestPermissionsAsync();
+      if (status !== 'granted') {
+        Alert.alert(t('common.error'), t('common.errorGeneric'));
+        return;
+      }
+      qrRef.current.toDataURL(async (base64: string) => {
+        try {
+          const file = new ExpoFile(Paths.cache, `invite-qr-${Date.now()}.png`);
+          await file.write(base64, { encoding: 'base64' });
+          await MediaLibrary.saveToLibraryAsync(file.uri);
+          haptics.success();
+          Alert.alert(t('invitation.qrSaved'));
+          await file.delete();
+        } catch {
+          haptics.error();
+          Alert.alert(t('common.error'), t('common.errorGeneric'));
+        }
+      });
+    } catch {
+      haptics.error();
+      Alert.alert(t('common.error'), t('common.errorGeneric'));
+    } finally {
+      setSavingQr(false);
+    }
+  };
+
   const handleGenerateNew = () => {
     Alert.alert(
       t('invitation.generateNew'),
@@ -73,8 +109,8 @@ export default function InviteMemberScreen() {
             if (invitation) {
               try {
                 await invitationsApi.revokeInvitation(invitation.id);
-              } catch {
-                // ignore
+              } catch (err: any) {
+                captureError(err, 'Revoke invitation');
               }
             }
             generateInvite();
@@ -115,13 +151,23 @@ export default function InviteMemberScreen() {
                 {t('invitation.scanQr')}
               </Text>
 
-              <View className="bg-white p-5 rounded-2xl mb-6">
-                <QRCode value={invitation.deepLink} size={200} />
+              <View className="bg-white p-5 rounded-2xl mb-4">
+                <QRCode
+                  value={invitation.deepLink}
+                  size={200}
+                  getRef={(ref: any) => (qrRef.current = ref)}
+                />
               </View>
 
-              <Text className="text-[13px] font-sans-semibold text-text-secondary mb-2 tracking-widest">
-                {invitation.inviteCode}
-              </Text>
+              <Pressable
+                onPress={handleCopy}
+                className="bg-background-light py-2.5 px-5 rounded-full mb-2"
+                style={({ pressed }) => ({ opacity: pressed ? 0.7 : 1 })}
+              >
+                <Text className="text-[18px] font-mono font-bold text-text tracking-[4px] text-center">
+                  {invitation.inviteCode}
+                </Text>
+              </Pressable>
 
               <Text className="text-[13px] font-sans text-text-secondary mb-6">
                 {getTimeRemaining()}
@@ -152,6 +198,19 @@ export default function InviteMemberScreen() {
                 <MaterialCommunityIcons name="share-variant" size={20} color="#1a1a14" />
                 <Text className="text-[15px] font-sans-semibold text-text ml-2">
                   {t('invitation.shareLink')}
+                </Text>
+              </Pressable>
+
+              {/* Save QR */}
+              <Pressable
+                onPress={handleSaveQr}
+                disabled={savingQr}
+                className="flex-row items-center justify-center w-full py-4 px-5 rounded-2xl bg-background-light mb-3"
+                style={({ pressed }) => ({ opacity: pressed || savingQr ? 0.7 : 1 })}
+              >
+                <MaterialCommunityIcons name="download" size={20} color="#1a1a14" />
+                <Text className="text-[15px] font-sans-semibold text-text ml-2">
+                  {t('invitation.saveQr')}
                 </Text>
               </Pressable>
 

@@ -1,6 +1,7 @@
 import { scheduledDepositRepo } from '../repositories/scheduled-deposit.repo.js';
 import { childRepo } from '../repositories/child.repo.js';
 import { transactionRepo } from '../repositories/transaction.repo.js';
+import { wishItemRepo } from '../repositories/wish-item.repo.js';
 import { notificationService } from './notification.service.js';
 
 function calculateNextRun(frequency: string, currentNextRun: Date): Date {
@@ -66,16 +67,39 @@ export const scheduledDepositService = {
 
         processed++;
 
+        const child = await childRepo.findById(deposit.childId);
+        const childName = child?.name ?? 'Criança';
+        const amountFormatted = (deposit.amount / 100).toFixed(2);
+
         notificationService
           .sendToFamily(
             deposit.familyId,
             'Mesada depositada',
-            `Deposito automatico de ${deposit.amount} centavos realizado.`,
+            `Depósito automático de R$${amountFormatted} para ${childName}`,
             { type: 'scheduled_deposit', childId: deposit.childId }
           )
           .catch((err) => {
-            console.error('Push notification failed:', err);
+            console.error('[Notification] scheduled_deposit failed:', err);
           });
+
+        // Check if balance reached the wishlist goal
+        try {
+          const newBalance = (child?.balance ?? 0) + deposit.amount;
+          const goal = await wishItemRepo.getGoal(deposit.childId);
+          if (goal && goal.priceCents && newBalance >= goal.priceCents) {
+            const goalAmount = (goal.priceCents / 100).toFixed(2);
+            notificationService
+              .sendToFamily(
+                deposit.familyId,
+                `${childName} atingiu a meta!`,
+                `O saldo alcançou R$${goalAmount} para "${goal.name}"`,
+                { type: 'goal_reached', childId: deposit.childId, wishItemId: goal.id }
+              )
+              .catch((err) => console.error('[Notification] goal_reached failed:', err));
+          }
+        } catch (err) {
+          console.error('[Notification] goal check failed:', err);
+        }
       } catch (err) {
         errors++;
         console.error(`Failed to process scheduled deposit ${deposit.id}:`, err);

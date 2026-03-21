@@ -10,6 +10,7 @@ import { useAuthStore } from '@/src/stores/useAuthStore';
 import { isValidBankName, sanitizeInput } from '@/src/utils/validation';
 import { apiClient } from '@/src/services/api/client';
 import { haptics } from '@/src/utils/haptics';
+import { captureError } from '@/src/utils/logger';
 import type { Currency } from '@/src/types/bank';
 
 const CURRENCIES: { value: Currency; label: string }[] = [
@@ -69,6 +70,7 @@ export default function BankSetupScreen() {
       router.push('/(onboarding)/master-pin');
     } catch (error) {
       haptics.error();
+      captureError(error, 'Bank setup');
       Alert.alert(t('common.error'), t('common.errorGeneric'));
     } finally {
       setSaving(false);

@@ -12,7 +12,7 @@ import {
   Image,
   StatusBar,
 } from 'react-native';
-import { useRouter } from 'expo-router';
+import { useRouter, useLocalSearchParams } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import Animated, {
@@ -27,14 +27,16 @@ import { authApi } from '@/src/services/api/auth';
 import { bankApi } from '@/src/services/api/bank';
 import { startGoogleSignIn } from '@/src/services/google-auth';
 import { loginWithPasskey, isPasskeySupported, getPasskeyErrorType } from '@/src/services/passkey';
-import { logger } from '@/src/utils/logger';
+import { logger, captureError } from '@/src/utils/logger';
 import { haptics } from '@/src/utils/haptics';
+import { invitationsApi } from '@/src/services/api/invitations';
 
 const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
 
 export default function WelcomeScreen() {
   const { t } = useTranslation();
   const router = useRouter();
+  const { inviteCode } = useLocalSearchParams<{ inviteCode?: string }>();
   const setAuth = useAuthStore((s) => s.setAuth);
   const setBankName = useAuthStore((s) => s.setBankName);
   const setCurrency = useAuthStore((s) => s.setCurrency);
@@ -50,6 +52,17 @@ export default function WelcomeScreen() {
   useEffect(() => {
     isPasskeySupported().then(setPasskeySupported);
   }, []);
+
+  // Try to accept pending invite after login (best-effort)
+  const tryAcceptInvite = async () => {
+    if (!inviteCode) return;
+    try {
+      await invitationsApi.acceptInvitation(inviteCode);
+    } catch (err: any) {
+      // Non-blocking: log but don't prevent login flow
+      logger.warn('[Invite] Accept after login failed', { inviteCode, error: err?.message });
+    }
+  };
 
   const scale = useSharedValue(1);
   const animatedStyle = useAnimatedStyle(() => ({
@@ -69,6 +82,7 @@ export default function WelcomeScreen() {
       if (result.error) throw new Error(result.error);
 
       await setAuth(result.token, result.familyId, 'parent');
+      await tryAcceptInvite();
 
       if (result.isNewUser) {
         router.replace('/(onboarding)/bank-setup');
@@ -89,7 +103,7 @@ export default function WelcomeScreen() {
       }
     } catch (error: any) {
       haptics.error();
-      console.error('[GoogleAuth] Sign-in error:', error);
+      captureError(error, 'GoogleAuth sign-in');
       if (error?.isNetworkError || error?.message === 'NETWORK_ERROR') {
         Alert.alert(t('common.error'), t('common.errorNetwork'));
       } else if (error?.status === 500 || error?.status === 503) {
@@ -113,6 +127,7 @@ export default function WelcomeScreen() {
       }
 
       await setAuth(result.token, result.familyId, 'parent', undefined, result.guardianId, result.roleLabel);
+      await tryAcceptInvite();
 
       if (result.isNewUser) {
         router.replace('/(onboarding)/bank-setup');
@@ -184,6 +199,7 @@ export default function WelcomeScreen() {
         const { data } = await authApi.login({ email: email.trim(), password });
 
         await setAuth(data.token, data.family.id, 'parent');
+        await tryAcceptInvite();
 
         if (data.isNewUser) {
           router.replace('/(onboarding)/bank-setup');
@@ -228,6 +244,9 @@ export default function WelcomeScreen() {
     } catch (error: any) {
       haptics.error();
       const status = error?.response?.status;
+      if (status !== 401 && status !== 409) {
+        captureError(error, 'Email/password auth');
+      }
       if (status === 401) {
         Alert.alert(t('common.error'), t('auth.invalidCredentials'));
       } else if (status === 409) {

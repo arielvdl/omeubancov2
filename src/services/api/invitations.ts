@@ -21,6 +21,10 @@ export const invitationsApi = {
   getInvitationInfo: (inviteCode: string) =>
     publicClient.get(`/invitations/code/${inviteCode}`),
 
+  // Accept invitation with existing account (authenticated)
+  acceptInvitation: (inviteCode: string) =>
+    apiClient.post(`/invitations/accept/${inviteCode}`),
+
   // Guardians (authenticated)
   listGuardians: () => apiClient.get('/guardians'),
   removeGuardian: (id: string) => apiClient.delete(`/guardians/${id}`),

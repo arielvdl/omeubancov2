@@ -211,8 +211,8 @@
     "themeSystem": "System",
     "currency": "Currency",
     "currencyDisplay": "Display currency",
-    "parentArea": "Parent area",
-    "parentAccess": "Access parent area",
+    "parentArea": "Family area",
+    "parentAccess": "Access family area",
     "aboutSection": "About",
     "about": "About",
     "aboutDescription": "App version and information",
@@ -504,8 +504,16 @@
     "createAccount": "Create account and join",
     "orGoogle": "Or sign in with Google",
     "alreadyHaveAccount": "Already have an account? Sign in",
+    "welcomeTitle": "Welcome to the family!",
+    "welcomeSubtitle": "You are now part of",
+    "welcomeMessage": "You can follow the kids, see statements, and help with their financial education.",
+    "welcomeCta": "Get started",
+    "saveQr": "Save QR Code",
+    "qrSaved": "QR Code saved to gallery!",
     "hours": "{{count}}h",
-    "minutes": "{{count}}min"
+    "minutes": "{{count}}min",
+    "invalidEmail": "Please enter a valid email address.",
+    "passwordTooShort": "Password must be at least 6 characters."
   },
   "validation": {
     "nameRequired": "Name is required.",

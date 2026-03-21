@@ -1,0 +1,10 @@
+name = "omeubanco-api-proxy"
+main = "src/index.ts"
+compatibility_date = "2024-01-01"
+
+routes = [
+  { pattern = "api.omeubanco.xyz/*", zone_name = "omeubanco.xyz" }
+]
+
+[vars]
+ORIGIN_HOST = "omeubanco-api-548984743318.southamerica-east1.run.app"

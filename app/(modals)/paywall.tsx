@@ -8,7 +8,7 @@ import { SafeArea } from '@/src/components/layout/SafeArea';
 import { Header } from '@/src/components/layout/Header';
 import { useSubscriptionStore } from '@/src/stores/useSubscriptionStore';
 import { haptics } from '@/src/utils/haptics';
-import { logger } from '@/src/utils/logger';
+import { logger, captureError } from '@/src/utils/logger';
 
 // Maps tier+period to RevenueCat package identifier
 const PACKAGE_MAP: Record<string, string> = {
@@ -126,7 +126,7 @@ export default function PaywallScreen() {
         await handleRestore();
       } else {
         haptics.error();
-        logger.warn('[Paywall] Purchase error', err);
+        captureError(err, 'Paywall purchase');
         Alert.alert(
           t('subscription.error', { defaultValue: 'Erro' }),
           err.message || t('subscription.purchaseError', { defaultValue: 'Erro ao processar compra. Tente novamente.' }),
@@ -161,7 +161,7 @@ export default function PaywallScreen() {
         );
       }
     } catch (err: any) {
-      logger.warn('[Paywall] Restore error', err);
+      captureError(err, 'Paywall restore');
       Alert.alert(
         t('subscription.error', { defaultValue: 'Erro' }),
         err.message || t('subscription.restoreError', { defaultValue: 'Erro ao restaurar compras.' }),

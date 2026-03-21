@@ -211,8 +211,8 @@
     "themeSystem": "Sistema",
     "currency": "Moeda",
     "currencyDisplay": "Moeda de exibição",
-    "parentArea": "Área dos pais",
-    "parentAccess": "Acessar área dos pais",
+    "parentArea": "Área da Família",
+    "parentAccess": "Acessar área da família",
     "aboutSection": "Sobre",
     "about": "Sobre",
     "aboutDescription": "Versão do aplicativo e informações",
@@ -506,8 +506,16 @@
     "createAccount": "Criar conta e entrar",
     "orGoogle": "Ou entre com Google",
     "alreadyHaveAccount": "Já tem conta? Faça login",
+    "welcomeTitle": "Bem-vindo à família!",
+    "welcomeSubtitle": "Agora você faz parte de",
+    "welcomeMessage": "Você pode acompanhar as crianças, ver extratos e ajudar na educação financeira delas.",
+    "welcomeCta": "Começar",
+    "saveQr": "Salvar QR Code",
+    "qrSaved": "QR Code salvo na galeria!",
     "hours": "{{count}}h",
-    "minutes": "{{count}}min"
+    "minutes": "{{count}}min",
+    "invalidEmail": "Por favor, insira um e-mail válido.",
+    "passwordTooShort": "A senha deve ter pelo menos 6 caracteres."
   },
   "validation": {
     "nameRequired": "O nome é obrigatório.",

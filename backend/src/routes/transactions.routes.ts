@@ -10,6 +10,8 @@ import {
   InsufficientFundsError,
 } from '../middleware/error-handler.js';
 import { auditLogRepo } from '../repositories/audit-log.repo.js';
+import { notificationService } from '../services/notification.service.js';
+import { wishItemRepo } from '../repositories/wish-item.repo.js';
 
 export const transactionsRoutes = new Hono();
 
@@ -63,6 +65,22 @@ transactionsRoutes.post('/children/:id/deposit', requireParent, async (c) => {
     actor: 'parent',
     details: { childId, amount: data.amount, category: data.category },
   });
+
+  // Check if balance reached the wishlist goal
+  try {
+    const goal = await wishItemRepo.getGoal(childId);
+    if (goal && goal.priceCents && resultBalance >= goal.priceCents) {
+      const amountFormatted = (goal.priceCents / 100).toFixed(2);
+      notificationService.sendToFamily(
+        user.familyId,
+        `${child.name} atingiu a meta!`,
+        `O saldo alcançou R$${amountFormatted} para "${goal.name}"`,
+        { type: 'goal_reached', childId, wishItemId: goal.id }
+      ).catch((err) => console.error('[Notification] goal_reached failed:', err));
+    }
+  } catch (err) {
+    console.error('[Notification] goal check failed:', err);
+  }
 
   return c.json(
     {

@@ -14,6 +14,26 @@ function generateInviteCode(): string {
   return crypto.randomBytes(5).toString('hex').slice(0, 8).toUpperCase();
 }
 
+async function createInviteWithRetry(data: {
+  familyId: string;
+  invitedBy: string;
+  expiresAt: Date;
+}, maxRetries = 3) {
+  for (let attempt = 0; attempt < maxRetries; attempt++) {
+    try {
+      return await familyInvitationRepo.create({
+        ...data,
+        inviteCode: generateInviteCode(),
+      });
+    } catch (err: any) {
+      const isUniqueViolation =
+        err?.code === '23505' || err?.message?.includes('unique');
+      if (!isUniqueViolation || attempt === maxRetries - 1) throw err;
+    }
+  }
+  throw new AppError(500, 'Failed to generate unique invite code');
+}
+
 // Create invitation (owner only)
 invitationsRoutes.post('/', authMiddleware, requireFamilyOwner, invitationRateLimit, async (c) => {
   const user = c.get('user');
@@ -33,12 +53,10 @@ invitationsRoutes.post('/', authMiddleware, requireFamilyOwner, invitationRateLi
     throw new AppError(429, 'Too many pending invitations');
   }
 
-  const inviteCode = generateInviteCode();
   const expiresAt = new Date(Date.now() + 48 * 60 * 60 * 1000); // 48h
 
-  const invitation = await familyInvitationRepo.create({
+  const invitation = await createInviteWithRetry({
     familyId: user.familyId,
-    inviteCode,
     invitedBy: user.familyId,
     expiresAt,
   });
@@ -47,7 +65,7 @@ invitationsRoutes.post('/', authMiddleware, requireFamilyOwner, invitationRateLi
     familyId: user.familyId,
     action: 'invitation.create',
     actor: 'parent',
-    details: { inviteCode },
+    details: { inviteCode: invitation.inviteCode },
   });
 
   return c.json({
@@ -103,6 +121,40 @@ invitationsRoutes.delete('/:id', authMiddleware, requireFamilyOwner, async (c) =
   });
 
   return c.json({ message: 'Invitation revoked' });
+});
+
+// Accept invitation (authenticated user - link existing account to family)
+invitationsRoutes.post('/accept/:inviteCode', authMiddleware, requireParent, async (c) => {
+  const user = c.get('user');
+  const { inviteCode } = c.req.param();
+  const parsed = inviteCodeParamSchema.safeParse({ inviteCode });
+  if (!parsed.success) {
+    throw new AppError(400, 'Invalid invite code');
+  }
+
+  const invitation = await familyInvitationRepo.findByCode(parsed.data.inviteCode);
+  if (!invitation) {
+    throw new AppError(404, 'Invitation not found');
+  }
+  if (invitation.status !== 'pending') {
+    throw new AppError(400, `Invitation is ${invitation.status}`);
+  }
+  if (invitation.expiresAt < new Date()) {
+    await familyInvitationRepo.updateStatus(invitation.id, 'expired');
+    throw new AppError(400, 'Invitation has expired');
+  }
+
+  // If user is already a member of this family, just mark invite as accepted
+  if (user.familyId === invitation.familyId) {
+    await familyInvitationRepo.updateStatus(invitation.id, 'accepted', {
+      acceptedAt: new Date(),
+      acceptedByGuardianId: user.guardianId ?? undefined,
+    });
+    return c.json({ message: 'Already a member of this family', alreadyMember: true });
+  }
+
+  // User belongs to a different family — not supported yet
+  throw new AppError(400, 'You already belong to another family. Multi-family support is not available yet.');
 });
 
 // Public: get invitation info by code

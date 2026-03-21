@@ -15,6 +15,11 @@ import { generateToken, hashPassword, comparePassword } from '../auth/index.js';
 import { auditLogRepo } from '../repositories/audit-log.repo.js';
 import { authRateLimit } from '../middleware/rate-limit.js';
 import { AppError } from '../middleware/error-handler.js';
+import { notificationService } from '../services/notification.service.js';
+import { db } from '../db/index.js';
+import { guardians as guardiansTable } from '../db/schema/guardians.js';
+import { familyInvitations } from '../db/schema/family-invitations.js';
+import { eq, and } from 'drizzle-orm';
 
 export const authRoutes = new Hono();
 
@@ -338,6 +343,7 @@ authRoutes.post('/guardian-register', async (c) => {
   const body = await c.req.json();
   const data = guardianRegisterSchema.parse(body);
 
+  // Pre-validate invitation exists before expensive operations
   const invitation = await familyInvitationRepo.findByCode(data.inviteCode);
   if (!invitation) {
     throw new AppError(404, 'Invitation not found');
@@ -361,21 +367,53 @@ authRoutes.post('/guardian-register', async (c) => {
 
   const passwordHash = await hashPassword(data.password);
 
-  const guardian = await guardianRepo.create({
-    familyId: invitation.familyId,
-    email: data.email,
-    passwordHash,
-    name: data.name,
-    roleLabel: data.roleLabel,
-    invitedBy: invitation.invitedBy,
-  });
+  // Transaction: create guardian + accept invitation atomically
+  // Re-check invitation status inside transaction to prevent race conditions
+  const guardian = await db.transaction(async (tx) => {
+    // Lock and verify invitation is still pending
+    const [freshInvitation] = await tx
+      .select()
+      .from(familyInvitations)
+      .where(
+        and(
+          eq(familyInvitations.id, invitation.id),
+          eq(familyInvitations.status, 'pending')
+        )
+      )
+      .limit(1);
 
-  await familyInvitationRepo.updateStatus(invitation.id, 'accepted', {
-    acceptedAt: new Date(),
-    acceptedByGuardianId: guardian.id,
+    if (!freshInvitation) {
+      throw new AppError(409, 'Invitation already accepted or no longer available');
+    }
+
+    const [created] = await tx
+      .insert(guardiansTable)
+      .values({
+        familyId: invitation.familyId,
+        email: data.email,
+        passwordHash,
+        name: data.name,
+        roleLabel: data.roleLabel,
+        invitedBy: invitation.invitedBy,
+      })
+      .returning();
+
+    await tx
+      .update(familyInvitations)
+      .set({
+        status: 'accepted',
+        acceptedAt: new Date(),
+        acceptedByGuardianId: created.id,
+      })
+      .where(eq(familyInvitations.id, invitation.id));
+
+    return created;
   });
 
   const invFamily = await familyRepo.findById(invitation.familyId);
+  if (!invFamily) {
+    throw new AppError(404, 'Family no longer exists');
+  }
 
   const token = await generateToken({
     familyId: invitation.familyId,
@@ -390,14 +428,23 @@ authRoutes.post('/guardian-register', async (c) => {
     details: { name: guardian.name, roleLabel: guardian.roleLabel },
   });
 
+  notificationService
+    .sendToFamily(
+      invitation.familyId,
+      'Novo membro na família!',
+      `${guardian.name} (${guardian.roleLabel}) aceitou o convite`,
+      { type: 'invitation_accepted', guardianId: guardian.id }
+    )
+    .catch((err) => console.error('[Notification] invitation_accepted failed:', err));
+
   return c.json(
     {
       family: {
-        id: invFamily!.id,
-        name: invFamily!.name,
-        currency: invFamily!.currency,
-        locale: invFamily!.locale,
-        timezone: invFamily!.timezone,
+        id: invFamily.id,
+        name: invFamily.name,
+        currency: invFamily.currency,
+        locale: invFamily.locale,
+        timezone: invFamily.timezone,
       },
       token,
       isNewUser: false,
@@ -470,22 +517,53 @@ authRoutes.post('/guardian-google', async (c) => {
     throw new AppError(409, 'Google account already registered');
   }
 
-  const guardian = await guardianRepo.create({
-    familyId: invitation.familyId,
-    name: googleUser.name || data.roleLabel,
-    roleLabel: data.roleLabel,
-    googleEmail: googleUser.email,
-    googleName: googleUser.name || null,
-    googlePhoto: googleUser.picture || null,
-    invitedBy: invitation.invitedBy,
-  });
+  // Transaction: create guardian + accept invitation atomically
+  const guardian = await db.transaction(async (tx) => {
+    // Re-check invitation status inside transaction to prevent race conditions
+    const [freshInvitation] = await tx
+      .select()
+      .from(familyInvitations)
+      .where(
+        and(
+          eq(familyInvitations.id, invitation.id),
+          eq(familyInvitations.status, 'pending')
+        )
+      )
+      .limit(1);
 
-  await familyInvitationRepo.updateStatus(invitation.id, 'accepted', {
-    acceptedAt: new Date(),
-    acceptedByGuardianId: guardian.id,
+    if (!freshInvitation) {
+      throw new AppError(409, 'Invitation already accepted or no longer available');
+    }
+
+    const [created] = await tx
+      .insert(guardiansTable)
+      .values({
+        familyId: invitation.familyId,
+        name: googleUser.name || data.roleLabel,
+        roleLabel: data.roleLabel,
+        googleEmail: googleUser.email,
+        googleName: googleUser.name || null,
+        googlePhoto: googleUser.picture || null,
+        invitedBy: invitation.invitedBy,
+      })
+      .returning();
+
+    await tx
+      .update(familyInvitations)
+      .set({
+        status: 'accepted',
+        acceptedAt: new Date(),
+        acceptedByGuardianId: created.id,
+      })
+      .where(eq(familyInvitations.id, invitation.id));
+
+    return created;
   });
 
   const invFamily = await familyRepo.findById(invitation.familyId);
+  if (!invFamily) {
+    throw new AppError(404, 'Family no longer exists');
+  }
 
   const token = await generateToken({
     familyId: invitation.familyId,
@@ -500,14 +578,23 @@ authRoutes.post('/guardian-google', async (c) => {
     details: { email: googleUser.email, roleLabel: data.roleLabel },
   });
 
+  notificationService
+    .sendToFamily(
+      invitation.familyId,
+      'Novo membro na família!',
+      `${guardian.name} (${data.roleLabel}) aceitou o convite`,
+      { type: 'invitation_accepted', guardianId: guardian.id }
+    )
+    .catch((err) => console.error('[Notification] invitation_accepted failed:', err));
+
   return c.json(
     {
       family: {
-        id: invFamily!.id,
-        name: invFamily!.name,
-        currency: invFamily!.currency,
-        locale: invFamily!.locale,
-        timezone: invFamily!.timezone,
+        id: invFamily.id,
+        name: invFamily.name,
+        currency: invFamily.currency,
+        locale: invFamily.locale,
+        timezone: invFamily.timezone,
       },
       token,
       isNewUser: false,

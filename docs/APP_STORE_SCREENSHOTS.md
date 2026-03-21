@@ -1,6 +1,6 @@
 # App Store Screenshots - O Meu Banco
 
-Guide for generating and maintaining Apple App Store promotional screenshots for O Meu Banco, a children's financial education app.
+Guide for generating and maintaining App Store and Play Store promotional screenshots for O Meu Banco, a children's financial education app.
 
 ---
 
@@ -19,18 +19,7 @@ Guide for generating and maintaining Apple App Store promotional screenshots for
 
 ### Background
 
-Generated via **Vertex AI Imagen 3** using style transfer from a reference banking app screenshot.
-
-| Parameter       | Value                              |
-|-----------------|------------------------------------|
-| Model           | `imagen-3.0-capability-001`        |
-| Region          | `us-central1`                      |
-| Reference type  | `REFERENCE_TYPE_STYLE`             |
-| Reference image | `aaaa.jpg` (Spruce banking app style) |
-| Result          | Organic yellow curves on beige background |
-| Selected output | `assets/store/bg_v2.png`           |
-
-> API credentials are stored in environment variables. Never commit keys to version control.
+Solid flat yellow `#FFD600` (the project's primary brand color). No gradients, circles, or textures.
 
 ### iPhone Mockup (Programmatic)
 
@@ -41,41 +30,50 @@ The phone frame is rendered programmatically with Pillow, matching iPhone 16 Pro
 | Bezel          | 22px                 |
 | Outer radius   | 75px                 |
 | Inner radius   | 58px                 |
-| Dynamic Island | 155 x 48px, centered |
+| Dynamic Island | Not rendered (already present in source screenshots) |
 | Frame color    | `rgb(18, 18, 20)`    |
 | Edge color     | `rgb(55, 55, 58)`    |
+| Shadow         | Drop shadow with `GaussianBlur(45)`, opacity 60 |
+
+| Property       | Value                |
+|----------------|----------------------|
+| Screen height  | 1814px               |
 | Rotation       | 5 degrees            |
-| Position       | Centered horizontally, bleeding past bottom edge |
-| Shadow         | Drop shadow with `GaussianBlur(50)` |
+| Position       | Centered horizontally, bottom edge bleeds off canvas |
+
+All 4 screenshots use single phone layout.
 
 ### Typography
 
 | Element   | Font                      | Size   | Extra              |
 |-----------|---------------------------|--------|--------------------|
-| Headline  | Bebas Neue Regular        | 180pt  | --                 |
-| Subtitle  | Plus Jakarta Sans Medium  | 42pt   | line_spacing 1.45  |
-| Tag       | Plus Jakarta Sans SemiBold| 30pt   | Inside yellow pill |
+| Headline  | Bebas Neue Regular        | 198pt  | line_spacing 1.1   |
+| Subtitle  | Plus Jakarta Sans Medium  | 55pt   | line_spacing 1.5   |
+| Tag       | Plus Jakarta Sans SemiBold| 34pt   | Inside white pill  |
 
-Fonts are sourced from Google Fonts (GitHub releases). The Bebas Neue `.ttf` file must be available locally for the generation script.
+Fonts sourced from:
+- Bebas Neue: `assets/fonts/BebasNeue-Regular.ttf` (downloaded from Google Fonts)
+- Plus Jakarta Sans: `node_modules/@expo-google-fonts/plus-jakarta-sans/`
 
 ### Colors
 
 | Role      | Hex       | Usage                        |
 |-----------|-----------|------------------------------|
-| Yellow    | `#f5e63d` | Pill tag background, accents |
-| BG        | `#f8f8f5` | Fallback background          |
-| Text      | `#282828` | Headlines, primary text      |
-| Subtitle  | `#646464` | Secondary descriptive text   |
+| BG        | `#FFD600` | Flat yellow background       |
+| Text      | `#1A1A1A` | Headlines, primary text      |
+| Subtitle  | `#3D3D3D` | Secondary descriptive text   |
+| Pill BG   | `#FFFFFF` | Tag pill background          |
+| Pill Text | `#1A1A1A` | Tag pill text                |
 
 > Rule: Yellow backgrounds always use black text, never white.
 
 ### Layout Composition
 
-1. **Logo** -- top-left corner, 90px from edges
-2. **Yellow pill tag** -- top-right, contains category label
-3. **Headline** -- left-aligned, large Bebas Neue text
-4. **Subtitle** -- below headline with 50px gap, Plus Jakarta Sans
-5. **Phone mockup** -- centered below text block, rotated 5 degrees, bottom edge bleeds off canvas
+1. **Logo** -- top-left corner, 90px from edges, 120px size, rounded corners
+2. **White pill tag** -- top-right, contains category label
+3. **Headline** -- left-aligned, 90px left margin, starts at y=340
+4. **Subtitle** -- below headline at y=740, Plus Jakarta Sans
+5. **Phone mockup(s)** -- below text block, bottom edge bleeds off canvas
 
 ---
 
@@ -84,41 +82,47 @@ Fonts are sourced from Google Fonts (GitHub releases). The Bebas Neue `.ttf` fil
 ### Screenshot 1 -- Home Screen (Single Phone)
 
 - **Headline:** MESADA FACIL E DIVERTIDA
-- **App screen:** Home view showing greeting ("Ola, Sofia!") and balance
-- **Layout:** Single phone, standard composition
+- **Subtitle:** Ensine seus filhos a lidar com dinheiro de forma ludica e segura.
+- **Pill:** EDUCACAO FINANCEIRA
+- **App screen:** Home view showing greeting and balance (R$)
+- **Layout:** Single phone
 
 ### Screenshot 2 -- Statement / History (Single Phone)
 
 - **Headline:** TUDO SOB CONTROLE
+- **Subtitle:** Acompanhe cada movimentacao com transparencia total.
+- **Pill:** EXTRATO COMPLETO
 - **App screen:** Extrato (transaction history)
-- **Layout:** Single phone, standard composition
+- **Layout:** Single phone
 
-### Screenshot 3 -- Deposit and Schedule (Dual Phone)
+### Screenshot 3 -- Automatic Allowance (Single Phone)
 
-- **Headline:** TBD (parent features)
-- **App screens:** "Alterar saldo" (deposit) + "Agendar deposito" (schedule)
-- **Layout:** Two phones side by side, parent-focused features
+- **Headline:** MESADA AUTOMATICA
+- **Subtitle:** Agende depositos diarios, semanais ou mensais.
+- **Pill:** AREA DOS PAIS
+- **App screen:** Agendar deposito
+- **Layout:** Single phone
 
-### Screenshot 4 -- Contract and Withdraw (Dual Phone)
+### Screenshot 4 -- Family Contract (Single Phone)
 
-- **Headline:** TBD (educational rules)
-- **App screens:** "Contrato do Banco" (bank contract) + "Registrar saque" (withdrawal)
-- **Layout:** Two phones side by side, educational features
+- **Headline:** REGRAS E RESPONSABILIDADE
+- **Subtitle:** Contrato familiar com regras definidas pela familia.
+- **Pill:** EDUCATIVO
+- **App screen:** Contrato do Banco
+- **Layout:** Single phone
 
 ---
 
 ## Source App Screenshots
 
-Captured from the simulator/device, stored in Downloads, sorted by capture time:
+Captured from device, stored in `~/Downloads`, matched by date+time in filename:
 
-| Order | Time     | Screen                  | Used In        |
-|-------|----------|-------------------------|----------------|
-| 1     | 5:53 PM  | Home (Ola, Sofia! EUR 255) | Screenshot 1 |
-| 2     | 5:54 PM  | Extrato (history)       | Screenshot 2   |
-| 3     | 5:55:00  | Registrar saque         | Screenshot 4   |
-| 4     | 5:55:40  | Alterar saldo (deposit) | Screenshot 3   |
-| 5     | 5:56:09  | Agendar deposito        | Screenshot 3   |
-| 6     | 5:56:43  | Contrato do Banco       | Screenshot 4   |
+| Key            | Date       | Time     | Screen                     | Used In      |
+|----------------|------------|----------|----------------------------|--------------|
+| home           | 2026-03-20 | 3:02 PM  | Home (Ola, Oliver! R$ 451) | Screenshot 1 |
+| extrato        | 2026-03-18 | 5:54 PM  | Extrato (history)          | Screenshot 2 |
+| agendar        | 2026-03-20 | 3:05 PM  | Agendar deposito           | Screenshot 3 |
+| contrato       | 2026-03-18 | 5:56 PM  | Contrato do Banco          | Screenshot 4 |
 
 ---
 
@@ -126,7 +130,7 @@ Captured from the simulator/device, stored in Downloads, sorted by capture time:
 
 ### Location
 
-The generation script should live at `scripts/generate_store_screenshots.py`. It was originally prototyped at `/tmp/generate_store_v6.py`.
+`scripts/generate_store_screenshots.py`
 
 ### Dependencies
 
@@ -136,12 +140,12 @@ pip install Pillow
 
 ### Required Files
 
-| File                              | Purpose                       |
-|-----------------------------------|-------------------------------|
-| `assets/store/bg_v2.png`         | AI-generated background       |
-| Font: Bebas Neue Regular `.ttf`  | Headline typography           |
-| Font: Plus Jakarta Sans `.ttf`   | Subtitle and tag typography   |
-| App screenshots (PNG)            | Phone screen content          |
+| File                                                  | Purpose                |
+|-------------------------------------------------------|------------------------|
+| `assets/fonts/BebasNeue-Regular.ttf`                 | Headline typography    |
+| `node_modules/@expo-google-fonts/plus-jakarta-sans/` | Subtitle/tag typography|
+| `assets/logos/icon-512.png`                           | App logo               |
+| App screenshots in `~/Downloads` (PNG)               | Phone screen content   |
 
 ### Running
 
@@ -149,29 +153,36 @@ pip install Pillow
 python scripts/generate_store_screenshots.py
 ```
 
-Output files are written to `assets/store/appstore_screenshot_X.png` where X is 1 through 4.
+Output: 4 screenshots x 4 sizes (3 iOS + 1 Android) = 16 files, plus 4 master copies at root.
 
 ---
 
-## Required Sizes for App Store Connect
+## Output Sizes
 
-The current pipeline produces iPhone 6.7" screenshots only. The following sizes are needed for full App Store coverage:
+The script generates all sizes in a single run from a master canvas (1290x2796). Scaling uses LANCZOS with center crop to exact dimensions.
 
-| Device            | Dimensions      | Status     |
-|-------------------|-----------------|------------|
-| iPhone 6.7"       | 1290 x 2796    | Done       |
-| iPhone 6.5"       | 1284 x 2778    | Pending    |
-| iPhone 5.5"       | 1242 x 2208    | Pending    |
-| iPad Pro 12.9"    | 2048 x 2732    | Pending    |
-| iPad Pro 11"      | 1668 x 2388    | Pending    |
+### Apple App Store
 
-To support additional sizes, the generation script should accept a `--size` parameter or iterate over a size configuration list to produce all variants in a single run.
+| Device            | Dimensions      | Output path                        |
+|-------------------|-----------------|-------------------------------------|
+| iPhone 6.9"       | 1320 x 2868    | `assets/store/ios/iphone-6.9/`     |
+| iPhone 6.7"       | 1290 x 2796    | `assets/store/ios/iphone-6.7/`     |
+| iPhone 6.5"       | 1284 x 2778    | `assets/store/ios/iphone-6.5/`     |
+
+### Google Play Store
+
+| Device            | Dimensions      | Output path                        |
+|-------------------|-----------------|-------------------------------------|
+| Phone             | 1080 x 2340    | `assets/store/android/phone/`      |
+
+Master copies also saved at `assets/store/appstore_screenshot_X.png`.
 
 ---
 
 ## Maintenance Notes
 
-- When the app UI changes significantly, recapture the source screenshots and regenerate.
-- The Vertex AI background only needs regeneration if the visual brand changes. `bg_v2.png` is the current selected variant.
-- Keep font files in a shared location (e.g., `assets/fonts/`) if they are used by other tooling.
-- All generated assets in `assets/store/` should be committed to version control since they are static outputs, not build artifacts.
+- When the app UI changes significantly, recapture source screenshots and regenerate.
+- Keep font files in `assets/fonts/`.
+- All generated assets in `assets/store/` should be committed to version control.
+- The script matches screenshots by partial filename (date + time), handling Unicode characters in macOS filenames.
+- To add new sizes, add an entry to the `SIZES` dict in the script.

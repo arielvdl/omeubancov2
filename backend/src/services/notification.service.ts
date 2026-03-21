@@ -66,4 +66,43 @@ export const notificationService = {
 
     await sendExpoPush(messages);
   },
+
+  async sendToAll(
+    title: string,
+    body: string,
+    data?: Record<string, unknown>
+  ): Promise<void> {
+    const allDevices = await deviceRepo.findAll();
+    if (allDevices.length === 0) return;
+
+    const messages: PushMessage[] = allDevices.map((device) => ({
+      to: device.pushToken,
+      title,
+      body,
+      data,
+      sound: 'default' as const,
+    }));
+
+    await sendExpoPush(messages);
+  },
+
+  async sendToFamilies(
+    familyIds: string[],
+    title: string,
+    body: string,
+    data?: Record<string, unknown>
+  ): Promise<void> {
+    const segmentDevices = await deviceRepo.findByFamilyIds(familyIds);
+    if (segmentDevices.length === 0) return;
+
+    const messages: PushMessage[] = segmentDevices.map((device) => ({
+      to: device.pushToken,
+      title,
+      body,
+      data,
+      sound: 'default' as const,
+    }));
+
+    await sendExpoPush(messages);
+  },
 };

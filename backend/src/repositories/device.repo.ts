@@ -1,4 +1,4 @@
-import { eq, and } from 'drizzle-orm';
+import { eq, and, inArray } from 'drizzle-orm';
 import { db } from '../db/index.js';
 import { devices } from '../db/schema/devices.js';
 
@@ -6,8 +6,17 @@ export type InsertDevice = typeof devices.$inferInsert;
 export type SelectDevice = typeof devices.$inferSelect;
 
 export const deviceRepo = {
+  async findAll(): Promise<SelectDevice[]> {
+    return db.select().from(devices);
+  },
+
   async findByFamilyId(familyId: string): Promise<SelectDevice[]> {
     return db.select().from(devices).where(eq(devices.familyId, familyId));
+  },
+
+  async findByFamilyIds(familyIds: string[]): Promise<SelectDevice[]> {
+    if (familyIds.length === 0) return [];
+    return db.select().from(devices).where(inArray(devices.familyId, familyIds));
   },
 
   async findByPushToken(pushToken: string): Promise<SelectDevice | undefined> {
