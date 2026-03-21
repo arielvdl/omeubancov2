@@ -354,64 +354,34 @@ Procurar por `[INFO] [App] API URL:` — deve mostrar a URL de producao, nao um 
 ## Resumo rapido (checklist para Claude Code / agentes AI)
 
 **IMPORTANTE para agentes AI:** NAO usar `eas build`, `eas submit`, ou qualquer comando EAS.
-Usar APENAS `xcodebuild` conforme abaixo. NAO pedir login do Expo/EAS ao usuario.
+NAO pedir login do Expo/EAS ao usuario.
 
-Para deploy rapido, executar na raiz do projeto:
+### Metodo unico e obrigatorio: usar o script de build
 
 ```bash
-# 1. Regenerar projeto nativo
 cd /Users/arielsilva/Documents/PROJETOS/omeubanco-v2
-npx expo prebuild --clean --platform ios
-
-# 2. Verificar build number atual e incrementar
-CURRENT=$(/usr/libexec/PlistBuddy -c "Print :CFBundleVersion" ios/OMeuBanco/Info.plist)
-NEXT=$((CURRENT + 1))
-/usr/libexec/PlistBuddy -c "Set :CFBundleVersion $NEXT" ios/OMeuBanco/Info.plist
-echo "Build: $CURRENT -> $NEXT"
-
-# 3. Archive
-cd ios && xcodebuild archive \
-  -workspace OMeuBanco.xcworkspace \
-  -scheme OMeuBanco \
-  -configuration Release \
-  -archivePath /tmp/OMeuBanco.xcarchive \
-  -destination "generic/platform=iOS" \
-  DEVELOPMENT_TEAM=ND8DU74P4S \
-  CODE_SIGN_STYLE=Automatic \
-  -allowProvisioningUpdates
-
-# 4. Criar ExportOptions.plist (se nao existir em /tmp)
-cat > /tmp/ExportOptions.plist << 'PLIST'
-<?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
-<plist version="1.0">
-<dict>
-    <key>method</key>
-    <string>app-store-connect</string>
-    <key>teamID</key>
-    <string>ND8DU74P4S</string>
-    <key>signingStyle</key>
-    <string>automatic</string>
-    <key>uploadSymbols</key>
-    <true/>
-    <key>destination</key>
-    <string>upload</string>
-</dict>
-</plist>
-PLIST
-
-# 5. Exportar e upload direto pro App Store Connect
-rm -rf /tmp/OMeuBancoExport
-xcodebuild -exportArchive \
-  -archivePath /tmp/OMeuBanco.xcarchive \
-  -exportOptionsPlist /tmp/ExportOptions.plist \
-  -exportPath /tmp/OMeuBancoExport \
-  -allowProvisioningUpdates
-
-# 6. Aguardar ~5-15min para processar no App Store Connect
-# Os testers internos (Beta Testers) recebem automaticamente
-# O Export Compliance so precisa ser resolvido na primeira vez
+./scripts/build-testflight.sh
 ```
+
+Este script faz TUDO automaticamente:
+1. Valida `.env.production` (rejeita IPs locais e keys de teste)
+2. Troca `.env` para producao antes do build
+3. Faz prebuild + incrementa build number + archive
+4. **Valida o bundle** (rejeita se encontrar IPs locais ou keys de teste)
+5. Faz upload para App Store Connect
+6. Restaura `.env` para desenvolvimento (mesmo se der erro)
+
+### NUNCA fazer build manual
+
+O build manual (rodar xcodebuild direto) **NAO garante** que as env vars de producao sejam usadas.
+O Expo `@expo/env` deveria priorizar `.env.production` em builds Release, mas isso falha
+porque o xcodebuild nao seta `NODE_ENV=production` para o Metro bundler.
+
+O script resolve isso trocando o `.env` temporariamente e validando o bundle antes do upload.
+
+### Aguardar ~5-15min para processar no App Store Connect
+Os testers internos (Beta Testers) recebem automaticamente.
+O Export Compliance so precisa ser resolvido na primeira vez.
 
 ## Historico de builds
 
@@ -430,3 +400,4 @@ xcodebuild -exportArchive \
 | 1.0.0 (11) | 2026-03-19 | Sistema de assinaturas RevenueCat + IAP, paywall, gating em 5 pontos (children, receipts, schedules, invitations, wishlist), lista de desejos |
 | 1.0.0 (12) | 2026-03-19 | Sentry error tracking, mesada automatica, pull-to-refresh extrato, fix wishlist crash |
 | 1.0.0 (13) | 2026-03-20 | Melhorias fluxo invite: rename "Area da Familia", tela welcome pos-registro, QR salvavel, Sentry em 11 catch blocks criticos, transaction no guardian-register |
+| 1.0.0 (14) | 2026-03-21 | Fix segurança invite: race condition, transaction no google-oauth, validação frontend, aceitar convite com conta existente, website institucional |
