@@ -10,6 +10,7 @@ const envSchema = z.object({
   RP_ID: z.string().default('api.omeubanco.xyz'),
   RP_NAME: z.string().default('O Meu Banco'),
   RP_ORIGIN: z.string().default('https://api.omeubanco.xyz'),
+  PUBLIC_URL: z.string().default('https://api.omeubanco.xyz'),
   GOOGLE_OAUTH_CLIENT_ID: z.string().optional().default(''),
   GOOGLE_OAUTH_CLIENT_SECRET: z.string().optional().default(''),
 });

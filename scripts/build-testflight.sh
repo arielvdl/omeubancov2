@@ -21,7 +21,7 @@ ENV_BACKUP="$PROJECT_ROOT/.env.dev.backup"
 ARCHIVE_PATH="/tmp/OMeuBanco.xcarchive"
 EXPORT_PATH="/tmp/OMeuBancoExport"
 EXPORT_OPTIONS="/tmp/ExportOptions.plist"
-TEAM_ID="ND8DU74P4S"
+TEAM_ID="8TA8YQY457"
 
 RED='\033[0;31m'
 GREEN='\033[0;32m'
@@ -169,8 +169,8 @@ if strings "$BUNDLE_PATH" 2>/dev/null | grep -qE "REVENUECAT.*test_mc|test_mck";
     exit 1
 fi
 
-# Confirmar que a URL de produção está presente
-if ! strings "$BUNDLE_PATH" 2>/dev/null | grep -q "api.omeubanco.xyz"; then
+# Confirmar que a URL de produção está presente (grep -c binário para lidar com minificação)
+if ! grep -cq "api.omeubanco.xyz" "$BUNDLE_PATH" 2>/dev/null; then
     echo -e "${RED}[ERRO] URL de produção (api.omeubanco.xyz) NÃO encontrada no bundle!${NC}"
     exit 1
 fi
@@ -189,7 +189,7 @@ cat > "$EXPORT_OPTIONS" << 'PLIST'
     <key>method</key>
     <string>app-store-connect</string>
     <key>teamID</key>
-    <string>ND8DU74P4S</string>
+    <string>8TA8YQY457</string>
     <key>signingStyle</key>
     <string>automatic</string>
     <key>uploadSymbols</key>

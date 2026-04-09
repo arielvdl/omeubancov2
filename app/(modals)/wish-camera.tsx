@@ -1,5 +1,5 @@
 import React, { useState, useRef, useCallback } from 'react';
-import { View, Text, Pressable, Alert } from 'react-native';
+import { View, Text, Pressable, Alert, ActivityIndicator } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import { CameraView, useCameraPermissions } from 'expo-camera';
@@ -179,32 +179,42 @@ export default function WishCameraScreen() {
             />
           </View>
 
-          <View className="flex-row gap-4 px-6 pb-10 pt-4 bg-black">
-            <View className="flex-1">
-              <Pressable
-                onPress={handleRetake}
-                style={{
-                  backgroundColor: '#ffffff',
-                  borderRadius: 24,
-                  paddingVertical: 16,
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                }}
-              >
-                <Text style={{ fontSize: 17, fontFamily: 'PlusJakartaSans_700Bold', color: '#1a1a0e' }}>
-                  {t('wishlist.retake')}
-                </Text>
-              </Pressable>
-            </View>
-            <View className="flex-1">
-              <Button
-                title={t('wishlist.savePhoto')}
-                onPress={handleSave}
-                variant="primary"
-                fullWidth
-                loading={saving}
-              />
-            </View>
+          <View className="flex-row gap-4 px-7 pb-10 pt-4 bg-black items-center justify-center">
+            {/* Retake — X icon, light red */}
+            <Pressable
+              onPress={handleRetake}
+              style={{
+                flex: 1,
+                height: 56,
+                backgroundColor: '#FEE2E2',
+                borderRadius: 28,
+                alignItems: 'center',
+                justifyContent: 'center',
+              }}
+            >
+              <MaterialCommunityIcons name="close" size={28} color="#DC2626" />
+            </Pressable>
+
+            {/* Save — thumbs-up icon, light green */}
+            <Pressable
+              onPress={handleSave}
+              disabled={saving}
+              style={{
+                flex: 1,
+                height: 56,
+                backgroundColor: '#DCFCE7',
+                borderRadius: 28,
+                alignItems: 'center',
+                justifyContent: 'center',
+                opacity: saving ? 0.5 : 1,
+              }}
+            >
+              {saving ? (
+                <ActivityIndicator size="small" color="#16A34A" />
+              ) : (
+                <MaterialCommunityIcons name="thumb-up" size={28} color="#16A34A" />
+              )}
+            </Pressable>
           </View>
         </View>
       </SafeArea>

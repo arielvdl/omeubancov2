@@ -8,7 +8,7 @@ import Animated, {
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { haptics } from '@/src/utils/haptics';
 
-type ButtonVariant = 'primary' | 'secondary' | 'ghost' | 'danger';
+type ButtonVariant = 'primary' | 'secondary' | 'ghost' | 'danger' | 'success';
 type ButtonSize = 'sm' | 'md' | 'lg';
 
 interface ButtonProps {
@@ -50,6 +50,12 @@ const variantStyles: Record<
     text: 'text-white font-sans-bold',
     iconColor: '#ffffff',
     disabledContainer: 'bg-red-200',
+  },
+  success: {
+    container: 'bg-green-500',
+    text: 'text-white font-sans-bold',
+    iconColor: '#ffffff',
+    disabledContainer: 'bg-green-200',
   },
 };
 
@@ -119,7 +125,7 @@ export function Button({
       {loading ? (
         <ActivityIndicator
           size="small"
-          color={variant === 'danger' ? '#ffffff' : '#1a1a0e'}
+          color={variant === 'danger' || variant === 'success' ? '#ffffff' : '#1a1a0e'}
         />
       ) : (
         <View className="flex-row items-center gap-2.5">

@@ -15,7 +15,6 @@ import { useFocusEffect } from 'expo-router';
 import { SafeArea } from '@/src/components/layout/SafeArea';
 import { useSelectedChild } from '@/src/hooks/useSelectedChild';
 import { useWishlistStore } from '@/src/stores/useWishlistStore';
-import { useSubscriptionStore } from '@/src/stores/useSubscriptionStore';
 import { useCurrency } from '@/src/hooks/useCurrency';
 import { wishlistApi } from '@/src/services/api/wishlist';
 import { haptics } from '@/src/utils/haptics';
@@ -188,17 +187,6 @@ export default function WishlistScreen() {
     haptics.selection();
     router.push({ pathname: '/(modals)/wish-detail', params: { id: item.id } });
   }, [router]);
-
-  const canAddWishItem = useSubscriptionStore((s) => s.canAddWishItem);
-
-  const handleNewWish = useCallback(() => {
-    haptics.light();
-    if (!canAddWishItem()) {
-      router.push({ pathname: '/(modals)/paywall', params: { feature: 'wish_item' } });
-      return;
-    }
-    router.push('/(modals)/wish-camera');
-  }, [router, canAddWishItem]);
 
   const filters: { key: FilterType; label: string }[] = [
     { key: 'all', label: t('wishlist.filterAll') },
@@ -457,21 +445,6 @@ export default function WishlistScreen() {
           </View>
         </Animated.View>
 
-        {/* FAB */}
-        <Pressable
-          onPress={handleNewWish}
-          className="absolute bottom-28 right-7 w-14 h-14 rounded-full bg-primary items-center justify-center"
-          style={{
-            zIndex: 20,
-            shadowColor: '#FFD600',
-            shadowOffset: { width: 0, height: 4 },
-            shadowOpacity: 0.3,
-            shadowRadius: 8,
-            elevation: 6,
-          }}
-        >
-          <MaterialCommunityIcons name="camera-plus" size={26} color="#1a1a0e" />
-        </Pressable>
       </View>
     </SafeArea>
   );

@@ -1,6 +1,6 @@
 import "../global.css";
 import "@/src/i18n";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { Stack } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import * as SplashScreen from "expo-splash-screen";
@@ -20,6 +20,7 @@ import { useSettingsStore } from "@/src/stores/useSettingsStore";
 import { bankApi } from "@/src/services/api/bank";
 import { logger, captureError } from "@/src/utils/logger";
 import { useNotifications } from "@/src/hooks/useNotifications";
+import AnimatedSplash from "@/src/components/ui/AnimatedSplash";
 
 Sentry.init({
   dsn: process.env.EXPO_PUBLIC_SENTRY_DSN,
@@ -32,6 +33,7 @@ SplashScreen.preventAutoHideAsync().catch(() => {});
 
 export default function RootLayout() {
   const [appReady, setAppReady] = useState(false);
+  const [splashFinished, setSplashFinished] = useState(false);
   const loadPersistedState = useAuthStore((s) => s.loadPersistedState);
   const loadSettings = useSettingsStore((s) => s.loadSettings);
   const token = useAuthStore((s) => s.token);
@@ -55,10 +57,12 @@ export default function RootLayout() {
         useBankStore.getState().loadPersistedSelectedChild(),
       ]);
 
-      // Initialize RevenueCat SDK (dynamic import to prevent native crash if module fails to load)
+      // Initialize RevenueCat SDK (skip in Expo Go — native module unavailable)
       const rcApiKey = process.env.EXPO_PUBLIC_REVENUECAT_API_KEY;
       let Purchases: typeof import('react-native-purchases').default | null = null;
-      if (rcApiKey) {
+      const Constants = (await import('expo-constants')).default;
+      const isExpoGo = Constants.appOwnership === 'expo';
+      if (rcApiKey && !isExpoGo) {
         try {
           const mod = await import('react-native-purchases');
           Purchases = mod.default;
@@ -71,6 +75,8 @@ export default function RootLayout() {
           logger.warn('[App] RevenueCat init failed', err);
           Purchases = null;
         }
+      } else if (isExpoGo) {
+        logger.info('[App] RevenueCat skipped (Expo Go)');
       }
 
       // If user has a valid token, hydrate children and family from API
@@ -132,6 +138,10 @@ export default function RootLayout() {
     }
   }, [fontsLoaded, appReady]);
 
+  const handleSplashFinish = useCallback(() => {
+    setSplashFinished(true);
+  }, []);
+
   if (!fontsLoaded || !appReady) return null;
 
   return (
@@ -167,6 +177,7 @@ export default function RootLayout() {
           }}
         />
       </Stack>
+      {!splashFinished && <AnimatedSplash onFinish={handleSplashFinish} />}
       <StatusBar style="auto" />
     </GestureHandlerRootView>
   );

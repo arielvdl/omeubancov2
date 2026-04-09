@@ -1,5 +1,5 @@
 import React, { useState, useCallback, useRef } from 'react';
-import { View, Text, TextInput, ScrollView, Pressable } from 'react-native';
+import { View, Text, TextInput, ScrollView, Pressable, KeyboardAvoidingView, Platform } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
@@ -242,6 +242,10 @@ export default function AddBalanceScreen() {
         showBack
         onBack={() => router.back()}
       />
+      <KeyboardAvoidingView
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        className="flex-1"
+      >
       <ScrollView
         ref={scrollRef}
         className="flex-1"
@@ -495,6 +499,9 @@ export default function AddBalanceScreen() {
           placeholder={t('parent.descriptionPlaceholder')}
           icon="text"
           maxLength={100}
+          onFocus={() => {
+            setTimeout(() => scrollRef.current?.scrollToEnd({ animated: true }), 300);
+          }}
         />
 
         {/* Submit button */}
@@ -514,6 +521,7 @@ export default function AddBalanceScreen() {
           />
         </View>
       </ScrollView>
+      </KeyboardAvoidingView>
     </SafeArea>
   );
 }

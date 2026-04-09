@@ -65,12 +65,19 @@ export default function PaywallScreen() {
     (async () => {
       try {
         const offerings = await Purchases.getOfferings();
+        logger.info('[Paywall] Raw offerings', {
+          currentId: offerings.current?.identifier,
+          packageCount: offerings.current?.availablePackages?.length ?? 0,
+          packageIds: offerings.current?.availablePackages?.map((p: any) => p.identifier) ?? [],
+          allOfferingIds: Object.keys(offerings.all ?? {}),
+        });
         if (offerings.current?.availablePackages.length) {
           setPackages(offerings.current.availablePackages);
+        } else {
+          logger.warn('[Paywall] No available packages in current offering');
         }
-        logger.info('[Paywall] Offerings loaded', offerings.current?.availablePackages.length ?? 0);
-      } catch (err) {
-        logger.warn('[Paywall] Failed to load offerings', err);
+      } catch (err: any) {
+        logger.error('[Paywall] Failed to load offerings', { message: err?.message, code: err?.code });
       } finally {
         setLoadingOfferings(false);
       }

@@ -11,6 +11,7 @@ export const families = pgTable('families', {
   googleEmail: varchar('google_email', { length: 255 }).unique(),
   googleName: varchar('google_name', { length: 255 }),
   googlePhoto: varchar('google_photo', { length: 500 }),
+  appleUserId: varchar('apple_user_id', { length: 255 }).unique(),
   createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
   updatedAt: timestamp('updated_at', { withTimezone: true }).defaultNow().notNull(),
 });

@@ -517,6 +517,7 @@ export default function WishDetailScreen() {
               title={t('common.save')}
               onPress={handleSave}
               loading={saving}
+              variant="success"
               fullWidth
             />
 

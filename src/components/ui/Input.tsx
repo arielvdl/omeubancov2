@@ -16,6 +16,7 @@ interface InputProps {
   multiline?: boolean;
   editable?: boolean;
   size?: 'default' | 'lg';
+  onFocus?: () => void;
 }
 
 export const Input = forwardRef<TextInput, InputProps>(function Input({
@@ -31,6 +32,7 @@ export const Input = forwardRef<TextInput, InputProps>(function Input({
   multiline = false,
   editable = true,
   size = 'default',
+  onFocus: onFocusProp,
 }, ref) {
   const [isFocused, setIsFocused] = useState(false);
   const [isSecure, setIsSecure] = useState(secureTextEntry);
@@ -65,7 +67,7 @@ export const Input = forwardRef<TextInput, InputProps>(function Input({
           maxLength={maxLength}
           multiline={multiline}
           editable={editable}
-          onFocus={() => setIsFocused(true)}
+          onFocus={() => { setIsFocused(true); onFocusProp?.(); }}
           onBlur={() => setIsFocused(false)}
           className={`flex-1 ${textClass} font-sans text-text`}
           style={multiline ? { minHeight: 88, textAlignVertical: 'top' } : undefined}

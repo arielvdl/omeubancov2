@@ -7,29 +7,29 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		13A7BAA2B7F5E991CFCA85C8 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = DCE035E90D6EE3271AB54C5F /* PrivacyInfo.xcprivacy */; };
 		13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 13B07FB51A68108700A75B9A /* Images.xcassets */; };
+		1F59CB720BFC0F693A079616 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 6F74FDA236F4F14C770C28B8 /* PrivacyInfo.xcprivacy */; };
 		3E461D99554A48A4959DE609 /* SplashScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = AA286B85B6C04FC6940260E9 /* SplashScreen.storyboard */; };
-		93D1E8C5BDB39AF457B7B649 /* libPods-OMeuBanco.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 80ED8F9D38620703B8AC65C9 /* libPods-OMeuBanco.a */; };
+		9085B91188E559D3BDE81B05 /* ExpoModulesProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = BE961FEB8D0E205644C068FB /* ExpoModulesProvider.swift */; };
 		BB2F792D24A3F905000567C9 /* Expo.plist in Resources */ = {isa = PBXBuildFile; fileRef = BB2F792C24A3F905000567C9 /* Expo.plist */; };
+		D8F45182D64708E17CA6B30C /* libPods-OMeuBanco.a in Frameworks */ = {isa = PBXBuildFile; fileRef = F15F8C1E1A4FF9C610CBF2E3 /* libPods-OMeuBanco.a */; };
 		F11748422D0307B40044C1D9 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = F11748412D0307B40044C1D9 /* AppDelegate.swift */; };
-		FF3772BA0FA9145E62EFC8EC /* ExpoModulesProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 919C5AB149FD906E6BC7E0A7 /* ExpoModulesProvider.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
 		13B07F961A680F5B00A75B9A /* OMeuBanco.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = OMeuBanco.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		13B07FB51A68108700A75B9A /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; name = Images.xcassets; path = OMeuBanco/Images.xcassets; sourceTree = "<group>"; };
 		13B07FB61A68108700A75B9A /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = Info.plist; path = OMeuBanco/Info.plist; sourceTree = "<group>"; };
-		80ED8F9D38620703B8AC65C9 /* libPods-OMeuBanco.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-OMeuBanco.a"; sourceTree = BUILT_PRODUCTS_DIR; };
-		919C5AB149FD906E6BC7E0A7 /* ExpoModulesProvider.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = ExpoModulesProvider.swift; path = "Pods/Target Support Files/Pods-OMeuBanco/ExpoModulesProvider.swift"; sourceTree = "<group>"; };
+		6F74FDA236F4F14C770C28B8 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; includeInIndex = 1; name = PrivacyInfo.xcprivacy; path = OMeuBanco/PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
 		AA286B85B6C04FC6940260E9 /* SplashScreen.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; name = SplashScreen.storyboard; path = OMeuBanco/SplashScreen.storyboard; sourceTree = "<group>"; };
-		AB829F3790C248D84CC47FA4 /* Pods-OMeuBanco.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-OMeuBanco.release.xcconfig"; path = "Target Support Files/Pods-OMeuBanco/Pods-OMeuBanco.release.xcconfig"; sourceTree = "<group>"; };
 		BB2F792C24A3F905000567C9 /* Expo.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Expo.plist; sourceTree = "<group>"; };
-		D63CF83CA876684988C219EF /* Pods-OMeuBanco.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-OMeuBanco.debug.xcconfig"; path = "Target Support Files/Pods-OMeuBanco/Pods-OMeuBanco.debug.xcconfig"; sourceTree = "<group>"; };
-		DCE035E90D6EE3271AB54C5F /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; includeInIndex = 1; name = PrivacyInfo.xcprivacy; path = OMeuBanco/PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
+		BE961FEB8D0E205644C068FB /* ExpoModulesProvider.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = ExpoModulesProvider.swift; path = "Pods/Target Support Files/Pods-OMeuBanco/ExpoModulesProvider.swift"; sourceTree = "<group>"; };
+		DB1A7EF66B7AA752B1C22A38 /* Pods-OMeuBanco.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-OMeuBanco.debug.xcconfig"; path = "Target Support Files/Pods-OMeuBanco/Pods-OMeuBanco.debug.xcconfig"; sourceTree = "<group>"; };
+		E1B605006E58EE050DFE89BB /* Pods-OMeuBanco.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-OMeuBanco.release.xcconfig"; path = "Target Support Files/Pods-OMeuBanco/Pods-OMeuBanco.release.xcconfig"; sourceTree = "<group>"; };
 		ED297162215061F000B7C4FE /* JavaScriptCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = JavaScriptCore.framework; path = System/Library/Frameworks/JavaScriptCore.framework; sourceTree = SDKROOT; };
 		F11748412D0307B40044C1D9 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = AppDelegate.swift; path = OMeuBanco/AppDelegate.swift; sourceTree = "<group>"; };
 		F11748442D0722820044C1D9 /* OMeuBanco-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = "OMeuBanco-Bridging-Header.h"; path = "OMeuBanco/OMeuBanco-Bridging-Header.h"; sourceTree = "<group>"; };
+		F15F8C1E1A4FF9C610CBF2E3 /* libPods-OMeuBanco.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-OMeuBanco.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -37,7 +37,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				93D1E8C5BDB39AF457B7B649 /* libPods-OMeuBanco.a in Frameworks */,
+				D8F45182D64708E17CA6B30C /* libPods-OMeuBanco.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -53,7 +53,7 @@
 				13B07FB51A68108700A75B9A /* Images.xcassets */,
 				13B07FB61A68108700A75B9A /* Info.plist */,
 				AA286B85B6C04FC6940260E9 /* SplashScreen.storyboard */,
-				DCE035E90D6EE3271AB54C5F /* PrivacyInfo.xcprivacy */,
+				6F74FDA236F4F14C770C28B8 /* PrivacyInfo.xcprivacy */,
 			);
 			name = OMeuBanco;
 			sourceTree = "<group>";
@@ -62,17 +62,19 @@
 			isa = PBXGroup;
 			children = (
 				ED297162215061F000B7C4FE /* JavaScriptCore.framework */,
-				80ED8F9D38620703B8AC65C9 /* libPods-OMeuBanco.a */,
+				F15F8C1E1A4FF9C610CBF2E3 /* libPods-OMeuBanco.a */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
 		};
-		4CC66CB0C519D9F3BFE86682 /* OMeuBanco */ = {
+		4DB56A4A2B0F40E75D8FE65F /* Pods */ = {
 			isa = PBXGroup;
 			children = (
-				919C5AB149FD906E6BC7E0A7 /* ExpoModulesProvider.swift */,
+				DB1A7EF66B7AA752B1C22A38 /* Pods-OMeuBanco.debug.xcconfig */,
+				E1B605006E58EE050DFE89BB /* Pods-OMeuBanco.release.xcconfig */,
 			);
-			name = OMeuBanco;
+			name = Pods;
+			path = Pods;
 			sourceTree = "<group>";
 		};
 		832341AE1AAA6A7D00B99B32 /* Libraries */ = {
@@ -89,8 +91,8 @@
 				832341AE1AAA6A7D00B99B32 /* Libraries */,
 				83CBBA001A601CBA00E9B192 /* Products */,
 				2D16E6871FA4F8E400B85C8A /* Frameworks */,
-				B1D2A3849EBED1B69F66F532 /* Pods */,
-				CC650F2241BBBC89227A5DE3 /* ExpoModulesProviders */,
+				4DB56A4A2B0F40E75D8FE65F /* Pods */,
+				87CCC63916E7DF01AC0E6B3F /* ExpoModulesProviders */,
 			);
 			indentWidth = 2;
 			sourceTree = "<group>";
@@ -105,14 +107,20 @@
 			name = Products;
 			sourceTree = "<group>";
 		};
-		B1D2A3849EBED1B69F66F532 /* Pods */ = {
+		87CCC63916E7DF01AC0E6B3F /* ExpoModulesProviders */ = {
 			isa = PBXGroup;
 			children = (
-				D63CF83CA876684988C219EF /* Pods-OMeuBanco.debug.xcconfig */,
-				AB829F3790C248D84CC47FA4 /* Pods-OMeuBanco.release.xcconfig */,
+				A28626C6EF5675F4E1CADAC3 /* OMeuBanco */,
 			);
-			name = Pods;
-			path = Pods;
+			name = ExpoModulesProviders;
+			sourceTree = "<group>";
+		};
+		A28626C6EF5675F4E1CADAC3 /* OMeuBanco */ = {
+			isa = PBXGroup;
+			children = (
+				BE961FEB8D0E205644C068FB /* ExpoModulesProvider.swift */,
+			);
+			name = OMeuBanco;
 			sourceTree = "<group>";
 		};
 		BB2F792B24A3F905000567C9 /* Supporting */ = {
@@ -124,14 +132,6 @@
 			path = OMeuBanco/Supporting;
 			sourceTree = "<group>";
 		};
-		CC650F2241BBBC89227A5DE3 /* ExpoModulesProviders */ = {
-			isa = PBXGroup;
-			children = (
-				4CC66CB0C519D9F3BFE86682 /* OMeuBanco */,
-			);
-			name = ExpoModulesProviders;
-			sourceTree = "<group>";
-		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -140,14 +140,14 @@
 			buildConfigurationList = 13B07F931A680F5B00A75B9A /* Build configuration list for PBXNativeTarget "OMeuBanco" */;
 			buildPhases = (
 				08A4A3CD28434E44B6B9DE2E /* [CP] Check Pods Manifest.lock */,
-				49564D106B37736F27B2EEC7 /* [Expo] Configure project */,
+				4E032DAC91C43E8AB206CE85 /* [Expo] Configure project */,
 				13B07F871A680F5B00A75B9A /* Sources */,
 				13B07F8C1A680F5B00A75B9A /* Frameworks */,
 				13B07F8E1A680F5B00A75B9A /* Resources */,
 				00DD1BFF1BD5951E006B06BC /* Bundle React Native code and images */,
 				800E24972A6A228C8D4807E9 /* [CP] Copy Pods Resources */,
-				82AE96FA58A14057AD4EB978 /* Upload Debug Symbols to Sentry */,
-				CB2ACFB59B065311C82E6080 /* [CP] Embed Pods Frameworks */,
+				A170AA91EAC34253A1F2A9E3 /* Upload Debug Symbols to Sentry */,
+				3F1BD5BEA91A7A2ADC3346C8 /* [CP] Embed Pods Frameworks */,
 			);
 			buildRules = (
 			);
@@ -197,7 +197,7 @@
 				BB2F792D24A3F905000567C9 /* Expo.plist in Resources */,
 				13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */,
 				3E461D99554A48A4959DE609 /* SplashScreen.storyboard in Resources */,
-				13A7BAA2B7F5E991CFCA85C8 /* PrivacyInfo.xcprivacy in Resources */,
+				1F59CB720BFC0F693A079616 /* PrivacyInfo.xcprivacy in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -243,7 +243,29 @@
 			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
 			showEnvVarsInLog = 0;
 		};
-		49564D106B37736F27B2EEC7 /* [Expo] Configure project */ = {
+		3F1BD5BEA91A7A2ADC3346C8 /* [CP] Embed Pods Frameworks */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-OMeuBanco/Pods-OMeuBanco-frameworks.sh",
+				"${PODS_XCFRAMEWORKS_BUILD_DIR}/React-Core-prebuilt/React.framework/React",
+				"${PODS_XCFRAMEWORKS_BUILD_DIR}/ReactNativeDependencies/ReactNativeDependencies.framework/ReactNativeDependencies",
+				"${PODS_XCFRAMEWORKS_BUILD_DIR}/hermes-engine/Pre-built/hermes.framework/hermes",
+			);
+			name = "[CP] Embed Pods Frameworks";
+			outputPaths = (
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/React.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/ReactNativeDependencies.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/hermes.framework",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-OMeuBanco/Pods-OMeuBanco-frameworks.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
+		4E032DAC91C43E8AB206CE85 /* [Expo] Configure project */ = {
 			isa = PBXShellScriptBuildPhase;
 			alwaysOutOfDate = 1;
 			buildActionMask = 2147483647;
@@ -313,7 +335,7 @@
 			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-OMeuBanco/Pods-OMeuBanco-resources.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
-		82AE96FA58A14057AD4EB978 /* Upload Debug Symbols to Sentry */ = {
+		A170AA91EAC34253A1F2A9E3 /* Upload Debug Symbols to Sentry */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -327,28 +349,6 @@
 			shellPath = /bin/sh;
 			shellScript = "/bin/sh `${NODE_BINARY:-node} --print \"require('path').dirname(require.resolve('@sentry/react-native/package.json')) + '/scripts/sentry-xcode-debug-files.sh'\"`";
 		};
-		CB2ACFB59B065311C82E6080 /* [CP] Embed Pods Frameworks */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputPaths = (
-				"${PODS_ROOT}/Target Support Files/Pods-OMeuBanco/Pods-OMeuBanco-frameworks.sh",
-				"${PODS_XCFRAMEWORKS_BUILD_DIR}/React-Core-prebuilt/React.framework/React",
-				"${PODS_XCFRAMEWORKS_BUILD_DIR}/ReactNativeDependencies/ReactNativeDependencies.framework/ReactNativeDependencies",
-				"${PODS_XCFRAMEWORKS_BUILD_DIR}/hermes-engine/Pre-built/hermes.framework/hermes",
-			);
-			name = "[CP] Embed Pods Frameworks";
-			outputPaths = (
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/React.framework",
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/ReactNativeDependencies.framework",
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/hermes.framework",
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-OMeuBanco/Pods-OMeuBanco-frameworks.sh\"\n";
-			showEnvVarsInLog = 0;
-		};
 /* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
@@ -357,7 +357,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				F11748422D0307B40044C1D9 /* AppDelegate.swift in Sources */,
-				FF3772BA0FA9145E62EFC8EC /* ExpoModulesProvider.swift in Sources */,
+				9085B91188E559D3BDE81B05 /* ExpoModulesProvider.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -366,13 +366,13 @@
 /* Begin XCBuildConfiguration section */
 		13B07F941A680F5B00A75B9A /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = D63CF83CA876684988C219EF /* Pods-OMeuBanco.debug.xcconfig */;
+			baseConfigurationReference = DB1A7EF66B7AA752B1C22A38 /* Pods-OMeuBanco.debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_ENTITLEMENTS = OMeuBanco/OMeuBanco.entitlements;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = ND8DU74P4S;
+				DEVELOPMENT_TEAM = 8TA8YQY457;
 				ENABLE_BITCODE = NO;
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"$(inherited)",
@@ -391,7 +391,7 @@
 					"-lc++",
 				);
 				OTHER_SWIFT_FLAGS = "$(inherited) -D EXPO_CONFIGURATION_DEBUG";
-				PRODUCT_BUNDLE_IDENTIFIER = com.queroomeubanco.app;
+				PRODUCT_BUNDLE_IDENTIFIER = "com.omeubanco-app";
 				PRODUCT_NAME = OMeuBanco;
 				SWIFT_OBJC_BRIDGING_HEADER = "OMeuBanco/OMeuBanco-Bridging-Header.h";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
@@ -403,13 +403,13 @@
 		};
 		13B07F951A680F5B00A75B9A /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = AB829F3790C248D84CC47FA4 /* Pods-OMeuBanco.release.xcconfig */;
+			baseConfigurationReference = E1B605006E58EE050DFE89BB /* Pods-OMeuBanco.release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_ENTITLEMENTS = OMeuBanco/OMeuBanco.entitlements;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = ND8DU74P4S;
+				DEVELOPMENT_TEAM = 8TA8YQY457;
 				INFOPLIST_FILE = OMeuBanco/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 15.1;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -423,7 +423,7 @@
 					"-lc++",
 				);
 				OTHER_SWIFT_FLAGS = "$(inherited) -D EXPO_CONFIGURATION_RELEASE";
-				PRODUCT_BUNDLE_IDENTIFIER = com.queroomeubanco.app;
+				PRODUCT_BUNDLE_IDENTIFIER = "com.omeubanco-app";
 				PRODUCT_NAME = OMeuBanco;
 				SWIFT_OBJC_BRIDGING_HEADER = "OMeuBanco/OMeuBanco-Bridging-Header.h";
 				SWIFT_VERSION = 5.0;

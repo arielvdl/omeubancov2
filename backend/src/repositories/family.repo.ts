@@ -29,6 +29,15 @@ export const familyRepo = {
     return results[0];
   },
 
+  async findByAppleUserId(appleUserId: string): Promise<SelectFamily | undefined> {
+    const results = await db
+      .select()
+      .from(families)
+      .where(eq(families.appleUserId, appleUserId))
+      .limit(1);
+    return results[0];
+  },
+
   async create(data: InsertFamily): Promise<SelectFamily> {
     const results = await db.insert(families).values(data).returning();
     return results[0];

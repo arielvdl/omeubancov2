@@ -65,7 +65,8 @@
     "passkeyServerError": "Server error verifying passkey. Please try again.",
     "passkeyCancelled": "Registration cancelled.",
     "googleSignInError": "Error signing in with Google. Check your connection and try again.",
-    "googleServerError": "Google service is temporarily unavailable. Please try again in a few minutes."
+    "googleServerError": "Google service is temporarily unavailable. Please try again in a few minutes.",
+    "appleSignInError": "Error signing in with Apple. Check your connection and try again."
   },
   "onboarding": {
     "welcome": {
@@ -74,6 +75,7 @@
       "description": "Create your own bank, add your children, and start teaching financial education in a fun way!",
       "getStarted": "Get Started",
       "googleSignIn": "Sign in with Google",
+      "appleSignIn": "Sign in with Apple",
       "terms": "By continuing, you agree to the Terms of Use",
       "appDescription": "The family educational bank"
     },
@@ -600,7 +602,7 @@
     "securityTitle": "Security",
     "securityText": "We use encryption in transit (HTTPS/TLS), secure credential storage (SecureStore), JWT tokens for authentication, bcrypt password hashing, and biometric authentication (passkey/WebAuthn) to protect your data.",
     "contactTitle": "Contact",
-    "contactText": "For privacy questions or to exercise your rights, contact us at: privacy@omeubanco.app",
+    "contactText": "For privacy questions or to exercise your rights, contact us at: suporte@omeubanco.xyz",
     "childrenTitle": "Children and Minors",
     "childrenText": "This app is specifically designed for use by children under the supervision of their legal guardians. We fully comply with the special requirements of LGPD (Art. 14) and GDPR (Art. 8) regarding the processing of minors' data, ensuring all processing occurs with verifiable parental consent."
   }

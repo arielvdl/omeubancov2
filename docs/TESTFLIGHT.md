@@ -3,10 +3,10 @@
 Guia completo para gerar builds e distribuir o app via TestFlight.
 
 **Stack:** Expo SDK 54 + React Native 0.81
-**Bundle ID:** `com.queroomeubanco.app`
-**Apple Team ID:** `ND8DU74P4S`
-**Organizacao:** Paleta Fosforescente, LDA
-**App Store Connect App ID:** `6760633223`
+**Bundle ID:** `com.omeubanco-app`
+**Apple Team ID:** `8TA8YQY457`
+**Organizacao:** E-Commerce Experience Servicos da Informatica LTDA
+**App Store Connect App ID:** _(a definir - nova conta)_
 **Metodo de build:** `xcodebuild` direto (sem EAS Build)
 
 ---
@@ -147,7 +147,7 @@ cd ios && xcodebuild archive \
   -configuration Release \
   -archivePath /tmp/OMeuBanco.xcarchive \
   -destination "generic/platform=iOS" \
-  DEVELOPMENT_TEAM=ND8DU74P4S \
+  DEVELOPMENT_TEAM=8TA8YQY457 \
   CODE_SIGN_STYLE=Automatic \
   -allowProvisioningUpdates
 ```
@@ -181,7 +181,7 @@ Criar o ficheiro de configuracao de exportacao em `/tmp/ExportOptions.plist`:
     <key>method</key>
     <string>app-store-connect</string>
     <key>teamID</key>
-    <string>ND8DU74P4S</string>
+    <string>8TA8YQY457</string>
     <key>signingStyle</key>
     <string>automatic</string>
     <key>destination</key>
@@ -201,7 +201,7 @@ cat > /tmp/ExportOptions.plist << 'EOF'
     <key>method</key>
     <string>app-store-connect</string>
     <key>teamID</key>
-    <string>ND8DU74P4S</string>
+    <string>8TA8YQY457</string>
     <key>signingStyle</key>
     <string>automatic</string>
     <key>destination</key>
@@ -401,3 +401,4 @@ O Export Compliance so precisa ser resolvido na primeira vez.
 | 1.0.0 (12) | 2026-03-19 | Sentry error tracking, mesada automatica, pull-to-refresh extrato, fix wishlist crash |
 | 1.0.0 (13) | 2026-03-20 | Melhorias fluxo invite: rename "Area da Familia", tela welcome pos-registro, QR salvavel, Sentry em 11 catch blocks criticos, transaction no guardian-register |
 | 1.0.0 (14) | 2026-03-21 | Fix segurança invite: race condition, transaction no google-oauth, validação frontend, aceitar convite com conta existente, website institucional |
+| 1.0.0 (15) | 2026-03-21 | Doc push notifications, fix double counting goal_reached no scheduled deposit |

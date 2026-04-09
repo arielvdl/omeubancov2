@@ -50,7 +50,7 @@ Offering `default` com 4 packages:
 
 ## Configuracao do Projeto
 
-- **Bundle ID**: `com.queroomeubanco.app`
+- **Bundle ID**: `com.omeubanco-app`
 - **Platform**: Apple App Store (iOS)
 - **SDK**: `react-native-purchases` com StoreKit 2
 - **RevenueCat Project ID**: `0fb27518`

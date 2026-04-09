@@ -37,7 +37,7 @@ app.get('/health', (c) => {
 app.get('/.well-known/apple-app-site-association', (c) => {
   return c.json({
     webcredentials: {
-      apps: ['ND8DU74P4S.com.queroomeubanco.app'],
+      apps: ['8TA8YQY457.com.omeubanco-app'],
     },
   });
 });

@@ -65,7 +65,8 @@
     "passkeyServerError": "Erro no servidor ao verificar a chave de acesso. Tente novamente.",
     "passkeyCancelled": "Registro cancelado.",
     "googleSignInError": "Erro ao entrar com Google. Verifique sua conexão e tente novamente.",
-    "googleServerError": "O serviço do Google está temporariamente indisponível. Tente novamente em alguns minutos."
+    "googleServerError": "O serviço do Google está temporariamente indisponível. Tente novamente em alguns minutos.",
+    "appleSignInError": "Erro ao entrar com Apple. Verifique sua conexão e tente novamente."
   },
   "onboarding": {
     "welcome": {
@@ -74,6 +75,7 @@
       "description": "Crie seu próprio banco, adicione suas crianças e comece a ensinar educação financeira de um jeito divertido!",
       "getStarted": "Começar",
       "googleSignIn": "Entrar com Google",
+      "appleSignIn": "Entrar com Apple",
       "terms": "Ao continuar, você concorda com os Termos de Uso",
       "appDescription": "O banco educacional da família"
     },
@@ -602,7 +604,7 @@
     "securityTitle": "Segurança",
     "securityText": "Utilizamos criptografia em trânsito (HTTPS/TLS), armazenamento seguro de credenciais (SecureStore), tokens JWT para autenticação, hash de senhas com bcrypt e autenticação biométrica (passkey/WebAuthn) para proteger seus dados.",
     "contactTitle": "Contato",
-    "contactText": "Para questões sobre privacidade ou exercício dos seus direitos, entre em contato pelo e-mail: privacidade@omeubanco.app",
+    "contactText": "Para questões sobre privacidade ou exercício dos seus direitos, entre em contato pelo e-mail: suporte@omeubanco.xyz",
     "childrenTitle": "Crianças e Adolescentes",
     "childrenText": "Este aplicativo é projetado especificamente para uso por crianças sob supervisão de seus responsáveis legais. Cumprimos integralmente os requisitos especiais da LGPD (Art. 14) e do RGPD (Art. 8) relativos ao tratamento de dados de menores, garantindo que todo tratamento ocorre com o consentimento verificável do responsável legal."
   }

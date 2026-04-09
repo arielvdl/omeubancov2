@@ -13,13 +13,9 @@ oauthCallbackRoutes.get('/google/start', (c) => {
   }
 
   const returnUrl = c.req.query('returnUrl') ?? '';
-  const rawOrigin = new URL(c.req.url).origin;
-  // Cloud Run sits behind a load balancer that terminates TLS, so the
-  // request URL arrives as http:// even though the public URL is https://.
-  // Use X-Forwarded-Proto header to detect the real protocol.
-  const proto = c.req.header('x-forwarded-proto') ?? new URL(c.req.url).protocol.replace(':', '');
-  const host = c.req.header('host') ?? new URL(c.req.url).host;
-  const origin = `${proto}://${host}`;
+  // Use the configured public URL so Google shows the custom domain
+  // instead of the Cloud Run *.run.app hostname.
+  const origin = env.PUBLIC_URL.replace(/\/+$/, '');
   const redirectUri = `${origin}/auth/google/callback`;
 
   const state = Buffer.from(JSON.stringify({ returnUrl })).toString('base64url');
@@ -57,9 +53,8 @@ oauthCallbackRoutes.get('/google/callback', async (c) => {
   }
 
   try {
-    const proto = c.req.header('x-forwarded-proto') ?? new URL(c.req.url).protocol.replace(':', '');
-    const host = c.req.header('host') ?? new URL(c.req.url).host;
-    const redirectUri = `${proto}://${host}/auth/google/callback`;
+    const origin = env.PUBLIC_URL.replace(/\/+$/, '');
+    const redirectUri = `${origin}/auth/google/callback`;
 
     // Exchange code for tokens
     const tokenRes = await fetch('https://oauth2.googleapis.com/token', {
@@ -155,6 +150,99 @@ oauthCallbackRoutes.get('/google/callback', async (c) => {
   }
 });
 
+// Apple Sign In - native flow callback
+// The identity token is already verified by the Apple SDK on the device.
+// We decode the JWT payload to extract the `sub` (Apple user ID) and `email`.
+oauthCallbackRoutes.post('/apple/callback', async (c) => {
+  try {
+    const body = await c.req.json<{
+      identityToken: string;
+      fullName?: { givenName?: string; familyName?: string } | null;
+      email?: string | null;
+    }>();
+
+    if (!body.identityToken) {
+      return c.json({ error: 'missing_identity_token' }, 400);
+    }
+
+    // Decode the JWT payload (base64url-encoded, already verified by Apple SDK on device)
+    const parts = body.identityToken.split('.');
+    if (parts.length !== 3) {
+      return c.json({ error: 'invalid_token_format' }, 400);
+    }
+
+    let payload: { sub?: string; email?: string; email_verified?: boolean | string };
+    try {
+      const payloadJson = Buffer.from(parts[1], 'base64url').toString('utf-8');
+      payload = JSON.parse(payloadJson);
+    } catch {
+      return c.json({ error: 'invalid_token_payload' }, 400);
+    }
+
+    const appleUserId = payload.sub;
+    if (!appleUserId) {
+      return c.json({ error: 'missing_apple_user_id' }, 400);
+    }
+
+    // Apple only sends email/name on FIRST sign-in, so prefer body values then token values
+    const email = body.email ?? payload.email ?? null;
+    const fullName = body.fullName
+      ? [body.fullName.givenName, body.fullName.familyName].filter(Boolean).join(' ')
+      : null;
+
+    // Find existing family by Apple user ID
+    const existingFamily = await familyRepo.findByAppleUserId(appleUserId);
+
+    if (existingFamily) {
+      const token = await generateToken({ familyId: existingFamily.id, role: 'parent' });
+
+      await auditLogRepo.create({
+        familyId: existingFamily.id,
+        action: 'family.apple_login',
+        actor: 'parent',
+      });
+
+      return c.json({
+        token,
+        familyId: existingFamily.id,
+        familyName: existingFamily.name,
+        currency: existingFamily.currency,
+        isNewUser: false,
+      });
+    }
+
+    // New user - create family
+    const family = await familyRepo.create({
+      name: fullName || 'Meu Banco',
+      email: email,
+      appleUserId,
+      currency: 'BRL',
+      locale: 'pt-BR',
+      timezone: 'America/Sao_Paulo',
+    });
+
+    const token = await generateToken({ familyId: family.id, role: 'parent' });
+
+    await auditLogRepo.create({
+      familyId: family.id,
+      action: 'family.apple_register',
+      actor: 'parent',
+      details: { appleUserId, email },
+    });
+
+    return c.json({
+      token,
+      familyId: family.id,
+      familyName: family.name,
+      currency: family.currency,
+      isNewUser: true,
+    });
+  } catch (err) {
+    console.error('Apple Sign In callback error:', err);
+    return c.json({ error: 'server_error' }, 500);
+  }
+});
+
 function redirectToApp(
   c: any,
   returnUrl: string,
@@ -164,7 +252,19 @@ function redirectToApp(
 
   if (returnUrl) {
     const separator = returnUrl.includes('?') ? '&' : '?';
-    return c.redirect(`${returnUrl}${separator}${searchParams.toString()}`);
+    const targetUrl = `${returnUrl}${separator}${searchParams.toString()}`;
+
+    // Use JS redirect instead of HTTP 302 for custom schemes (omeubanco://, exp://)
+    // Safari iOS blocks 302 redirects to custom URL schemes
+    const html = `<!DOCTYPE html>
+<html><head><meta charset="utf-8"><title>Redirecionando...</title></head>
+<body style="display:flex;align-items:center;justify-content:center;height:100vh;font-family:sans-serif;background:#f8f8f5">
+<div style="text-align:center;padding:20px">
+<p>Redirecionando para o app...</p>
+</div>
+<script>window.location.href=${JSON.stringify(targetUrl)};</script>
+</body></html>`;
+    return c.html(html);
   }
 
   // Fallback: show result on page

@@ -84,9 +84,9 @@ export const scheduledDepositService = {
 
         // Check if balance reached the wishlist goal
         try {
-          const newBalance = (child?.balance ?? 0) + deposit.amount;
+          const currentBalance = child?.balance ?? 0;
           const goal = await wishItemRepo.getGoal(deposit.childId);
-          if (goal && goal.priceCents && newBalance >= goal.priceCents) {
+          if (goal && goal.priceCents && currentBalance >= goal.priceCents) {
             const goalAmount = (goal.priceCents / 100).toFixed(2);
             notificationService
               .sendToFamily(

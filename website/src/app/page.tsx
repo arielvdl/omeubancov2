@@ -1,22 +1,26 @@
+import HeroCarousel from "@/components/HeroCarousel";
+
 export default function Home() {
   return (
     <>
       {/* Hero */}
-      <section className="relative overflow-hidden bg-brand-yellow">
-        <div className="mx-auto max-w-6xl px-6 py-20 sm:py-28 lg:py-36">
-          <div className="grid grid-cols-1 items-center gap-12 lg:grid-cols-2">
-            <div className="max-w-xl">
-              <h1 className="text-4xl font-extrabold tracking-tight text-black sm:text-5xl lg:text-6xl">
-                O Meu Banco
+      <section className="relative overflow-hidden bg-brand-yellow pb-16">
+        <div className="mx-auto max-w-6xl px-6 pt-20 pb-12 sm:pt-28 sm:pb-16 lg:pt-36 lg:pb-20">
+          <div className="grid grid-cols-1 items-center gap-10 lg:grid-cols-2 lg:gap-16">
+            {/* Mascot carousel with Motion */}
+            <div className="flex justify-center lg:order-1">
+              <HeroCarousel />
+            </div>
+
+            {/* Content - shows second on mobile, right on desktop */}
+            <div className="flex flex-col items-center text-center lg:order-2 lg:items-start lg:text-left">
+              <h1 className="text-4xl font-extrabold tracking-tight text-black sm:text-5xl">
+                Finanças divertidas para toda família
               </h1>
-              <p className="mt-2 text-lg font-semibold text-black/80 sm:text-xl">
-                Controle de Mesada Infantil
+              <p className="mt-4 text-lg leading-relaxed text-black/70 sm:text-xl">
+                Ensine seus filhos sobre dinheiro de um jeito lúdico e seguro
               </p>
-              <p className="mt-6 text-lg leading-relaxed text-black/70 sm:text-xl">
-                Transforme a mesada dos seus filhos em uma experiência educativa e
-                divertida!
-              </p>
-              <div className="mt-10 flex flex-col gap-4 sm:flex-row" id="download">
+              <div className="mt-8" id="download">
                 <a
                   href="#"
                   className="inline-flex items-center justify-center gap-3 rounded-2xl bg-black px-8 py-4 text-base font-semibold text-white hover:bg-gray-800 transition-colors"
@@ -24,26 +28,16 @@ export default function Home() {
                   <svg className="h-7 w-7" viewBox="0 0 24 24" fill="currentColor">
                     <path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.8-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z" />
                   </svg>
-                  Disponível na App Store
+                  Disponivel na App Store
                 </a>
-              </div>
-            </div>
-            <div className="relative flex justify-center lg:justify-end">
-              <div className="relative w-[280px] sm:w-[320px] lg:w-[360px]">
-                {/* Phone 2 (behind, right) */}
-                <div className="absolute -right-16 sm:-right-20 top-8 w-[240px] sm:w-[270px] lg:w-[300px] rotate-[-6deg] opacity-90">
-                  <PhoneMockup screenshot="/screenshots/extrato.png" />
-                </div>
-                {/* Phone 1 (front, center) */}
-                <div className="relative z-10 rotate-[3deg]">
-                  <PhoneMockup screenshot="/screenshots/home.png" priority />
-                </div>
               </div>
             </div>
           </div>
         </div>
+
+        {/* Decorative blurs */}
         <div className="absolute -right-20 -bottom-20 h-80 w-80 rounded-full bg-black/5 blur-3xl" />
-        <div className="absolute -right-10 top-10 h-40 w-40 rounded-full bg-white/10 blur-2xl" />
+        <div className="absolute -left-10 top-10 h-40 w-40 rounded-full bg-white/10 blur-2xl" />
       </section>
 
       {/* Como Funciona */}

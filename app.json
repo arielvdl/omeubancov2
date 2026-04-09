@@ -11,8 +11,9 @@
     "newArchEnabled": true,
     "ios": {
       "supportsTablet": false,
-      "bundleIdentifier": "com.queroomeubanco.app",
-      "appleTeamId": "ND8DU74P4S",
+      "bundleIdentifier": "com.omeubanco-app",
+      "appleTeamId": "8TA8YQY457",
+      "usesAppleSignIn": true,
       "infoPlist": {
         "ITSAppUsesNonExemptEncryption": false
       },
@@ -40,7 +41,7 @@
         "android.permission.READ_MEDIA_AUDIO",
         "android.permission.MODIFY_AUDIO_SETTINGS"
       ],
-      "package": "com.queroomeubanco.app"
+      "package": "com.omeubanco-app"
     },
     "web": {
       "bundler": "metro",
@@ -81,6 +82,7 @@
           "color": "#FFD600"
         }
       ],
+      "expo-apple-authentication",
       "expo-font",
       "expo-web-browser",
       [
