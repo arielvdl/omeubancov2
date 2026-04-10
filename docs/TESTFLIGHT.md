@@ -402,3 +402,4 @@ O Export Compliance so precisa ser resolvido na primeira vez.
 | 1.0.0 (13) | 2026-03-20 | Melhorias fluxo invite: rename "Area da Familia", tela welcome pos-registro, QR salvavel, Sentry em 11 catch blocks criticos, transaction no guardian-register |
 | 1.0.0 (14) | 2026-03-21 | Fix segurança invite: race condition, transaction no google-oauth, validação frontend, aceitar convite com conta existente, website institucional |
 | 1.0.0 (15) | 2026-03-21 | Doc push notifications, fix double counting goal_reached no scheduled deposit |
+| 1.0.0 (16) | 2026-04-10 | Security hardening: Apple token verification server-side, brute-force protection child login, IDOR fix wishlist, upload magic bytes, timing-safe secrets, CORS fix, security headers, OAuth allowlist |
