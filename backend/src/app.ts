@@ -1,6 +1,7 @@
 import { Hono } from 'hono';
 import { corsMiddleware } from './middleware/cors.js';
 import { loggerMiddleware } from './middleware/logger.js';
+import { securityHeaders } from './middleware/security-headers.js';
 import { errorHandler } from './middleware/error-handler.js';
 import { generalRateLimit } from './middleware/rate-limit.js';
 import { localeMiddleware } from './middleware/locale.js';
@@ -24,6 +25,7 @@ import { subscriptionRoutes, webhookRoutes } from './routes/subscription.routes.
 export const app = new Hono();
 
 app.use('*', corsMiddleware);
+app.use('*', securityHeaders);
 app.use('*', loggerMiddleware);
 app.use('*', localeMiddleware);
 

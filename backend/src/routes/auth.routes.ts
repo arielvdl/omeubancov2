@@ -16,10 +16,26 @@ import { auditLogRepo } from '../repositories/audit-log.repo.js';
 import { authRateLimit } from '../middleware/rate-limit.js';
 import { AppError } from '../middleware/error-handler.js';
 import { notificationService } from '../services/notification.service.js';
+import { env } from '../config/index.js';
 import { db } from '../db/index.js';
 import { guardians as guardiansTable } from '../db/schema/guardians.js';
 import { familyInvitations } from '../db/schema/family-invitations.js';
 import { eq, and } from 'drizzle-orm';
+
+// Brute-force protection: track failed login attempts per childId
+const childLoginAttempts = new Map<string, { count: number; lockedUntil: number }>();
+const MAX_CHILD_LOGIN_ATTEMPTS = 5;
+const CHILD_LOCKOUT_MS = 15 * 60 * 1000; // 15 minutes
+
+// Cleanup stale entries every 5 minutes
+setInterval(() => {
+  const now = Date.now();
+  for (const [key, entry] of childLoginAttempts) {
+    if (entry.lockedUntil <= now && entry.count === 0) {
+      childLoginAttempts.delete(key);
+    }
+  }
+}, 5 * 60 * 1000);
 
 export const authRoutes = new Hono();
 
@@ -159,6 +175,15 @@ authRoutes.post('/child-login', async (c) => {
   const body = await c.req.json();
   const data = childLoginSchema.parse(body);
 
+  // Check brute-force lockout per childId
+  const now = Date.now();
+  const attempts = childLoginAttempts.get(data.childId);
+  if (attempts && attempts.lockedUntil > now) {
+    const retryAfter = Math.ceil((attempts.lockedUntil - now) / 1000);
+    c.header('Retry-After', String(retryAfter));
+    throw new AppError(429, 'Too many failed attempts. Try again later.');
+  }
+
   const child = await childRepo.findById(data.childId);
   if (!child) {
     throw new AppError(401, 'Invalid credentials');
@@ -170,8 +195,19 @@ authRoutes.post('/child-login', async (c) => {
 
   const valid = await comparePassword(data.pin, child.pinHash);
   if (!valid) {
+    // Track failed attempt
+    const current = childLoginAttempts.get(data.childId) ?? { count: 0, lockedUntil: 0 };
+    current.count++;
+    if (current.count >= MAX_CHILD_LOGIN_ATTEMPTS) {
+      current.lockedUntil = now + CHILD_LOCKOUT_MS;
+      current.count = 0;
+    }
+    childLoginAttempts.set(data.childId, current);
     throw new AppError(401, 'Invalid credentials');
   }
+
+  // Clear attempts on successful login
+  childLoginAttempts.delete(data.childId);
 
   const token = await generateToken({
     familyId: child.familyId,
@@ -206,7 +242,7 @@ authRoutes.post('/google', async (c) => {
     headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
     body: new URLSearchParams({
       code: data.code,
-      client_id: data.clientId ?? '',
+      client_id: env.GOOGLE_OAUTH_CLIENT_ID,
       redirect_uri: data.redirectUri,
       grant_type: 'authorization_code',
       code_verifier: data.codeVerifier ?? '',
@@ -477,7 +513,7 @@ authRoutes.post('/guardian-google', async (c) => {
     headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
     body: new URLSearchParams({
       code: data.code,
-      client_id: data.clientId ?? '',
+      client_id: env.GOOGLE_OAUTH_CLIENT_ID,
       redirect_uri: data.redirectUri,
       grant_type: 'authorization_code',
       code_verifier: data.codeVerifier ?? '',

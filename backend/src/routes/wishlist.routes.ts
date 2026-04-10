@@ -3,7 +3,7 @@ import { authMiddleware } from '../auth/guards.js';
 import { childRepo } from '../repositories/child.repo.js';
 import { wishItemRepo } from '../repositories/wish-item.repo.js';
 import { NotFoundError, ForbiddenError } from '../middleware/error-handler.js';
-import { createWishItemSchema, updateWishItemSchema } from '../validators/index.js';
+import { createWishItemSchema, updateWishItemSchema, reorderWishItemsSchema } from '../validators/index.js';
 
 export const wishlistRoutes = new Hono();
 
@@ -47,21 +47,16 @@ wishlistRoutes.post('/children/:id/wishlist', async (c) => {
   if (!child) throw new NotFoundError('Child');
   if (child.familyId !== user.familyId) throw new ForbiddenError('Access denied');
 
-  // Subscription gating: check wish item limit
-  try {
-    const { subscriptionService } = await import('../services/subscription.service.js');
-    const wishCheck = await subscriptionService.checkWishItemLimit(user.familyId, childId);
-    if (!wishCheck.allowed) {
-      return c.json({
-        error: 'subscription_required',
-        feature: 'wish_item',
-        current: wishCheck.current,
-        limit: wishCheck.limit,
-      }, 403);
-    }
-  } catch (err: any) {
-    console.error('Subscription check failed:', { familyId: user.familyId, error: err.message });
-    // Allow creation if subscription check fails (graceful degradation)
+  // Subscription gating: check wish item limit (fail-closed for security)
+  const { subscriptionService } = await import('../services/subscription.service.js');
+  const wishCheck = await subscriptionService.checkWishItemLimit(user.familyId, childId);
+  if (!wishCheck.allowed) {
+    return c.json({
+      error: 'subscription_required',
+      feature: 'wish_item',
+      current: wishCheck.current,
+      limit: wishCheck.limit,
+    }, 403);
   }
 
   const body = await c.req.json();
@@ -185,8 +180,17 @@ wishlistRoutes.post('/children/:id/wishlist/reorder', async (c) => {
   if (child.familyId !== user.familyId) throw new ForbiddenError('Access denied');
 
   const body = await c.req.json();
-  const items = body.items as { id: string; sortOrder: number }[];
+  const data = reorderWishItemsSchema.parse(body);
 
-  await wishItemRepo.reorder(items);
+  // Verify all items belong to this child (prevents IDOR)
+  const childItems = await wishItemRepo.findByChildId(childId);
+  const childItemIds = new Set(childItems.map((i) => i.id));
+  for (const item of data.items) {
+    if (!childItemIds.has(item.id)) {
+      throw new ForbiddenError('Access denied');
+    }
+  }
+
+  await wishItemRepo.reorder(data.items);
   return c.json({ success: true });
 });

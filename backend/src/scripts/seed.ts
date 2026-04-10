@@ -6,8 +6,13 @@ import { eq } from 'drizzle-orm';
 async function seed() {
   console.log('Seeding database...');
 
-  const email = 'arieldj@gmail.com';
-  const password = 'vlog1756';
+  const email = process.env.SEED_EMAIL;
+  const password = process.env.SEED_PASSWORD;
+
+  if (!email || !password) {
+    console.error('SEED_EMAIL and SEED_PASSWORD environment variables are required');
+    process.exit(1);
+  }
 
   const existing = await db
     .select()

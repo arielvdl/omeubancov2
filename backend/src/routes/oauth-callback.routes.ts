@@ -1,8 +1,12 @@
 import { Hono } from 'hono';
+import { createRemoteJWKSet, jwtVerify } from 'jose';
 import { familyRepo } from '../repositories/family.repo.js';
 import { generateToken } from '../auth/index.js';
 import { auditLogRepo } from '../repositories/audit-log.repo.js';
 import { env } from '../config/index.js';
+
+const APPLE_JWKS = createRemoteJWKSet(new URL('https://appleid.apple.com/auth/keys'));
+const ALLOWED_RETURN_SCHEMES = ['omeubanco://', 'exp://'];
 
 export const oauthCallbackRoutes = new Hono();
 
@@ -151,8 +155,7 @@ oauthCallbackRoutes.get('/google/callback', async (c) => {
 });
 
 // Apple Sign In - native flow callback
-// The identity token is already verified by the Apple SDK on the device.
-// We decode the JWT payload to extract the `sub` (Apple user ID) and `email`.
+// Server-side verification of Apple identity token using Apple's JWKS
 oauthCallbackRoutes.post('/apple/callback', async (c) => {
   try {
     const body = await c.req.json<{
@@ -165,18 +168,17 @@ oauthCallbackRoutes.post('/apple/callback', async (c) => {
       return c.json({ error: 'missing_identity_token' }, 400);
     }
 
-    // Decode the JWT payload (base64url-encoded, already verified by Apple SDK on device)
-    const parts = body.identityToken.split('.');
-    if (parts.length !== 3) {
-      return c.json({ error: 'invalid_token_format' }, 400);
-    }
-
+    // Cryptographically verify the Apple identity token against Apple's public keys
     let payload: { sub?: string; email?: string; email_verified?: boolean | string };
     try {
-      const payloadJson = Buffer.from(parts[1], 'base64url').toString('utf-8');
-      payload = JSON.parse(payloadJson);
-    } catch {
-      return c.json({ error: 'invalid_token_payload' }, 400);
+      const { payload: verified } = await jwtVerify(body.identityToken, APPLE_JWKS, {
+        issuer: 'https://appleid.apple.com',
+        audience: env.APPLE_BUNDLE_ID || 'com.omeubanco-app',
+      });
+      payload = verified as typeof payload;
+    } catch (err) {
+      console.error('Apple token verification failed:', err instanceof Error ? err.message : err);
+      return c.json({ error: 'invalid_identity_token' }, 401);
     }
 
     const appleUserId = payload.sub;
@@ -243,6 +245,11 @@ oauthCallbackRoutes.post('/apple/callback', async (c) => {
   }
 });
 
+function isAllowedReturnUrl(url: string): boolean {
+  if (!url) return false;
+  return ALLOWED_RETURN_SCHEMES.some((scheme) => url.startsWith(scheme));
+}
+
 function redirectToApp(
   c: any,
   returnUrl: string,
@@ -250,7 +257,7 @@ function redirectToApp(
 ) {
   const searchParams = new URLSearchParams(params);
 
-  if (returnUrl) {
+  if (returnUrl && isAllowedReturnUrl(returnUrl)) {
     const separator = returnUrl.includes('?') ? '&' : '?';
     const targetUrl = `${returnUrl}${separator}${searchParams.toString()}`;
 

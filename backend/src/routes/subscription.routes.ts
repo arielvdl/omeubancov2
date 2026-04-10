@@ -1,4 +1,5 @@
 import { Hono } from 'hono';
+import { timingSafeEqual } from 'node:crypto';
 import { authMiddleware, requireParent } from '../auth/guards.js';
 import { subscriptionService } from '../services/subscription.service.js';
 import { subscriptionRepo } from '../repositories/subscription.repo.js';
@@ -51,7 +52,9 @@ webhookRoutes.post('/revenuecat', async (c) => {
   const authHeader = c.req.header('Authorization');
   const webhookSecret = process.env.REVENUECAT_WEBHOOK_SECRET;
 
-  if (!webhookSecret || authHeader !== `Bearer ${webhookSecret}`) {
+  const expectedHeader = `Bearer ${webhookSecret}`;
+  if (!webhookSecret || !authHeader || authHeader.length !== expectedHeader.length ||
+      !timingSafeEqual(Buffer.from(authHeader), Buffer.from(expectedHeader))) {
     throw new AppError(401, 'Invalid webhook authorization');
   }
 

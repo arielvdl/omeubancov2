@@ -33,9 +33,14 @@ yarn-error.*
 # local env files
 .env
 .env.local
+.env.production
 .env.production.local
 .env*.local
 backend/.env
+
+# private keys directories
+p8/
+privado/
 
 # typescript
 *.tsbuildinfo

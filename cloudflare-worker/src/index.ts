@@ -5,6 +5,15 @@ export interface Env {
 export default {
   async fetch(request: Request, env: Env): Promise<Response> {
     const url = new URL(request.url);
+
+    // Block internal/cron routes from public access
+    if (url.pathname.startsWith('/api/internal')) {
+      return new Response(JSON.stringify({ error: 'Not found' }), {
+        status: 404,
+        headers: { 'Content-Type': 'application/json' },
+      });
+    }
+
     const originUrl = `https://${env.ORIGIN_HOST}${url.pathname}${url.search}`;
 
     const headers = new Headers(request.headers);
@@ -21,11 +30,13 @@ export default {
 
     const response = await fetch(originRequest);
 
+    // Pass through CORS headers from the backend instead of overriding with wildcard
     const responseHeaders = new Headers(response.headers);
-    responseHeaders.set('Access-Control-Allow-Origin', '*');
-    responseHeaders.set('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS, PATCH');
-    responseHeaders.set('Access-Control-Allow-Headers', 'Content-Type, Authorization, Accept-Language, X-Cron-Secret');
-    responseHeaders.set('Access-Control-Expose-Headers', '*');
+
+    // Add security headers
+    responseHeaders.set('X-Content-Type-Options', 'nosniff');
+    responseHeaders.set('X-Frame-Options', 'DENY');
+    responseHeaders.set('Strict-Transport-Security', 'max-age=31536000; includeSubDomains');
 
     if (request.method === 'OPTIONS') {
       return new Response(null, {

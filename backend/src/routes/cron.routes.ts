@@ -1,13 +1,19 @@
 import { Hono } from 'hono';
+import { timingSafeEqual } from 'node:crypto';
 import { env } from '../config/index.js';
 import { scheduledDepositService } from '../services/scheduled-deposit.service.js';
 import { notificationService } from '../services/notification.service.js';
+
+function safeCompare(a: string, b: string): boolean {
+  if (a.length !== b.length) return false;
+  return timingSafeEqual(Buffer.from(a), Buffer.from(b));
+}
 
 export const cronRoutes = new Hono();
 
 cronRoutes.post('/cron/process-deposits', async (c) => {
   const cronSecret = c.req.header('X-Cron-Secret');
-  if (!cronSecret || cronSecret !== env.CRON_SECRET) {
+  if (!cronSecret || !safeCompare(cronSecret, env.CRON_SECRET)) {
     return c.json({ error: 'Unauthorized' }, 401);
   }
 
@@ -32,7 +38,7 @@ cronRoutes.post('/cron/process-deposits', async (c) => {
 // Broadcast push notification to all users or specific families
 cronRoutes.post('/cron/push-broadcast', async (c) => {
   const cronSecret = c.req.header('X-Cron-Secret');
-  if (!cronSecret || cronSecret !== env.CRON_SECRET) {
+  if (!cronSecret || !safeCompare(cronSecret, env.CRON_SECRET)) {
     return c.json({ error: 'Unauthorized' }, 401);
   }
 

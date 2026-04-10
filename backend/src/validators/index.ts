@@ -175,3 +175,10 @@ export const passkeyLoginVerifySchema = z.object({
   challengeToken: z.string().min(1),
   credential: z.any(),
 });
+
+export const reorderWishItemsSchema = z.object({
+  items: z.array(z.object({
+    id: z.string().uuid(),
+    sortOrder: z.number().int().min(0),
+  })).min(1).max(100),
+});
