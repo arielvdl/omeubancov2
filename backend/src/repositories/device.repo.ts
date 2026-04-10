@@ -29,20 +29,18 @@ export const deviceRepo = {
   },
 
   async upsert(data: InsertDevice): Promise<SelectDevice> {
-    const existing = await this.findByPushToken(data.pushToken);
-    if (existing) {
-      const results = await db
-        .update(devices)
-        .set({
+    const results = await db
+      .insert(devices)
+      .values(data)
+      .onConflictDoUpdate({
+        target: devices.pushToken,
+        set: {
           familyId: data.familyId,
           childId: data.childId,
           platform: data.platform,
-        })
-        .where(eq(devices.pushToken, data.pushToken))
-        .returning();
-      return results[0];
-    }
-    const results = await db.insert(devices).values(data).returning();
+        },
+      })
+      .returning();
     return results[0];
   },
 

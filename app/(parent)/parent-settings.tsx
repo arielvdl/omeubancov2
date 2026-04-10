@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, ScrollView, Pressable, Switch, Alert, TextInput } from 'react-native';
+import * as Clipboard from 'expo-clipboard';
 import { useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
@@ -35,6 +36,7 @@ export default function ParentSettingsScreen() {
   const setMathChallengeEnabled = useAuthStore((s) => s.setMathChallengeEnabled);
   const isOwner = useAuthStore((s) => s.role === 'parent' && !s.guardianId);
   const bankName = useAuthStore((s) => s.bankName);
+  const familyId = useAuthStore((s) => s.familyId);
   const logout = useAuthStore((s) => s.logout);
   const clearSession = useParentSessionStore((s) => s.clearSession);
   const selectedChild = useSelectedChild();
@@ -724,6 +726,33 @@ export default function ParentSettingsScreen() {
               defaultValue: 'Gerencie sua sessão e conta.',
             })}
           </Text>
+
+          {/* Family ID (for support) */}
+          {familyId && (
+            <Pressable
+              onPress={() => {
+                Clipboard.setStringAsync(familyId);
+                haptics.light();
+                Alert.alert(
+                  t('common.copied', { defaultValue: 'Copiado!' }),
+                  t('settings.familyIdCopied', { defaultValue: 'ID da família copiado para a área de transferência.' }),
+                );
+              }}
+              className="flex-row items-center py-4 px-5 rounded-2xl bg-background-light mb-3"
+              style={({ pressed }) => ({ opacity: pressed ? 0.7 : 1 })}
+            >
+              <MaterialCommunityIcons name="identifier" size={24} color="#6b7280" />
+              <View className="flex-1 ml-3.5">
+                <Text className="text-[13px] font-sans text-text-secondary">
+                  {t('settings.familyId', { defaultValue: 'ID da Família' })}
+                </Text>
+                <Text className="text-[12px] font-sans text-text-secondary mt-0.5" numberOfLines={1}>
+                  {familyId}
+                </Text>
+              </View>
+              <MaterialCommunityIcons name="content-copy" size={18} color="#9ca3af" />
+            </Pressable>
+          )}
 
           {/* Logout */}
           <Pressable

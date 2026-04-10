@@ -1,5 +1,5 @@
 import { eq, and, desc } from 'drizzle-orm';
-import { db } from '../db/index.js';
+import { db, queryClient } from '../db/index.js';
 import { wishItems } from '../db/schema/wish-items.js';
 
 export type InsertWishItem = typeof wishItems.$inferInsert;
@@ -72,11 +72,23 @@ export const wishItemRepo = {
   },
 
   async reorder(items: { id: string; sortOrder: number }[]): Promise<void> {
-    for (const item of items) {
+    if (items.length === 0) return;
+    if (items.length === 1) {
       await db
         .update(wishItems)
-        .set({ sortOrder: item.sortOrder, updatedAt: new Date() })
-        .where(eq(wishItems.id, item.id));
+        .set({ sortOrder: items[0].sortOrder, updatedAt: new Date() })
+        .where(eq(wishItems.id, items[0].id));
+      return;
     }
+
+    // Batch update: unnest arrays into a single parameterized UPDATE (no SQL injection risk)
+    const ids = items.map((item) => item.id);
+    const orders = items.map((item) => item.sortOrder);
+    await queryClient`
+      UPDATE wish_items AS w
+      SET sort_order = v.sort_order, updated_at = NOW()
+      FROM (SELECT unnest(${ids}::uuid[]) AS id, unnest(${orders}::int[]) AS sort_order) AS v
+      WHERE w.id = v.id
+    `;
   },
 };

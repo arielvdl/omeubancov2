@@ -13,6 +13,15 @@ import * as familyInvitations from './schema/family-invitations.js';
 import * as passkeyCredentials from './schema/passkey-credentials.js';
 import * as subscriptions from './schema/subscriptions.js';
 
+const isProduction = env.NODE_ENV === 'production';
+
+const poolConfig = {
+  max: isProduction ? 10 : 3,
+  idle_timeout: 20,
+  connect_timeout: 10,
+  prepare: true,
+};
+
 function createPostgresClient() {
   const url = env.DATABASE_URL;
 
@@ -27,12 +36,13 @@ function createPostgresClient() {
         username: credMatch[1],
         password: credMatch[2],
         database: credMatch[3],
+        ...poolConfig,
       });
     }
   }
 
   // Standard TCP connection (local dev)
-  return postgres(url);
+  return postgres(url, poolConfig);
 }
 
 export const queryClient = createPostgresClient();
