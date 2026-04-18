@@ -411,3 +411,4 @@ O Export Compliance so precisa ser resolvido na primeira vez.
 | 1.0.0 (24) | 2026-04-15 | Fix crash PushNotificationIOS (Platform import estatico). Rejeitado: 3.1.2(c) EULA/Privacy links no paywall, 2.1(b) IAP error iPad (Paid Apps Agreement nao assinado) |
 | 1.0.0 (25) | 2026-04-15 | Paywall com disclosure renovacao automatica + links Termos/Privacidade. Botao Assinar desabilitado se pacote nao carregar. CRASH: remocao de NSMicrophoneUsageDescription travava expo-audio na inicializacao |
 | 1.0.0 (26) | 2026-04-17 | Fix: revertido remocao NSMicrophoneUsageDescription e microphonePermission:false - expo-audio precisa da chave no plist |
+| 1.0.2 (27) | 2026-04-19 | Access levels admin/member guardians, universal links omeubanco.xyz/invite, purpose strings detalhadas, deeplink web invite. Fix: uploadSymbols=false (hermes sem dSYM), bump 1.0.1 -> 1.0.2 (train fechado na ASC) |
