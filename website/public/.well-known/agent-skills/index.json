@@ -1,0 +1,26 @@
+{
+  "$schema": "https://schemas.agentskills.io/discovery/0.2.0/schema.json",
+  "skills": [
+    {
+      "name": "download-app",
+      "type": "skill-md",
+      "description": "Use when the user wants to install O Meu Banco or find the public download link for the iOS app.",
+      "url": "/.well-known/agent-skills/download-app/SKILL.md",
+      "digest": "sha256:344e9feb06bcc9fd3c028a37c1f96c8ad4e26efc8df17d24b655d386956105e3"
+    },
+    {
+      "name": "get-support",
+      "type": "skill-md",
+      "description": "Use when the user needs customer support, account deletion help, or the public support contact for O Meu Banco.",
+      "url": "/.well-known/agent-skills/get-support/SKILL.md",
+      "digest": "sha256:b135d5406c0eb82f56257a15c27308aada0ccfbdc58d04932264b59ec73c44d9"
+    },
+    {
+      "name": "review-policies",
+      "type": "skill-md",
+      "description": "Use when the user needs the privacy policy or terms of use for O Meu Banco.",
+      "url": "/.well-known/agent-skills/review-policies/SKILL.md",
+      "digest": "sha256:8940bcf7318948606abdc65814a7cd7c9984247b7ee4bb20e99833810796ee1b"
+    }
+  ]
+}

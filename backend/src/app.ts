@@ -21,6 +21,7 @@ import { passkeyRoutes } from './routes/passkey.routes.js';
 import { uploadRoutes } from './routes/upload.routes.js';
 import { wishlistRoutes } from './routes/wishlist.routes.js';
 import { subscriptionRoutes, webhookRoutes } from './routes/subscription.routes.js';
+import { env } from './config/index.js';
 
 export const app = new Hono();
 
@@ -41,6 +42,22 @@ app.get('/.well-known/apple-app-site-association', (c) => {
     webcredentials: {
       apps: ['8TA8YQY457.com.omeubanco-app'],
     },
+  });
+});
+
+app.get('/.well-known/oauth-protected-resource', (c) => {
+  const docsUrl = 'https://omeubanco.xyz/docs/api';
+  const publicUrl = env.PUBLIC_URL.replace(/\/+$/, '');
+
+  return c.json({
+    resource: publicUrl,
+    authorization_servers: [],
+    scopes_supported: [],
+    bearer_methods_supported: ['header'],
+    resource_name: 'O Meu Banco API',
+    resource_documentation: docsUrl,
+    resource_policy_uri: 'https://omeubanco.xyz/privacidade',
+    resource_tos_uri: 'https://omeubanco.xyz/termos',
   });
 });
 

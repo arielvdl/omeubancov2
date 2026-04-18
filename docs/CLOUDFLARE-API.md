@@ -101,6 +101,7 @@ Todos os endpoints do backend sao acessiveis via `https://api.omeubanco.xyz`:
 |---------|-----------|
 | `/health` | Health check |
 | `/.well-known/apple-app-site-association` | AASA para Passkeys |
+| `/.well-known/oauth-protected-resource` | Metadata do recurso protegido para descoberta por clientes OAuth-aware |
 | `/api/v1/auth/*` | Autenticacao (login, register, Google OAuth, Passkeys) |
 | `/api/v1/families/*` | Gestao de familias |
 | `/api/v1/children/*` | Filhos + transacoes + agendamentos + contratos + analytics + wishlist |

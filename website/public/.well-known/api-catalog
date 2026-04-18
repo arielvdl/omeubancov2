@@ -1,0 +1,25 @@
+{
+  "linkset": [
+    {
+      "anchor": "https://api.omeubanco.xyz",
+      "service-desc": [
+        {
+          "href": "https://omeubanco.xyz/docs/api/openapi.json",
+          "type": "application/openapi+json"
+        }
+      ],
+      "service-doc": [
+        {
+          "href": "https://omeubanco.xyz/docs/api",
+          "type": "text/html"
+        }
+      ],
+      "status": [
+        {
+          "href": "https://api.omeubanco.xyz/health",
+          "type": "application/json"
+        }
+      ]
+    }
+  ]
+}

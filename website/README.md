@@ -25,6 +25,34 @@ Landing page do app O Meu Banco, hospedada em Cloudflare Pages.
 | `/privacidade` | Politica de Privacidade (LGPD/COPPA) |
 | `/termos` | Termos de Uso |
 | `/suporte` | Pagina de Suporte + FAQ |
+| `/docs/api` | Documentacao humana da API publica |
+
+## Descoberta Para Agentes
+
+O website publica artefatos de descoberta para agentes e integradores:
+
+- `/.well-known/api-catalog` - API catalog em `application/linkset+json`
+- `/.well-known/agent-skills/index.json` - indice de skills publicas
+- `/.well-known/mcp/server-card.json` - card do servidor MCP/WebMCP
+- `/docs/api/openapi.json` - descricao OpenAPI da API publica
+- `public/_worker.js` - negociacao `Accept: text/markdown` para paginas HTML
+- `public/_headers` - content types e headers adicionais para Cloudflare Pages
+
+### Teste Local da Negociacao Markdown
+
+Depois do build estatico:
+
+```bash
+cd website
+npx wrangler pages dev out
+```
+
+Exemplo de verificacao:
+
+```bash
+curl http://127.0.0.1:8788/ -H "Accept: text/markdown"
+curl -I http://127.0.0.1:8788/
+```
 
 ## Desenvolvimento Local
 

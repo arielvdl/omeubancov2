@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Geist } from "next/font/google";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
+import AgentCapabilities from "@/components/agent/AgentCapabilities";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -92,6 +93,7 @@ export default function RootLayout({
   return (
     <html lang="pt-BR" className={`${geistSans.variable} h-full antialiased`}>
       <body className="min-h-full flex flex-col">
+        <AgentCapabilities />
         <Header />
         <main className="flex-1">{children}</main>
         <Footer />

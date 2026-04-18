@@ -1,0 +1,28 @@
+{
+  "serverInfo": {
+    "name": "omeubanco-website-webmcp",
+    "version": "1.0.0"
+  },
+  "transport": {
+    "type": "webmcp",
+    "endpoint": "https://omeubanco.xyz/"
+  },
+  "capabilities": {
+    "tools": [
+      {
+        "name": "scroll-to-download",
+        "description": "Scrolls to the public download call to action and returns the App Store URL."
+      },
+      {
+        "name": "open-information-page",
+        "description": "Navigates to support, privacy policy, terms, or API documentation."
+      },
+      {
+        "name": "contact-support",
+        "description": "Opens the public support email for O Meu Banco."
+      }
+    ],
+    "markdownNegotiation": true,
+    "linkHeaders": true
+  }
+}
