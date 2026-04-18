@@ -3,6 +3,9 @@ export interface AuthState {
   familyId: string | null;
   role: 'parent' | 'child';
   childId: string | null;
+  guardianId?: string | null;
+  roleLabel?: string | null;
+  guardianAccessLevel?: 'admin' | 'member' | null;
 }
 
 export interface Contract {

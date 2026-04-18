@@ -24,6 +24,7 @@ export interface PasskeyLoginVerifyResponse {
   isNewUser: boolean;
   guardianId?: string;
   roleLabel?: string;
+  guardianAccessLevel?: 'admin' | 'member';
 }
 
 export const passkeyApi = {

@@ -1,5 +1,5 @@
 import React, { useState, useCallback, useEffect } from 'react';
-import { View, Text, ScrollView, Pressable, ActivityIndicator, Alert } from 'react-native';
+import { View, Text, ScrollView, Pressable, ActivityIndicator, Alert, Linking } from 'react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
@@ -99,13 +99,7 @@ export default function PaywallScreen() {
 
   const handlePurchase = useCallback(async (tierId: string) => {
     const pkg = findPackage(tierId);
-    if (!pkg) {
-      Alert.alert(
-        t('subscription.error', { defaultValue: 'Erro' }),
-        t('subscription.packageNotFound', { defaultValue: 'Pacote não disponível. Tente novamente mais tarde.' }),
-      );
-      return;
-    }
+    if (!pkg) return;
 
     haptics.medium();
     setPurchasing(true);
@@ -298,9 +292,9 @@ export default function PaywallScreen() {
 
               <Pressable
                 onPress={() => handlePurchase(tier.id)}
-                disabled={purchasing || isCurrentTier}
-                className={`mt-4 py-3.5 rounded-2xl items-center ${isCurrentTier ? 'bg-green-100' : 'bg-primary'}`}
-                style={({ pressed }) => ({ opacity: pressed || purchasing ? 0.7 : 1 })}
+                disabled={purchasing || isCurrentTier || !findPackage(tier.id)}
+                className={`mt-4 py-3.5 rounded-2xl items-center ${isCurrentTier ? 'bg-green-100' : !findPackage(tier.id) ? 'bg-surface' : 'bg-primary'}`}
+                style={({ pressed }) => ({ opacity: pressed || purchasing ? 0.7 : !findPackage(tier.id) ? 0.5 : 1 })}
               >
                 {purchasing ? (
                   <ActivityIndicator size="small" color="#1a1a0e" />
@@ -308,7 +302,9 @@ export default function PaywallScreen() {
                   <Text className="text-[16px] font-sans-bold text-text">
                     {isCurrentTier
                       ? t('subscription.currentPlan', { defaultValue: 'Plano atual' })
-                      : t('subscription.subscribe', { defaultValue: 'Assinar' })}
+                      : !findPackage(tier.id)
+                        ? t('subscription.unavailable', { defaultValue: 'Indisponível' })
+                        : t('subscription.subscribe', { defaultValue: 'Assinar' })}
                   </Text>
                 )}
               </Pressable>
@@ -331,6 +327,32 @@ export default function PaywallScreen() {
             </Text>
           )}
         </Pressable>
+
+        {/* Legal disclosures — required by App Store guideline 3.1.2(c) */}
+        <View className="mt-6 px-2">
+          <Text className="text-[12px] font-sans text-text-secondary text-center leading-5">
+            Os planos Família e Família+ são assinaturas com renovação automática. O pagamento será cobrado na conta iTunes no momento da confirmação da compra. A assinatura é renovada automaticamente ao fim de cada período (mensal ou anual), salvo cancelamento feito com pelo menos 24 horas de antecedência do fim do período vigente. A cobrança de renovação ocorre nas 24 horas anteriores ao fim do período corrente. Você pode gerir e cancelar a assinatura nas Definições da sua conta na App Store após a compra. Qualquer parte não utilizada de um período de teste gratuito será perdida ao assinar um plano pago.
+          </Text>
+          <View className="flex-row justify-center items-center gap-4 mt-4 mb-2">
+            <Pressable
+              onPress={() => Linking.openURL('https://omeubanco.xyz/termos')}
+              hitSlop={8}
+            >
+              <Text className="text-[13px] font-sans-semibold text-text underline">
+                Termos de Uso
+              </Text>
+            </Pressable>
+            <Text className="text-[13px] font-sans text-text-secondary">·</Text>
+            <Pressable
+              onPress={() => Linking.openURL('https://omeubanco.xyz/privacidade')}
+              hitSlop={8}
+            >
+              <Text className="text-[13px] font-sans-semibold text-text underline">
+                Política de Privacidade
+              </Text>
+            </Pressable>
+          </View>
+        </View>
       </ScrollView>
     </SafeArea>
   );

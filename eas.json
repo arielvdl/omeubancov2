@@ -16,14 +16,20 @@
       "ios": {
         "buildConfiguration": "Release"
       },
+      "android": {
+        "buildType": "apk"
+      },
       "env": {
-        "EXPO_PUBLIC_API_URL": "https://omeubanco-api-548984743318.southamerica-east1.run.app/api/v1"
+        "EXPO_PUBLIC_API_URL": "https://api.omeubanco.xyz/api/v1"
       }
     },
     "production": {
       "autoIncrement": true,
       "env": {
-        "EXPO_PUBLIC_API_URL": "https://omeubanco-api-548984743318.southamerica-east1.run.app/api/v1"
+        "EXPO_PUBLIC_API_URL": "https://api.omeubanco.xyz/api/v1"
+      },
+      "android": {
+        "buildType": "app-bundle"
       }
     }
   },
@@ -33,6 +39,10 @@
         "appleId": "ariel@ecommerceexperience.co",
         "ascAppId": "6761734592",
         "appleTeamId": "8TA8YQY457"
+      },
+      "android": {
+        "serviceAccountKeyPath": "./google-play-service-account.json",
+        "track": "internal"
       }
     }
   }

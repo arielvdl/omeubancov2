@@ -35,6 +35,9 @@ export default function ParentSettingsScreen() {
   const mathChallengeEnabled = useAuthStore((s) => s.mathChallengeEnabled);
   const setMathChallengeEnabled = useAuthStore((s) => s.setMathChallengeEnabled);
   const isOwner = useAuthStore((s) => s.role === 'parent' && !s.guardianId);
+  const canManageFamily = useAuthStore(
+    (s) => s.role === 'parent' && (!s.guardianId || s.guardianAccessLevel === 'admin'),
+  );
   const bankName = useAuthStore((s) => s.bankName);
   const familyId = useAuthStore((s) => s.familyId);
   const logout = useAuthStore((s) => s.logout);
@@ -179,51 +182,55 @@ export default function ParentSettingsScreen() {
               })}
             </Text>
 
-            {/* Manage Balance */}
-            <Pressable
-              onPress={() => {
-                haptics.light();
-                router.push('/(parent)/add-balance');
-              }}
-              className="flex-row items-center py-4 px-5 rounded-2xl bg-background-light mb-3"
-              style={({ pressed }) => ({ opacity: pressed ? 0.7 : 1 })}
-            >
-              <MaterialCommunityIcons name="swap-vertical-circle" size={24} color="#22c55e" />
-              <View className="flex-1 ml-3.5">
-                <Text className="text-[17px] font-sans-semibold text-text">
-                  {t('parent.manageBalance', { defaultValue: 'Alterar saldo' })}
-                </Text>
-                <Text className="text-[13px] font-sans text-text-secondary mt-0.5">
-                  {t('parent.manageBalanceHint', {
-                    defaultValue: 'Depositar ou retirar valor da criança',
-                  })}
-                </Text>
-              </View>
-              <MaterialCommunityIcons name="chevron-right" size={24} color="#9ca3af" />
-            </Pressable>
+            {canManageFamily && (
+              <>
+                {/* Manage Balance */}
+                <Pressable
+                  onPress={() => {
+                    haptics.light();
+                    router.push('/(parent)/add-balance');
+                  }}
+                  className="flex-row items-center py-4 px-5 rounded-2xl bg-background-light mb-3"
+                  style={({ pressed }) => ({ opacity: pressed ? 0.7 : 1 })}
+                >
+                  <MaterialCommunityIcons name="swap-vertical-circle" size={24} color="#22c55e" />
+                  <View className="flex-1 ml-3.5">
+                    <Text className="text-[17px] font-sans-semibold text-text">
+                      {t('parent.manageBalance', { defaultValue: 'Alterar saldo' })}
+                    </Text>
+                    <Text className="text-[13px] font-sans text-text-secondary mt-0.5">
+                      {t('parent.manageBalanceHint', {
+                        defaultValue: 'Depositar ou retirar valor da criança',
+                      })}
+                    </Text>
+                  </View>
+                  <MaterialCommunityIcons name="chevron-right" size={24} color="#9ca3af" />
+                </Pressable>
 
-            {/* Schedule Deposit */}
-            <Pressable
-              onPress={() => {
-                haptics.light();
-                router.push('/(parent)/schedule');
-              }}
-              className="flex-row items-center py-4 px-5 rounded-2xl bg-background-light mb-3"
-              style={({ pressed }) => ({ opacity: pressed ? 0.7 : 1 })}
-            >
-              <MaterialCommunityIcons name="calendar-clock" size={24} color="#f5a623" />
-              <View className="flex-1 ml-3.5">
-                <Text className="text-[17px] font-sans-semibold text-text">
-                  {t('parent.scheduleDeposit')}
-                </Text>
-                <Text className="text-[13px] font-sans text-text-secondary mt-0.5">
-                  {t('parent.scheduleHint', {
-                    defaultValue: 'Configurar mesada diária, semanal ou mensal',
-                  })}
-                </Text>
-              </View>
-              <MaterialCommunityIcons name="chevron-right" size={24} color="#9ca3af" />
-            </Pressable>
+                {/* Schedule Deposit */}
+                <Pressable
+                  onPress={() => {
+                    haptics.light();
+                    router.push('/(parent)/schedule');
+                  }}
+                  className="flex-row items-center py-4 px-5 rounded-2xl bg-background-light mb-3"
+                  style={({ pressed }) => ({ opacity: pressed ? 0.7 : 1 })}
+                >
+                  <MaterialCommunityIcons name="calendar-clock" size={24} color="#f5a623" />
+                  <View className="flex-1 ml-3.5">
+                    <Text className="text-[17px] font-sans-semibold text-text">
+                      {t('parent.scheduleDeposit')}
+                    </Text>
+                    <Text className="text-[13px] font-sans text-text-secondary mt-0.5">
+                      {t('parent.scheduleHint', {
+                        defaultValue: 'Configurar mesada diária, semanal ou mensal',
+                      })}
+                    </Text>
+                  </View>
+                  <MaterialCommunityIcons name="chevron-right" size={24} color="#9ca3af" />
+                </Pressable>
+              </>
+            )}
 
             {/* Statement */}
             <Pressable
@@ -251,7 +258,7 @@ export default function ParentSettingsScreen() {
         )}
 
         {/* Mascot Picker — per child */}
-        {selectedChild && (
+        {selectedChild && canManageFamily && (
           <Card
             title={t('parent.mascotSection', { defaultValue: 'Mascote de {{name}}' }).replace('{{name}}', selectedChild.name)}
             className="mb-6"
@@ -575,8 +582,8 @@ export default function ParentSettingsScreen() {
             })}
           </Text>
 
-          {/* Invite member (owner only) */}
-          {isOwner && (
+          {/* Invite member (family admin only) */}
+          {canManageFamily && (
             <Pressable
               onPress={() => {
                 haptics.light();
@@ -625,7 +632,7 @@ export default function ParentSettingsScreen() {
         </Card>
 
         {/* Contract */}
-        {selectedChild && (
+        {selectedChild && canManageFamily && (
           <Card
             title={t('onboarding.contract.title')}
             className="mb-6"

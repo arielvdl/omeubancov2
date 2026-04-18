@@ -7,9 +7,10 @@ import { SafeArea } from '@/src/components/layout/SafeArea';
 import { haptics } from '@/src/utils/haptics';
 
 export default function WelcomeFamilyScreen() {
-  const { familyName, roleLabel } = useLocalSearchParams<{
+  const { familyName, roleLabel, accessLevel } = useLocalSearchParams<{
     familyName: string;
     roleLabel: string;
+    accessLevel?: 'admin' | 'member';
   }>();
   const { t } = useTranslation();
   const router = useRouter();
@@ -43,9 +44,21 @@ export default function WelcomeFamilyScreen() {
         )}
 
         {roleLabel && (
-          <View className="bg-primary-50 py-2 px-5 rounded-full mb-6">
+          <View className="bg-primary-50 py-2 px-5 rounded-full mb-2">
             <Text className="text-[15px] font-sans-semibold text-text">
               {roleLabel}
+            </Text>
+          </View>
+        )}
+
+        {accessLevel && (
+          <View className="bg-background-light py-2 px-5 rounded-full mb-6">
+            <Text className="text-[13px] font-sans-semibold text-text-secondary">
+              {t(
+                accessLevel === 'admin'
+                  ? 'invitation.accessAdmin'
+                  : 'invitation.accessMember',
+              )}
             </Text>
           </View>
         )}

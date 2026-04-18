@@ -11,6 +11,9 @@ export interface GoogleAuthResult {
   familyName: string;
   currency: string;
   isNewUser: boolean;
+  guardianId?: string;
+  roleLabel?: string;
+  guardianAccessLevel?: 'admin' | 'member';
   error?: string;
 }
 
@@ -64,5 +67,9 @@ export async function startGoogleSignIn(): Promise<GoogleAuthResult | null> {
     familyName: String(params.familyName ?? ''),
     currency: String(params.currency ?? 'BRL'),
     isNewUser: params.isNewUser === 'true',
+    guardianId: params.guardianId ? String(params.guardianId) : undefined,
+    roleLabel: params.roleLabel ? String(params.roleLabel) : undefined,
+    guardianAccessLevel:
+      params.guardianAccessLevel === 'admin' ? 'admin' : params.guardianAccessLevel === 'member' ? 'member' : undefined,
   };
 }

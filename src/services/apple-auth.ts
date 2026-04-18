@@ -10,6 +10,9 @@ export interface AppleAuthResult {
   familyName: string;
   currency: string;
   isNewUser: boolean;
+  guardianId?: string;
+  roleLabel?: string;
+  guardianAccessLevel?: 'admin' | 'member';
 }
 
 export async function startAppleSignIn(): Promise<AppleAuthResult | null> {
@@ -58,6 +61,10 @@ export async function startAppleSignIn(): Promise<AppleAuthResult | null> {
       familyName: String(data.familyName ?? ''),
       currency: String(data.currency ?? 'BRL'),
       isNewUser: data.isNewUser === true,
+      guardianId: data.guardianId ? String(data.guardianId) : undefined,
+      roleLabel: data.roleLabel ? String(data.roleLabel) : undefined,
+      guardianAccessLevel:
+        data.guardianAccessLevel === 'admin' ? 'admin' : data.guardianAccessLevel === 'member' ? 'member' : undefined,
     };
   } catch (err: any) {
     const status = err?.response?.status;

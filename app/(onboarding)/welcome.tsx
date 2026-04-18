@@ -170,7 +170,9 @@ export default function WelcomeScreen() {
     try {
       await invitationsApi.acceptInvitation(inviteCode);
     } catch (err: any) {
-      logger.warn('[Invite] Accept after login failed', { inviteCode, error: err?.message });
+      const message = err?.response?.data?.error ?? t('common.errorGeneric');
+      logger.warn('[Invite] Accept after login failed', { inviteCode, error: message });
+      Alert.alert(t('invitation.invalidInvite'), message);
     }
   };
 
@@ -186,7 +188,15 @@ export default function WelcomeScreen() {
       }
       if (result.error) throw new Error(result.error);
 
-      await setAuth(result.token, result.familyId, 'parent');
+      await setAuth(
+        result.token,
+        result.familyId,
+        'parent',
+        undefined,
+        result.guardianId,
+        result.roleLabel,
+        result.guardianAccessLevel,
+      );
       await tryAcceptInvite();
 
       if (result.isNewUser) {
@@ -232,7 +242,15 @@ export default function WelcomeScreen() {
         return;
       }
 
-      await setAuth(result.token, result.familyId, 'parent');
+      await setAuth(
+        result.token,
+        result.familyId,
+        'parent',
+        undefined,
+        result.guardianId,
+        result.roleLabel,
+        result.guardianAccessLevel,
+      );
       await tryAcceptInvite();
 
       if (result.isNewUser) {
@@ -285,7 +303,15 @@ export default function WelcomeScreen() {
         return;
       }
 
-      await setAuth(result.token, result.familyId, 'parent', undefined, result.guardianId, result.roleLabel);
+      await setAuth(
+        result.token,
+        result.familyId,
+        'parent',
+        undefined,
+        result.guardianId,
+        result.roleLabel,
+        result.guardianAccessLevel,
+      );
       await tryAcceptInvite();
 
       if (result.isNewUser) {
@@ -356,7 +382,15 @@ export default function WelcomeScreen() {
       if (isLogin) {
         const { data } = await authApi.login({ email: email.trim(), password });
 
-        await setAuth(data.token, data.family.id, 'parent');
+        await setAuth(
+          data.token,
+          data.family.id,
+          'parent',
+          undefined,
+          data.guardianId,
+          data.roleLabel,
+          data.guardianAccessLevel,
+        );
         await tryAcceptInvite();
 
         if (data.isNewUser) {
@@ -839,15 +873,32 @@ export default function WelcomeScreen() {
                 )}
 
                 {/* Toggle login/register */}
-                <Pressable
-                  onPress={() => setIsLogin(!isLogin)}
-                  disabled={loading}
-                  style={{ marginTop: 18, alignItems: 'center' }}
-                >
-                  <Text className="text-[14px] font-sans" style={{ color: '#6b6b5a', textAlign: 'center' }}>
-                    {isLogin ? t('auth.noAccount') : t('auth.hasAccount')}
-                  </Text>
-                </Pressable>
+                {inviteCode ? (
+                  <Pressable
+                    onPress={() =>
+                      router.replace({
+                        pathname: '/(invite)/[inviteCode]',
+                        params: { inviteCode },
+                      })
+                    }
+                    disabled={loading}
+                    style={{ marginTop: 18, alignItems: 'center' }}
+                  >
+                    <Text className="text-[14px] font-sans" style={{ color: '#6b6b5a', textAlign: 'center' }}>
+                      {t('invitation.createAccount')}
+                    </Text>
+                  </Pressable>
+                ) : (
+                  <Pressable
+                    onPress={() => setIsLogin(!isLogin)}
+                    disabled={loading}
+                    style={{ marginTop: 18, alignItems: 'center' }}
+                  >
+                    <Text className="text-[14px] font-sans" style={{ color: '#6b6b5a', textAlign: 'center' }}>
+                      {isLogin ? t('auth.noAccount') : t('auth.hasAccount')}
+                    </Text>
+                  </Pressable>
+                )}
               </ScrollView>
             </KeyboardAvoidingView>
           </Animated.View>

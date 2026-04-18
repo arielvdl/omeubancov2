@@ -30,6 +30,9 @@ export interface AuthResponse {
   };
   token: string;
   isNewUser: boolean;
+  guardianId?: string;
+  roleLabel?: string;
+  guardianAccessLevel?: 'admin' | 'member';
 }
 
 export const authApi = {

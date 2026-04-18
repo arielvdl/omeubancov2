@@ -7,7 +7,7 @@
 	<key>CFBundleAllowMixedLocalizations</key>
 	<true/>
 	<key>CFBundleDevelopmentRegion</key>
-	<string>$(DEVELOPMENT_LANGUAGE)</string>
+	<string>pt_BR</string>
 	<key>CFBundleDisplayName</key>
 	<string>O Meu Banco</string>
 	<key>CFBundleExecutable</key>
@@ -16,12 +16,18 @@
 	<string>$(PRODUCT_BUNDLE_IDENTIFIER)</string>
 	<key>CFBundleInfoDictionaryVersion</key>
 	<string>6.0</string>
+	<key>CFBundleLocalizations</key>
+	<array>
+		<string>pt_BR</string>
+		<string>pt_PT</string>
+		<string>en</string>
+	</array>
 	<key>CFBundleName</key>
 	<string>$(PRODUCT_NAME)</string>
 	<key>CFBundlePackageType</key>
 	<string>$(PRODUCT_BUNDLE_PACKAGE_TYPE)</string>
 	<key>CFBundleShortVersionString</key>
-	<string>1.0.0</string>
+	<string>1.0.1</string>
 	<key>CFBundleSignature</key>
 	<string>????</string>
 	<key>CFBundleURLTypes</key>
@@ -35,7 +41,7 @@
 		</dict>
 	</array>
 	<key>CFBundleVersion</key>
-	<string>16</string>
+	<string>27</string>
 	<key>ITSAppUsesNonExemptEncryption</key>
 	<false/>
 	<key>LSMinimumSystemVersion</key>
@@ -50,15 +56,15 @@
 		<true/>
 	</dict>
 	<key>NSCameraUsageDescription</key>
-	<string>Allow $(PRODUCT_NAME) to access your camera.</string>
+	<string>O Meu Banco usa a câmera para que a criança possa tirar uma foto do item desejado (por exemplo, um brinquedo na loja) e adicioná-lo à sua lista de desejos dentro do app.</string>
 	<key>NSFaceIDUsageDescription</key>
-	<string>Permitir que $(PRODUCT_NAME) use o Face ID para autenticação dos pais.</string>
+	<string>O Meu Banco usa o Face ID para autenticar o responsável ao entrar na Área dos Pais (onde se gerencia filhos, mesadas, metas e assinatura), como alternativa ao PIN dos pais.</string>
 	<key>NSMicrophoneUsageDescription</key>
 	<string>Allow $(PRODUCT_NAME) to access your microphone</string>
 	<key>NSPhotoLibraryAddUsageDescription</key>
-	<string>Allow $(PRODUCT_NAME) to save receipts to your gallery.</string>
+	<string>O Meu Banco precisa salvar imagens na galeria para guardar o comprovante das metas conquistadas pela criança.</string>
 	<key>NSPhotoLibraryUsageDescription</key>
-	<string>Allow $(PRODUCT_NAME) to save receipts to your gallery.</string>
+	<string>O Meu Banco precisa acessar suas fotos para que a criança possa escolher uma imagem da galeria e adicioná-la à sua lista de desejos. Por exemplo, escolher a foto de um brinquedo salva no álbum.</string>
 	<key>NSUserActivityTypes</key>
 	<array>
 		<string>$(PRODUCT_BUNDLE_IDENTIFIER).expo.index_route</string>

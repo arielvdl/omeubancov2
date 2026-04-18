@@ -12,6 +12,7 @@
     <array>
       <string>webcredentials:api.omeubanco.xyz</string>
       <string>webcredentials:omeubanco-api-548984743318.southamerica-east1.run.app</string>
+      <string>applinks:omeubanco.xyz</string>
     </array>
   </dict>
 </plist>

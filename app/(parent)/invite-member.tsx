@@ -15,6 +15,8 @@ import { haptics } from '@/src/utils/haptics';
 import { captureError } from '@/src/utils/logger';
 import type { FamilyInvitation } from '@/src/types/invitation';
 
+type InviteAccessLevel = 'admin' | 'member';
+
 export default function InviteMemberScreen() {
   const { t } = useTranslation();
   const router = useRouter();
@@ -23,11 +25,12 @@ export default function InviteMemberScreen() {
   const [loading, setLoading] = useState(false);
   const [copied, setCopied] = useState(false);
   const [savingQr, setSavingQr] = useState(false);
+  const [accessLevel, setAccessLevel] = useState<InviteAccessLevel>('member');
 
-  const generateInvite = useCallback(async () => {
+  const generateInvite = useCallback(async (level: InviteAccessLevel) => {
     setLoading(true);
     try {
-      const res = await invitationsApi.createInvitation();
+      const res = await invitationsApi.createInvitation(level);
       setInvitation(res.data.invitation);
       haptics.success();
     } catch (err: any) {
@@ -45,8 +48,42 @@ export default function InviteMemberScreen() {
   }, [t, router]);
 
   useEffect(() => {
-    generateInvite();
+    generateInvite('member');
   }, [generateInvite]);
+
+  const revokeCurrentInvitation = async () => {
+    if (!invitation) return;
+    try {
+      await invitationsApi.revokeInvitation(invitation.id);
+    } catch (err: any) {
+      captureError(err, 'Revoke invitation');
+    }
+  };
+
+  const handleAccessChange = (level: InviteAccessLevel) => {
+    if (level === accessLevel || loading) return;
+
+    if (!invitation) {
+      setAccessLevel(level);
+      return;
+    }
+
+    Alert.alert(
+      t('invitation.changeAccessTitle'),
+      t('invitation.changeAccessMessage'),
+      [
+        { text: t('common.cancel'), style: 'cancel' },
+        {
+          text: t('common.confirm'),
+          onPress: async () => {
+            setAccessLevel(level);
+            await revokeCurrentInvitation();
+            await generateInvite(level);
+          },
+        },
+      ],
+    );
+  };
 
   const handleCopy = async () => {
     if (!invitation) return;
@@ -113,7 +150,7 @@ export default function InviteMemberScreen() {
                 captureError(err, 'Revoke invitation');
               }
             }
-            generateInvite();
+            generateInvite(accessLevel);
           },
         },
       ],
@@ -141,6 +178,40 @@ export default function InviteMemberScreen() {
       />
       <View className="flex-1 px-7 pt-4">
         <Card className="items-center py-8">
+          <Text className="text-[15px] font-sans-semibold text-text mb-3">
+            {t('invitation.accessType')}
+          </Text>
+          <View className="flex-row w-full gap-2 mb-6">
+            {(['member', 'admin'] as InviteAccessLevel[]).map((level) => {
+              const selected = accessLevel === level;
+              return (
+                <Pressable
+                  key={level}
+                  onPress={() => handleAccessChange(level)}
+                  className={`flex-1 py-3 px-3 rounded-2xl ${
+                    selected ? 'bg-primary-50' : 'bg-background-light'
+                  }`}
+                  style={
+                    selected
+                      ? { borderWidth: 2, borderColor: '#FFD600' }
+                      : { borderWidth: 2, borderColor: 'transparent' }
+                  }
+                >
+                  <Text className="text-[14px] font-sans-bold text-text text-center">
+                    {t(level === 'admin' ? 'invitation.accessAdmin' : 'invitation.accessMember')}
+                  </Text>
+                  <Text className="text-[11px] font-sans text-text-secondary text-center mt-1 leading-4">
+                    {t(
+                      level === 'admin'
+                        ? 'invitation.accessAdminHint'
+                        : 'invitation.accessMemberHint',
+                    )}
+                  </Text>
+                </Pressable>
+              );
+            })}
+          </View>
+
           {loading ? (
             <Text className="text-[15px] font-sans text-text-secondary">
               {t('invitation.generating')}

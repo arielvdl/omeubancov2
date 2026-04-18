@@ -37,6 +37,9 @@ export default function ContractViewScreen() {
   const { t, i18n } = useTranslation();
   const router = useRouter();
   const bankName = useAuthStore((s) => s.bankName) ?? '';
+  const canManageFamily = useAuthStore(
+    (s) => s.role === 'parent' && (!s.guardianId || s.guardianAccessLevel === 'admin'),
+  );
   const selectedChild = useSelectedChild();
   const setContractRules = useBankStore((s) => s.setContractRules);
   const locale = i18n.language;
@@ -241,30 +244,31 @@ export default function ContractViewScreen() {
               )}
             </Card>
 
-            {/* Actions */}
-            <View className="gap-3">
-              <Button
-                title={t('profile.editContract')}
-                onPress={() =>
-                  router.push({
-                    pathname: '/(modals)/contract-edit',
-                    params: { mode: 'edit' },
-                  })
-                }
-                variant="secondary"
-                fullWidth
-                icon="pencil-outline"
-              />
-              <Button
-                title={t('profile.deleteContract')}
-                onPress={handleDelete}
-                variant="secondary"
-                fullWidth
-                icon="trash-can-outline"
-                loading={deleting}
-                disabled={deleting}
-              />
-            </View>
+            {canManageFamily && (
+              <View className="gap-3">
+                <Button
+                  title={t('profile.editContract')}
+                  onPress={() =>
+                    router.push({
+                      pathname: '/(modals)/contract-edit',
+                      params: { mode: 'edit' },
+                    })
+                  }
+                  variant="secondary"
+                  fullWidth
+                  icon="pencil-outline"
+                />
+                <Button
+                  title={t('profile.deleteContract')}
+                  onPress={handleDelete}
+                  variant="secondary"
+                  fullWidth
+                  icon="trash-can-outline"
+                  loading={deleting}
+                  disabled={deleting}
+                />
+              </View>
+            )}
           </>
         ) : (
           <>
@@ -280,18 +284,20 @@ export default function ContractViewScreen() {
               </Text>
             </Card>
 
-            <Button
-              title={t('profile.createContract')}
-              onPress={() =>
-                router.push({
-                  pathname: '/(modals)/contract-edit',
-                  params: { mode: 'create' },
-                })
-              }
-              variant="primary"
-              fullWidth
-              icon="file-document-edit-outline"
-            />
+            {canManageFamily && (
+              <Button
+                title={t('profile.createContract')}
+                onPress={() =>
+                  router.push({
+                    pathname: '/(modals)/contract-edit',
+                    params: { mode: 'create' },
+                  })
+                }
+                variant="primary"
+                fullWidth
+                icon="file-document-edit-outline"
+              />
+            )}
           </>
         )}
       </ScrollView>

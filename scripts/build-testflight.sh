@@ -101,6 +101,10 @@ npx expo prebuild --clean --platform ios 2>&1 | tail -3
 
 echo -e "${GREEN}[OK] Prebuild concluído${NC}"
 
+# NOTA: NÃO remover NSMicrophoneUsageDescription — expo-audio precisa da chave
+# no Info.plist mesmo que microphonePermission=false no app.json.
+# A remoção causava crash silencioso na inicialização do áudio (build 25).
+
 # --- Step 4: Incrementar build number ---
 echo ""
 echo -e "${YELLOW}[4/8] Incrementando build number...${NC}"

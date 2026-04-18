@@ -4,6 +4,7 @@ import { useEffect, useState, useCallback } from "react";
 import { Stack } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import * as SplashScreen from "expo-splash-screen";
+import { Platform } from "react-native";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import {
   useFonts,
@@ -58,7 +59,9 @@ export default function RootLayout() {
       ]);
 
       // Initialize RevenueCat SDK (skip in Expo Go — native module unavailable)
-      const rcApiKey = process.env.EXPO_PUBLIC_REVENUECAT_API_KEY;
+      const rcApiKey = Platform.OS === 'android'
+        ? process.env.EXPO_PUBLIC_REVENUECAT_ANDROID_API_KEY
+        : process.env.EXPO_PUBLIC_REVENUECAT_API_KEY;
       let Purchases: typeof import('react-native-purchases').default | null = null;
       const Constants = (await import('expo-constants')).default;
       const isExpoGo = Constants.appOwnership === 'expo';

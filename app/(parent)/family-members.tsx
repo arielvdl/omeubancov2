@@ -21,7 +21,9 @@ export default function FamilyMembersScreen() {
   const { t } = useTranslation();
   const router = useRouter();
   const { format } = useCurrency();
-  const isOwner = useAuthStore((s) => s.role === 'parent' && !s.guardianId);
+  const canManageFamily = useAuthStore(
+    (s) => s.role === 'parent' && (!s.guardianId || s.guardianAccessLevel === 'admin'),
+  );
   const family = useBankStore((s) => s.family);
   const children = useBankStore((s) => s.children);
   const selectedChildId = useBankStore((s) => s.selectedChildId);
@@ -36,7 +38,7 @@ export default function FamilyMembersScreen() {
     try {
       const [guardiansRes, invitationsRes] = await Promise.all([
         invitationsApi.listGuardians(),
-        invitationsApi.listInvitations(),
+        canManageFamily ? invitationsApi.listInvitations() : Promise.resolve({ data: { invitations: [] } }),
       ]);
       setGuardians(guardiansRes.data.guardians);
       setInvitations(
@@ -47,7 +49,7 @@ export default function FamilyMembersScreen() {
     } catch {
       // silent
     }
-  }, []);
+  }, [canManageFamily]);
 
   useEffect(() => {
     loadData();
@@ -65,7 +67,7 @@ export default function FamilyMembersScreen() {
   };
 
   const handleRemoveChild = (child: { id: string; name: string }) => {
-    if (!isOwner) return;
+    if (!canManageFamily) return;
     Alert.alert(
       t('parent.removeChild'),
       t('parent.removeChildConfirm', { name: child.name }),
@@ -194,7 +196,7 @@ export default function FamilyMembersScreen() {
                     {isSelected && (
                       <MaterialCommunityIcons name="check-circle" size={22} color="#FFD600" />
                     )}
-                    {isOwner && !isSelected && (
+                    {canManageFamily && !isSelected && (
                       <Pressable
                         onPress={() => handleRemoveChild(child)}
                         hitSlop={12}
@@ -210,7 +212,7 @@ export default function FamilyMembersScreen() {
           )}
 
           {/* Add child button */}
-          {isOwner && (
+          {canManageFamily && (
             canAddChild() ? (
               <Pressable
                 onPress={() => {
@@ -269,10 +271,10 @@ export default function FamilyMembersScreen() {
                       {guardian.name}
                     </Text>
                     <Text className="text-[13px] font-sans text-text-secondary">
-                      {guardian.roleLabel} · {t('invitation.memberSince', { date: formatDate(guardian.createdAt) })}
+                      {guardian.roleLabel} · {t(guardian.accessLevel === 'admin' ? 'invitation.accessAdmin' : 'invitation.accessMember')} · {t('invitation.memberSince', { date: formatDate(guardian.createdAt) })}
                     </Text>
                   </View>
-                  {isOwner && (
+                  {canManageFamily && (
                     <Pressable
                       onPress={() => handleRemoveGuardian(guardian)}
                       hitSlop={12}
@@ -287,7 +289,7 @@ export default function FamilyMembersScreen() {
           )}
 
           {/* Invite button */}
-          {isOwner && (
+          {canManageFamily && (
             canInviteGuardian() ? (
               <Pressable
                 onPress={() => {
@@ -309,7 +311,7 @@ export default function FamilyMembersScreen() {
         </Card>
 
         {/* Pending invites */}
-        {isOwner && invitations.length > 0 && (
+        {canManageFamily && invitations.length > 0 && (
           <Card title={t('invitation.pendingInvites')} className="mb-6">
             <View className="gap-3">
               {invitations.map((inv) => (
@@ -325,7 +327,7 @@ export default function FamilyMembersScreen() {
                       {inv.inviteCode}
                     </Text>
                     <Text className="text-[13px] font-sans text-text-secondary">
-                      {t('invitation.pending')}
+                      {t('invitation.pending')} · {t(inv.accessLevel === 'admin' ? 'invitation.accessAdmin' : 'invitation.accessMember')}
                     </Text>
                   </View>
                   <Pressable

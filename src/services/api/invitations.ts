@@ -13,7 +13,8 @@ const publicClient = axios.create({
 
 export const invitationsApi = {
   // Invitations (authenticated)
-  createInvitation: () => apiClient.post('/invitations'),
+  createInvitation: (accessLevel: 'admin' | 'member' = 'member') =>
+    apiClient.post('/invitations', { accessLevel }),
   listInvitations: () => apiClient.get('/invitations'),
   revokeInvitation: (id: string) => apiClient.delete(`/invitations/${id}`),
 

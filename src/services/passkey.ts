@@ -117,6 +117,7 @@ export async function loginWithPasskey(): Promise<{
   isNewUser: boolean;
   guardianId?: string;
   roleLabel?: string;
+  guardianAccessLevel?: 'admin' | 'member';
 } | null> {
   logger.info('[Passkey] Starting login...');
 
@@ -171,6 +172,7 @@ export async function loginWithPasskey(): Promise<{
       isNewUser: response.isNewUser,
       guardianId: response.guardianId,
       roleLabel: response.roleLabel,
+      guardianAccessLevel: response.guardianAccessLevel,
     };
   } catch (error: any) {
     logger.error('[Passkey] Login verification failed', {

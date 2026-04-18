@@ -14,7 +14,9 @@ import { useTranslation } from 'react-i18next';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { SafeArea } from '@/src/components/layout/SafeArea';
 import { invitationsApi } from '@/src/services/api/invitations';
+import { bankApi } from '@/src/services/api/bank';
 import { useAuthStore } from '@/src/stores/useAuthStore';
+import { useBankStore } from '@/src/stores/useBankStore';
 import { haptics } from '@/src/utils/haptics';
 import { captureError } from '@/src/utils/logger';
 import type { InvitationInfo } from '@/src/types/invitation';
@@ -34,6 +36,9 @@ export default function AcceptInviteScreen() {
   const { t } = useTranslation();
   const router = useRouter();
   const setAuth = useAuthStore((s) => s.setAuth);
+  const setBankName = useAuthStore((s) => s.setBankName);
+  const setCurrency = useAuthStore((s) => s.setCurrency);
+  const setOnboardingComplete = useAuthStore((s) => s.setOnboardingComplete);
 
   const [info, setInfo] = useState<InvitationInfo | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -74,6 +79,49 @@ export default function AcceptInviteScreen() {
 
   const roleLabel = selectedRole === '' ? customRole : selectedRole;
 
+  const hydrateJoinedFamily = async (family: {
+    id: string;
+    name: string;
+    currency: 'BRL' | 'USD' | 'EUR';
+  }) => {
+    await setBankName(family.name);
+    await setCurrency(family.currency);
+    await setOnboardingComplete(true);
+
+    try {
+      const [childrenRes, familyRes] = await Promise.all([
+        bankApi.getChildren(),
+        bankApi.getFamily(),
+      ]);
+
+      if (familyRes.data) {
+        useBankStore.getState().setFamily(familyRes.data);
+      }
+      if (childrenRes.data?.length > 0) {
+        useBankStore.getState().setChildren(childrenRes.data);
+        useBankStore.getState().setSelectedChild(childrenRes.data[0].id);
+      }
+      useBankStore.getState().setHydrated(true);
+
+      const { useSubscriptionStore } = await import('@/src/stores/useSubscriptionStore');
+      await Promise.all([
+        useSubscriptionStore.getState().loadSubscription(),
+        useSubscriptionStore.getState().loadLimits(),
+      ]);
+    } catch (err) {
+      useBankStore.getState().setFamily({
+        id: family.id,
+        name: family.name,
+        currency: family.currency,
+        locale: 'pt-BR',
+        timezone: 'America/Sao_Paulo',
+        createdAt: new Date().toISOString(),
+      });
+      useBankStore.getState().setHydrated(false);
+      captureError(err, 'Hydrate invited family');
+    }
+  };
+
   const handleSubmit = async () => {
     if (!name.trim() || !email.trim() || !password.trim() || !roleLabel?.trim()) {
       Alert.alert(t('common.error'), t('auth.fillAllFields'));
@@ -101,12 +149,25 @@ export default function AcceptInviteScreen() {
         roleLabel: roleLabel.trim(),
       });
 
-      const { token, family, guardianId, roleLabel: rl } = res.data;
-      await setAuth(token, family.id, 'parent', undefined, guardianId, rl);
+      const { token, family, guardianId, roleLabel: rl, guardianAccessLevel } = res.data;
+      await setAuth(
+        token,
+        family.id,
+        'parent',
+        undefined,
+        guardianId,
+        rl,
+        guardianAccessLevel,
+      );
+      await hydrateJoinedFamily(family);
       haptics.success();
       router.replace({
         pathname: '/(invite)/welcome-family',
-        params: { familyName: family.name, roleLabel: rl },
+        params: {
+          familyName: family.name,
+          roleLabel: rl,
+          accessLevel: guardianAccessLevel,
+        },
       });
     } catch (err: any) {
       haptics.error();
@@ -168,6 +229,17 @@ export default function AcceptInviteScreen() {
               <Text className="text-[17px] font-sans-semibold text-primary mt-1">
                 {info.familyName}
               </Text>
+            )}
+            {info?.accessLevel && (
+              <View className="bg-background-light py-2 px-4 rounded-full mt-3">
+                <Text className="text-[13px] font-sans-semibold text-text-secondary">
+                  {t(
+                    info.accessLevel === 'admin'
+                      ? 'invitation.accessAdmin'
+                      : 'invitation.accessMember',
+                  )}
+                </Text>
+              </View>
             )}
           </View>
 

@@ -9,6 +9,7 @@ interface AuthStoreState {
   childId: string | null;
   guardianId: string | null;
   roleLabel: string | null;
+  guardianAccessLevel: 'admin' | 'member' | null;
   masterPin: string | null;
   bankName: string | null;
   currency: 'BRL' | 'USD' | 'EUR';
@@ -27,6 +28,7 @@ interface AuthStoreState {
     childId?: string,
     guardianId?: string,
     roleLabel?: string,
+    guardianAccessLevel?: 'admin' | 'member',
   ) => void;
   setMasterPin: (pin: string) => void;
   setBankName: (name: string) => void;
@@ -47,6 +49,7 @@ export const useAuthStore = create<AuthStoreState>((set, get) => ({
   childId: null,
   guardianId: null,
   roleLabel: null,
+  guardianAccessLevel: null,
   masterPin: null,
   bankName: null,
   currency: 'BRL',
@@ -69,6 +72,7 @@ export const useAuthStore = create<AuthStoreState>((set, get) => ({
     childId?: string,
     guardianId?: string,
     roleLabel?: string,
+    guardianAccessLevel?: 'admin' | 'member',
   ) => {
     await SecureStore.setItemAsync('auth_token', token);
     await SecureStore.setItemAsync('family_id', familyId);
@@ -86,6 +90,11 @@ export const useAuthStore = create<AuthStoreState>((set, get) => ({
     } else {
       await SecureStore.deleteItemAsync('role_label');
     }
+    if (guardianAccessLevel) {
+      await SecureStore.setItemAsync('guardian_access_level', guardianAccessLevel);
+    } else {
+      await SecureStore.deleteItemAsync('guardian_access_level');
+    }
     set({
       token,
       familyId,
@@ -93,6 +102,7 @@ export const useAuthStore = create<AuthStoreState>((set, get) => ({
       childId: childId ?? null,
       guardianId: guardianId ?? null,
       roleLabel: roleLabel ?? null,
+      guardianAccessLevel: guardianAccessLevel ?? null,
     });
   },
 
@@ -143,6 +153,7 @@ export const useAuthStore = create<AuthStoreState>((set, get) => ({
       SecureStore.deleteItemAsync('child_id'),
       SecureStore.deleteItemAsync('guardian_id'),
       SecureStore.deleteItemAsync('role_label'),
+      SecureStore.deleteItemAsync('guardian_access_level'),
       SecureStore.deleteItemAsync('google_email'),
       SecureStore.deleteItemAsync('google_name'),
       SecureStore.deleteItemAsync('google_photo'),
@@ -154,6 +165,7 @@ export const useAuthStore = create<AuthStoreState>((set, get) => ({
       childId: null,
       guardianId: null,
       roleLabel: null,
+      guardianAccessLevel: null,
       googleEmail: null,
       googleName: null,
       googlePhoto: null,
@@ -164,6 +176,7 @@ export const useAuthStore = create<AuthStoreState>((set, get) => ({
     const [
       onboardingComplete, token, familyId, role, childId,
       guardianId, roleLabel,
+      guardianAccessLevel,
       masterPin, bankName, currency, locale,
       googleEmail, googleName, googlePhoto,
       mathChallengeEnabled, passkeyEnabled,
@@ -175,6 +188,7 @@ export const useAuthStore = create<AuthStoreState>((set, get) => ({
       SecureStore.getItemAsync('child_id'),
       SecureStore.getItemAsync('guardian_id'),
       SecureStore.getItemAsync('role_label'),
+      SecureStore.getItemAsync('guardian_access_level'),
       SecureStore.getItemAsync('master_pin'),
       SecureStore.getItemAsync('bank_name'),
       SecureStore.getItemAsync('currency'),
@@ -193,6 +207,7 @@ export const useAuthStore = create<AuthStoreState>((set, get) => ({
       childId,
       guardianId,
       roleLabel,
+      guardianAccessLevel: guardianAccessLevel === 'admin' ? 'admin' : guardianAccessLevel === 'member' ? 'member' : null,
       masterPin,
       bankName,
       currency: (currency as 'BRL' | 'USD' | 'EUR') ?? 'BRL',
