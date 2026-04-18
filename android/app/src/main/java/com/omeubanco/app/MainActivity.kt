@@ -1,4 +1,4 @@
-package com.queroomeubanco.app
+package com.omeubanco.app
 import expo.modules.splashscreen.SplashScreenManager
 
 import android.os.Build

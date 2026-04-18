@@ -403,3 +403,11 @@ O Export Compliance so precisa ser resolvido na primeira vez.
 | 1.0.0 (14) | 2026-03-21 | Fix segurança invite: race condition, transaction no google-oauth, validação frontend, aceitar convite com conta existente, website institucional |
 | 1.0.0 (15) | 2026-03-21 | Doc push notifications, fix double counting goal_reached no scheduled deposit |
 | 1.0.0 (16) | 2026-04-10 | Security hardening: Apple token verification server-side, brute-force protection child login, IDOR fix wishlist, upload magic bytes, timing-safe secrets, CORS fix, security headers, OAuth allowlist |
+| 1.0.0 (17) | 2026-04-11 | Build interno (substituido) |
+| 1.0.0 (18) | 2026-04-11 | Submetido para revisao - rejeitado por purpose strings, IAP attachment e parental controls |
+| 1.0.0 (19) | 2026-04-15 | Resposta a rejeicao: Face ID purpose string detalhado (autenticacao na Area dos Pais), NSMicrophoneUsageDescription removido (app so reproduz audio), camera/fotos ja com texto detalhado |
+| 1.0.0 (20-22) | 2026-04-11 | Builds internos (ASC auto-increment durante uploads) |
+| 1.0.0 (23) | 2026-04-15 | Submetido e retirado - crash fatal on startup: NativeEventEmitter null (await import('react-native') triggerava getter lazy PushNotificationIOS) |
+| 1.0.0 (24) | 2026-04-15 | Fix crash PushNotificationIOS (Platform import estatico). Rejeitado: 3.1.2(c) EULA/Privacy links no paywall, 2.1(b) IAP error iPad (Paid Apps Agreement nao assinado) |
+| 1.0.0 (25) | 2026-04-15 | Paywall com disclosure renovacao automatica + links Termos/Privacidade. Botao Assinar desabilitado se pacote nao carregar. CRASH: remocao de NSMicrophoneUsageDescription travava expo-audio na inicializacao |
+| 1.0.0 (26) | 2026-04-17 | Fix: revertido remocao NSMicrophoneUsageDescription e microphonePermission:false - expo-audio precisa da chave no plist |
