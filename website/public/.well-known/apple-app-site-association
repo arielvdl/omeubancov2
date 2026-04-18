@@ -1,0 +1,19 @@
+{
+  "applinks": {
+    "apps": [],
+    "details": [
+      {
+        "appIDs": ["8TA8YQY457.com.omeubanco-app"],
+        "components": [
+          {
+            "/": "/invite/*",
+            "comment": "Universal link para convites de família"
+          }
+        ]
+      }
+    ]
+  },
+  "webcredentials": {
+    "apps": ["8TA8YQY457.com.omeubanco-app"]
+  }
+}
