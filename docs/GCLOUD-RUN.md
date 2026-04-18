@@ -80,6 +80,25 @@ gcloud run deploy omeubanco-api \
   --allow-unauthenticated
 ```
 
+### Variaveis obrigatorias da API
+
+O servico deve manter as secrets existentes e a allowlist de CORS sem wildcard:
+
+```bash
+gcloud run services update omeubanco-api \
+  --project omeubanco \
+  --region southamerica-east1 \
+  --update-env-vars='^|^CORS_ORIGIN=https://omeubanco.xyz,https://www.omeubanco.xyz,https://omeubanco-website-548984743318.us-central1.run.app,https://omeubanco-website-konhqbq7qq-uc.a.run.app'
+```
+
+Secrets ja configuradas no Cloud Run:
+
+- `DATABASE_URL`
+- `JWT_SECRET`
+- `CRON_SECRET`
+- `GOOGLE_OAUTH_CLIENT_ID`
+- `GOOGLE_OAUTH_CLIENT_SECRET`
+
 Arquivos relevantes:
 
 - `backend/Dockerfile` - build TypeScript e imagem Node.js de producao
