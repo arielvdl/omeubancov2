@@ -197,7 +197,7 @@ cat > "$EXPORT_OPTIONS" << 'PLIST'
     <key>signingStyle</key>
     <string>automatic</string>
     <key>uploadSymbols</key>
-    <true/>
+    <false/>
     <key>destination</key>
     <string>upload</string>
 </dict>
