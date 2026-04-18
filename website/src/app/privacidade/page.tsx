@@ -23,7 +23,7 @@ export default function PrivacidadePage() {
           <Section title="1. Introdução">
             <p>
               O Meu Banco é um aplicativo de controle de mesada infantil
-              desenvolvido pela <strong>Paleta Fosforescente, LDA</strong>,
+              desenvolvido pela <strong>E-Commerce Experience Servicos da Informatica LTDA</strong>,
               voltado para uso familiar por pais/responsáveis e crianças. Esta
               política descreve como coletamos, usamos e protegemos as
               informações dos nossos usuários.
@@ -169,7 +169,7 @@ export default function PrivacidadePage() {
                 </a>
               </li>
               <li>
-                <strong>Empresa:</strong> Paleta Fosforescente, LDA
+                <strong>Empresa:</strong> E-Commerce Experience Servicos da Informatica LTDA
               </li>
             </ul>
           </Section>

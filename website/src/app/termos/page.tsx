@@ -92,7 +92,7 @@ export default function TermosPage() {
               Todo o conteúdo do app O Meu Banco, incluindo mas não limitado a
               textos, gráficos, logos, ícones, imagens, interface de usuário e
               código fonte, é propriedade da{" "}
-              <strong>Paleta Fosforescente, LDA</strong> e está protegido
+              <strong>E-Commerce Experience Servicos da Informatica LTDA</strong> e está protegido
               pelas leis de propriedade intelectual aplicáveis.
             </p>
             <p>
@@ -105,7 +105,7 @@ export default function TermosPage() {
           <Section title="7. Limitação de Responsabilidade">
             <p>
               O Meu Banco é fornecido &quot;como está&quot; e &quot;conforme
-              disponível&quot;. A Paleta Fosforescente, LDA não garante que:
+              disponível&quot;. A E-Commerce Experience Servicos da Informatica LTDA não garante que:
             </p>
             <ul className="mt-2 list-disc pl-6 space-y-1">
               <li>O app estará disponível ininterruptamente</li>
@@ -115,7 +115,7 @@ export default function TermosPage() {
               </li>
             </ul>
             <p className="mt-4">
-              Em nenhuma circunstância a Paleta Fosforescente, LDA será
+              Em nenhuma circunstância a E-Commerce Experience Servicos da Informatica LTDA será
               responsável por danos indiretos, incidentais, especiais ou
               consequenciais decorrentes do uso ou incapacidade de uso do app.
             </p>
@@ -141,7 +141,7 @@ export default function TermosPage() {
           <Section title="10. Lei Aplicável">
             <p>
               Estes termos são regidos pelas leis aplicáveis na jurisdição da
-              Paleta Fosforescente, LDA. Qualquer disputa será resolvida nos
+              E-Commerce Experience Servicos da Informatica LTDA. Qualquer disputa será resolvida nos
               tribunais competentes dessa jurisdição.
             </p>
           </Section>
@@ -161,7 +161,7 @@ export default function TermosPage() {
                 </a>
               </li>
               <li>
-                <strong>Empresa:</strong> Paleta Fosforescente, LDA
+                <strong>Empresa:</strong> E-Commerce Experience Servicos da Informatica LTDA
               </li>
             </ul>
           </Section>

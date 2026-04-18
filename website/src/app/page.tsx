@@ -22,7 +22,9 @@ export default function Home() {
               </p>
               <div className="mt-8" id="download">
                 <a
-                  href="#"
+                  href="https://apps.apple.com/app/o-meu-banco-mesada-infantil/id6761734592"
+                  target="_blank"
+                  rel="noopener noreferrer"
                   className="inline-flex items-center justify-center gap-3 rounded-2xl bg-black px-8 py-4 text-base font-semibold text-white hover:bg-gray-800 transition-colors"
                 >
                   <svg className="h-7 w-7" viewBox="0 0 24 24" fill="currentColor">
@@ -249,7 +251,9 @@ export default function Home() {
           </p>
           <div className="mt-10">
             <a
-              href="#"
+              href="https://apps.apple.com/app/o-meu-banco-mesada-infantil/id6761734592"
+              target="_blank"
+              rel="noopener noreferrer"
               className="inline-flex items-center justify-center gap-3 rounded-2xl bg-black px-8 py-4 text-base font-semibold text-white hover:bg-gray-800 transition-colors"
             >
               <svg className="h-7 w-7" viewBox="0 0 24 24" fill="currentColor">

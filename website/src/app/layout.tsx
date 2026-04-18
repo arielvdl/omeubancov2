@@ -32,7 +32,7 @@ export const metadata: Metadata = {
     "poupança infantil",
     "controle de mesada",
   ],
-  authors: [{ name: "Paleta Fosforescente, LDA" }],
+  authors: [{ name: "E-Commerce Experience Servicos da Informatica LTDA" }],
   metadataBase: new URL(siteUrl),
   alternates: {
     canonical: "/",
@@ -94,6 +94,31 @@ export default function RootLayout({
     <html lang="pt-BR" className={`${geistSans.variable} h-full antialiased`}>
       <body className="min-h-full flex flex-col">
         <AgentCapabilities />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              "@context": "https://schema.org",
+              "@type": "Organization",
+              name: "O Meu Banco",
+              url: siteUrl,
+              logo: `${siteUrl}/icon.png`,
+              description:
+                "App de controle de mesada infantil para educação financeira em família.",
+              publisher: {
+                "@type": "Organization",
+                name: "E-Commerce Experience Servicos da Informatica LTDA",
+              },
+              sameAs: [`https://artefacto.omeubanco.xyz`],
+              contactPoint: {
+                "@type": "ContactPoint",
+                email: "suporte@omeubanco.xyz",
+                contactType: "customer support",
+                availableLanguage: ["Portuguese"],
+              },
+            }),
+          }}
+        />
         <Header />
         <main className="flex-1">{children}</main>
         <Footer />
