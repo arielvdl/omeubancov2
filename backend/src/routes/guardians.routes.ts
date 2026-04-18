@@ -1,5 +1,5 @@
 import { Hono } from 'hono';
-import { authMiddleware, requireParent, requireFamilyOwner } from '../auth/guards.js';
+import { authMiddleware, requireParent, requireFamilyAdmin } from '../auth/guards.js';
 import { guardianRepo } from '../repositories/guardian.repo.js';
 import { auditLogRepo } from '../repositories/audit-log.repo.js';
 import { AppError } from '../middleware/error-handler.js';
@@ -16,6 +16,7 @@ guardiansRoutes.get('/', authMiddleware, requireParent, async (c) => {
       id: g.id,
       name: g.name,
       roleLabel: g.roleLabel,
+      accessLevel: g.accessLevel,
       email: g.email,
       avatarUrl: g.avatarUrl,
       googlePhoto: g.googlePhoto,
@@ -24,8 +25,8 @@ guardiansRoutes.get('/', authMiddleware, requireParent, async (c) => {
   });
 });
 
-// Remove guardian (owner only, soft delete)
-guardiansRoutes.delete('/:id', authMiddleware, requireFamilyOwner, async (c) => {
+// Remove guardian (family admin only, soft delete)
+guardiansRoutes.delete('/:id', authMiddleware, requireFamilyAdmin, async (c) => {
   const user = c.get('user');
   const { id } = c.req.param();
 

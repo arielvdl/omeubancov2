@@ -68,16 +68,16 @@ api.route('/auth', authRoutes);
 api.route('/auth/passkey', passkeyRoutes);
 api.route('/families', familiesRoutes);
 api.route('/children', childrenRoutes);
+api.route('/invitations', invitationsRoutes);
+api.route('/guardians', guardiansRoutes);
+api.route('/upload', uploadRoutes);
+api.route('/subscription', subscriptionRoutes);
 api.route('/', transactionsRoutes);
 api.route('/', scheduledRoutes);
 api.route('/', contractsRoutes);
 api.route('/', analyticsRoutes);
 api.route('/', notificationsRoutes);
-api.route('/invitations', invitationsRoutes);
-api.route('/guardians', guardiansRoutes);
-api.route('/upload', uploadRoutes);
 api.route('/', wishlistRoutes);
-api.route('/subscription', subscriptionRoutes);
 
 app.route('/api/v1', api);
 

@@ -1,12 +1,12 @@
 import crypto from 'node:crypto';
 import { Hono } from 'hono';
-import { authMiddleware, requireParent, requireFamilyOwner } from '../auth/guards.js';
+import { authMiddleware, requireParent, requireFamilyAdmin } from '../auth/guards.js';
 import { familyInvitationRepo } from '../repositories/family-invitation.repo.js';
 import { familyRepo } from '../repositories/family.repo.js';
 import { auditLogRepo } from '../repositories/audit-log.repo.js';
 import { inviteInfoRateLimit, invitationRateLimit } from '../middleware/rate-limit.js';
 import { AppError } from '../middleware/error-handler.js';
-import { inviteCodeParamSchema } from '../validators/index.js';
+import { createInvitationSchema, inviteCodeParamSchema } from '../validators/index.js';
 
 export const invitationsRoutes = new Hono();
 
@@ -17,6 +17,7 @@ function generateInviteCode(): string {
 async function createInviteWithRetry(data: {
   familyId: string;
   invitedBy: string;
+  accessLevel: 'admin' | 'member';
   expiresAt: Date;
 }, maxRetries = 3) {
   for (let attempt = 0; attempt < maxRetries; attempt++) {
@@ -34,9 +35,11 @@ async function createInviteWithRetry(data: {
   throw new AppError(500, 'Failed to generate unique invite code');
 }
 
-// Create invitation (owner only)
-invitationsRoutes.post('/', authMiddleware, requireFamilyOwner, invitationRateLimit, async (c) => {
+// Create invitation (family admin only)
+invitationsRoutes.post('/', authMiddleware, requireFamilyAdmin, invitationRateLimit, async (c) => {
   const user = c.get('user');
+  const body = await c.req.json().catch(() => ({}));
+  const data = createInvitationSchema.parse(body);
 
   // Subscription gating: check guardian invite
   const { subscriptionService } = await import('../services/subscription.service.js');
@@ -58,6 +61,7 @@ invitationsRoutes.post('/', authMiddleware, requireFamilyOwner, invitationRateLi
   const invitation = await createInviteWithRetry({
     familyId: user.familyId,
     invitedBy: user.familyId,
+    accessLevel: data.accessLevel,
     expiresAt,
   });
 
@@ -72,16 +76,17 @@ invitationsRoutes.post('/', authMiddleware, requireFamilyOwner, invitationRateLi
     invitation: {
       id: invitation.id,
       inviteCode: invitation.inviteCode,
+      accessLevel: invitation.accessLevel,
       status: invitation.status,
       expiresAt: invitation.expiresAt,
       createdAt: invitation.createdAt,
-      deepLink: `omeubanco://invite/${invitation.inviteCode}`,
+      deepLink: `https://omeubanco.xyz/invite/${invitation.inviteCode}`,
     },
   }, 201);
 });
 
-// List invitations (any parent/guardian)
-invitationsRoutes.get('/', authMiddleware, requireParent, async (c) => {
+// List invitations (family admin only)
+invitationsRoutes.get('/', authMiddleware, requireFamilyAdmin, async (c) => {
   const user = c.get('user');
   const invitations = await familyInvitationRepo.findByFamilyId(user.familyId);
 
@@ -89,16 +94,17 @@ invitationsRoutes.get('/', authMiddleware, requireParent, async (c) => {
     invitations: invitations.map((inv) => ({
       id: inv.id,
       inviteCode: inv.inviteCode,
+      accessLevel: inv.accessLevel,
       status: inv.status,
       expiresAt: inv.expiresAt,
       createdAt: inv.createdAt,
-      deepLink: `omeubanco://invite/${inv.inviteCode}`,
+      deepLink: `https://omeubanco.xyz/invite/${inv.inviteCode}`,
     })),
   });
 });
 
-// Revoke invitation (owner only)
-invitationsRoutes.delete('/:id', authMiddleware, requireFamilyOwner, async (c) => {
+// Revoke invitation (family admin only)
+invitationsRoutes.delete('/:id', authMiddleware, requireFamilyAdmin, async (c) => {
   const user = c.get('user');
   const { id } = c.req.param();
 
@@ -177,6 +183,7 @@ invitationsRoutes.get('/code/:inviteCode', inviteInfoRateLimit, async (c) => {
     return c.json({
       status: 'expired',
       familyName: null,
+      accessLevel: invitation.accessLevel,
       expiresAt: invitation.expiresAt,
     });
   }
@@ -185,6 +192,7 @@ invitationsRoutes.get('/code/:inviteCode', inviteInfoRateLimit, async (c) => {
     return c.json({
       status: invitation.status,
       familyName: null,
+      accessLevel: invitation.accessLevel,
       expiresAt: invitation.expiresAt,
     });
   }
@@ -194,6 +202,7 @@ invitationsRoutes.get('/code/:inviteCode', inviteInfoRateLimit, async (c) => {
   return c.json({
     status: 'pending',
     familyName: family?.name ?? null,
+    accessLevel: invitation.accessLevel,
     expiresAt: invitation.expiresAt,
   });
 });

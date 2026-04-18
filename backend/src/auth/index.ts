@@ -17,6 +17,7 @@ export async function generateToken(payload: {
   role: 'parent' | 'child';
   childId?: string;
   guardianId?: string;
+  guardianAccessLevel?: 'admin' | 'member';
 }): Promise<string> {
   const now = Math.floor(Date.now() / 1000);
   const expiresIn = payload.role === 'parent' ? 7 * 24 * 60 * 60 : 24 * 60 * 60;
@@ -26,6 +27,7 @@ export async function generateToken(payload: {
     role: payload.role,
     childId: payload.childId,
     guardianId: payload.guardianId,
+    guardianAccessLevel: payload.guardianAccessLevel,
     iat: now,
     exp: now + expiresIn,
   };

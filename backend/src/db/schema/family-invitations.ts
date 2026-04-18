@@ -9,6 +9,7 @@ export const familyInvitations = pgTable('family_invitations', {
     .references(() => families.id, { onDelete: 'cascade' }),
   inviteCode: varchar('invite_code', { length: 12 }).unique().notNull(),
   invitedBy: uuid('invited_by').notNull(),
+  accessLevel: varchar('access_level', { length: 20 }).notNull().default('member'),
   status: varchar('status', { length: 20 }).notNull().default('pending'),
   expiresAt: timestamp('expires_at', { withTimezone: true }).notNull(),
   acceptedAt: timestamp('accepted_at', { withTimezone: true }),

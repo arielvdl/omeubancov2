@@ -148,6 +148,7 @@ authRoutes.post('/login', async (c) => {
     familyId: guardian.familyId,
     role: 'parent',
     guardianId: guardian.id,
+    guardianAccessLevel: guardian.accessLevel === 'admin' ? 'admin' : 'member',
   });
 
   await auditLogRepo.create({
@@ -168,6 +169,7 @@ authRoutes.post('/login', async (c) => {
     isNewUser: false,
     guardianId: guardian.id,
     roleLabel: guardian.roleLabel,
+    guardianAccessLevel: guardian.accessLevel,
   });
 });
 
@@ -312,6 +314,7 @@ authRoutes.post('/google', async (c) => {
         familyId: existingGuardian.familyId,
         role: 'parent',
         guardianId: existingGuardian.id,
+        guardianAccessLevel: existingGuardian.accessLevel === 'admin' ? 'admin' : 'member',
       });
 
       await auditLogRepo.create({
@@ -333,6 +336,7 @@ authRoutes.post('/google', async (c) => {
         isNewUser: false,
         guardianId: existingGuardian.id,
         roleLabel: existingGuardian.roleLabel,
+        guardianAccessLevel: existingGuardian.accessLevel,
       });
     }
   }
@@ -430,6 +434,7 @@ authRoutes.post('/guardian-register', async (c) => {
         passwordHash,
         name: data.name,
         roleLabel: data.roleLabel,
+        accessLevel: invitation.accessLevel,
         invitedBy: invitation.invitedBy,
       })
       .returning();
@@ -455,6 +460,7 @@ authRoutes.post('/guardian-register', async (c) => {
     familyId: invitation.familyId,
     role: 'parent',
     guardianId: guardian.id,
+    guardianAccessLevel: guardian.accessLevel === 'admin' ? 'admin' : 'member',
   });
 
   await auditLogRepo.create({
@@ -486,6 +492,7 @@ authRoutes.post('/guardian-register', async (c) => {
       isNewUser: false,
       guardianId: guardian.id,
       roleLabel: guardian.roleLabel,
+      guardianAccessLevel: guardian.accessLevel,
     },
     201
   );
@@ -577,6 +584,7 @@ authRoutes.post('/guardian-google', async (c) => {
         familyId: invitation.familyId,
         name: googleUser.name || data.roleLabel,
         roleLabel: data.roleLabel,
+        accessLevel: invitation.accessLevel,
         googleEmail: googleUser.email,
         googleName: googleUser.name || null,
         googlePhoto: googleUser.picture || null,
@@ -605,6 +613,7 @@ authRoutes.post('/guardian-google', async (c) => {
     familyId: invitation.familyId,
     role: 'parent',
     guardianId: guardian.id,
+    guardianAccessLevel: guardian.accessLevel === 'admin' ? 'admin' : 'member',
   });
 
   await auditLogRepo.create({
@@ -636,6 +645,7 @@ authRoutes.post('/guardian-google', async (c) => {
       isNewUser: false,
       guardianId: guardian.id,
       roleLabel: guardian.roleLabel,
+      guardianAccessLevel: guardian.accessLevel,
     },
     201
   );

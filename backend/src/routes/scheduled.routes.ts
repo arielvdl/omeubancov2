@@ -1,5 +1,5 @@
 import { Hono } from 'hono';
-import { authMiddleware, requireParent } from '../auth/guards.js';
+import { authMiddleware, requireParent, requireFamilyAdmin } from '../auth/guards.js';
 import { childRepo } from '../repositories/child.repo.js';
 import { scheduledDepositRepo } from '../repositories/scheduled-deposit.repo.js';
 import { createScheduleSchema } from '../validators/index.js';
@@ -23,7 +23,7 @@ scheduledRoutes.get('/children/:id/schedules', requireParent, async (c) => {
   return c.json(schedules);
 });
 
-scheduledRoutes.post('/children/:id/schedules', requireParent, async (c) => {
+scheduledRoutes.post('/children/:id/schedules', requireFamilyAdmin, async (c) => {
   const user = c.get('user');
   const childId = c.req.param('id') as string;
   const body = await c.req.json();
@@ -95,7 +95,7 @@ scheduledRoutes.post('/children/:id/schedules', requireParent, async (c) => {
   return c.json(schedule, 201);
 });
 
-scheduledRoutes.put('/children/:id/schedules/:sid', requireParent, async (c) => {
+scheduledRoutes.put('/children/:id/schedules/:sid', requireFamilyAdmin, async (c) => {
   const user = c.get('user');
   const childId = c.req.param('id') as string;
   const scheduleId = c.req.param('sid') as string;
@@ -126,7 +126,7 @@ scheduledRoutes.put('/children/:id/schedules/:sid', requireParent, async (c) => 
   return c.json(schedule);
 });
 
-scheduledRoutes.post('/children/:id/schedules/:sid/pause', requireParent, async (c) => {
+scheduledRoutes.post('/children/:id/schedules/:sid/pause', requireFamilyAdmin, async (c) => {
   const user = c.get('user');
   const childId = c.req.param('id') as string;
   const scheduleId = c.req.param('sid') as string;
@@ -151,7 +151,7 @@ scheduledRoutes.post('/children/:id/schedules/:sid/pause', requireParent, async 
   return c.json(schedule);
 });
 
-scheduledRoutes.post('/children/:id/schedules/:sid/resume', requireParent, async (c) => {
+scheduledRoutes.post('/children/:id/schedules/:sid/resume', requireFamilyAdmin, async (c) => {
   const user = c.get('user');
   const childId = c.req.param('id') as string;
   const scheduleId = c.req.param('sid') as string;
@@ -180,7 +180,7 @@ scheduledRoutes.post('/children/:id/schedules/:sid/resume', requireParent, async
   return c.json(schedule);
 });
 
-scheduledRoutes.delete('/children/:id/schedules/:sid', requireParent, async (c) => {
+scheduledRoutes.delete('/children/:id/schedules/:sid', requireFamilyAdmin, async (c) => {
   const user = c.get('user');
   const childId = c.req.param('id') as string;
   const scheduleId = c.req.param('sid') as string;

@@ -115,6 +115,12 @@ export const updateFamilySchema = z.object({
   timezone: z.string().min(3).max(50).optional(),
 });
 
+export const guardianAccessLevelSchema = z.enum(['admin', 'member']);
+
+export const createInvitationSchema = z.object({
+  accessLevel: guardianAccessLevelSchema.default('member'),
+});
+
 export const googleAuthSchema = z.object({
   code: z.string().min(1, 'Authorization code is required'),
   redirectUri: z.string().min(1, 'Redirect URI is required'),

@@ -10,6 +10,7 @@ export const guardians = pgTable('guardians', {
   passwordHash: varchar('password_hash', { length: 255 }),
   name: varchar('name', { length: 100 }).notNull(),
   roleLabel: varchar('role_label', { length: 50 }).notNull(),
+  accessLevel: varchar('access_level', { length: 20 }).notNull().default('member'),
   avatarUrl: varchar('avatar_url', { length: 500 }),
   googleEmail: varchar('google_email', { length: 255 }).unique(),
   googleName: varchar('google_name', { length: 255 }),

@@ -1,5 +1,5 @@
 import { Hono } from 'hono';
-import { authMiddleware, requireParent, requireFamilyOwner } from '../auth/guards.js';
+import { authMiddleware, requireParent, requireFamilyOwner, requireFamilyAdmin } from '../auth/guards.js';
 import { familyRepo } from '../repositories/family.repo.js';
 import { updateFamilySchema } from '../validators/index.js';
 import { NotFoundError } from '../middleware/error-handler.js';
@@ -28,7 +28,7 @@ familiesRoutes.get('/', async (c) => {
   });
 });
 
-familiesRoutes.put('/', async (c) => {
+familiesRoutes.put('/', requireFamilyAdmin, async (c) => {
   const user = c.get('user');
   const body = await c.req.json();
   const data = updateFamilySchema.parse(body);

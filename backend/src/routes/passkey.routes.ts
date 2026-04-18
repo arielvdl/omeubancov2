@@ -286,6 +286,7 @@ passkeyRoutes.post('/login-verify', async (c) => {
   const isGuardian = !!passkey.guardianId;
   let guardianId: string | undefined;
   let roleLabel: string | undefined;
+  let guardianAccessLevel: 'admin' | 'member' | undefined;
 
   if (isGuardian) {
     const guardian = await guardianRepo.findById(passkey.guardianId!);
@@ -294,12 +295,14 @@ passkeyRoutes.post('/login-verify', async (c) => {
     }
     guardianId = guardian.id;
     roleLabel = guardian.roleLabel;
+    guardianAccessLevel = guardian.accessLevel === 'admin' ? 'admin' : 'member';
   }
 
   const token = await generateToken({
     familyId: family.id,
     role: 'parent',
     guardianId,
+    guardianAccessLevel,
   });
 
   await auditLogRepo.create({
@@ -320,5 +323,6 @@ passkeyRoutes.post('/login-verify', async (c) => {
     isNewUser: false,
     ...(guardianId && { guardianId }),
     ...(roleLabel && { roleLabel }),
+    ...(guardianAccessLevel && { guardianAccessLevel }),
   });
 });

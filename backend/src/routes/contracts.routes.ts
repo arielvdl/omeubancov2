@@ -1,5 +1,5 @@
 import { Hono } from 'hono';
-import { authMiddleware, requireParent, requireChild } from '../auth/guards.js';
+import { authMiddleware, requireFamilyAdmin } from '../auth/guards.js';
 import { childRepo } from '../repositories/child.repo.js';
 import { contractRepo } from '../repositories/contract.repo.js';
 import { createContractSchema, signContractSchema } from '../validators/index.js';
@@ -35,7 +35,7 @@ contractsRoutes.get('/children/:id/contract', async (c) => {
   });
 });
 
-contractsRoutes.post('/children/:id/contract', requireParent, async (c) => {
+contractsRoutes.post('/children/:id/contract', requireFamilyAdmin, async (c) => {
   const user = c.get('user');
   const childId = c.req.param('id') as string;
   const body = await c.req.json();
@@ -81,7 +81,7 @@ contractsRoutes.post('/children/:id/contract', requireParent, async (c) => {
   );
 });
 
-contractsRoutes.delete('/children/:id/contract', requireParent, async (c) => {
+contractsRoutes.delete('/children/:id/contract', requireFamilyAdmin, async (c) => {
   const user = c.get('user');
   const childId = c.req.param('id') as string;
 

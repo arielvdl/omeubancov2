@@ -1,5 +1,5 @@
 import { Hono } from 'hono';
-import { authMiddleware, requireParent } from '../auth/guards.js';
+import { authMiddleware, requireFamilyAdmin } from '../auth/guards.js';
 import { childRepo } from '../repositories/child.repo.js';
 import { transactionRepo } from '../repositories/transaction.repo.js';
 import type { SelectTransaction } from '../repositories/transaction.repo.js';
@@ -17,7 +17,7 @@ export const transactionsRoutes = new Hono();
 
 transactionsRoutes.use('/*', authMiddleware);
 
-transactionsRoutes.post('/children/:id/deposit', requireParent, async (c) => {
+transactionsRoutes.post('/children/:id/deposit', requireFamilyAdmin, async (c) => {
   const user = c.get('user');
   const childId = c.req.param('id') as string;
   const body = await c.req.json();
@@ -105,6 +105,10 @@ transactionsRoutes.post('/children/:id/withdraw', async (c) => {
   }
   if (user.role === 'child' && user.childId !== childId) {
     throw new ForbiddenError('Can only withdraw from own account');
+  }
+  const guardianAccessLevel = (user as typeof user & { guardianAccessLevel?: 'admin' | 'member' }).guardianAccessLevel;
+  if (user.role === 'parent' && user.guardianId && guardianAccessLevel !== 'admin') {
+    throw new ForbiddenError('Family admin access required');
   }
 
   const body = await c.req.json();

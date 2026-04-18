@@ -1,6 +1,7 @@
 import { Hono } from 'hono';
 import { createRemoteJWKSet, jwtVerify } from 'jose';
 import { familyRepo } from '../repositories/family.repo.js';
+import { guardianRepo } from '../repositories/guardian.repo.js';
 import { generateToken } from '../auth/index.js';
 import { auditLogRepo } from '../repositories/audit-log.repo.js';
 import { env } from '../config/index.js';
@@ -119,6 +120,38 @@ oauthCallbackRoutes.get('/google/callback', async (c) => {
         currency: existingFamily.currency,
         isNewUser: 'false',
       });
+    }
+
+    const existingGuardian = await guardianRepo.findByGoogleEmail(googleUser.email);
+    if (existingGuardian && existingGuardian.status === 'active') {
+      const guardianFamily = await familyRepo.findById(existingGuardian.familyId);
+      if (guardianFamily) {
+        const guardianAccessLevel =
+          existingGuardian.accessLevel === 'admin' ? 'admin' : 'member';
+        const token = await generateToken({
+          familyId: existingGuardian.familyId,
+          role: 'parent',
+          guardianId: existingGuardian.id,
+          guardianAccessLevel,
+        });
+
+        await auditLogRepo.create({
+          familyId: existingGuardian.familyId,
+          action: 'guardian.google_login',
+          actor: `guardian:${existingGuardian.id}`,
+        });
+
+        return redirectToApp(c, returnUrl, {
+          token,
+          familyId: guardianFamily.id,
+          familyName: guardianFamily.name,
+          currency: guardianFamily.currency,
+          isNewUser: 'false',
+          guardianId: existingGuardian.id,
+          roleLabel: existingGuardian.roleLabel,
+          guardianAccessLevel,
+        });
+      }
     }
 
     // New user

@@ -1,5 +1,5 @@
 import { Hono } from 'hono';
-import { authMiddleware, requireParent } from '../auth/guards.js';
+import { authMiddleware, requireParent, requireFamilyAdmin } from '../auth/guards.js';
 import { childRepo } from '../repositories/child.repo.js';
 import { createChildSchema, updateChildSchema } from '../validators/index.js';
 import { NotFoundError, ForbiddenError } from '../middleware/error-handler.js';
@@ -28,7 +28,7 @@ childrenRoutes.get('/', requireParent, async (c) => {
   );
 });
 
-childrenRoutes.post('/', requireParent, async (c) => {
+childrenRoutes.post('/', requireFamilyAdmin, async (c) => {
   const user = c.get('user');
   const body = await c.req.json();
   const data = createChildSchema.parse(body);
@@ -111,7 +111,7 @@ childrenRoutes.get('/:id', async (c) => {
   });
 });
 
-childrenRoutes.put('/:id', requireParent, async (c) => {
+childrenRoutes.put('/:id', requireFamilyAdmin, async (c) => {
   const user = c.get('user');
   const childId = c.req.param('id') as string;
   const body = await c.req.json();
@@ -161,7 +161,7 @@ childrenRoutes.put('/:id', requireParent, async (c) => {
   });
 });
 
-childrenRoutes.delete('/:id', requireParent, async (c) => {
+childrenRoutes.delete('/:id', requireFamilyAdmin, async (c) => {
   const user = c.get('user');
   const childId = c.req.param('id') as string;
 
