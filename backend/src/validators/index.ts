@@ -1,6 +1,8 @@
 import { z } from 'zod';
 import { SUPPORTED_CURRENCIES } from '../config/currencies.js';
 
+const MAX_AMOUNT_CENTS = 100_000_000;
+
 export const registerSchema = z.object({
   email: z.string().email().max(255),
   password: z.string().min(6).max(128),
@@ -44,13 +46,21 @@ export const updateChildSchema = z.object({
 });
 
 export const depositSchema = z.object({
-  amount: z.number().int().positive('Amount must be a positive integer (in cents)'),
+  amount: z
+    .number()
+    .int()
+    .positive('Amount must be a positive integer (in cents)')
+    .max(MAX_AMOUNT_CENTS, 'Amount exceeds maximum allowed'),
   category: z.enum(['mesada', 'presente', 'tarefa', 'bonus', 'outro']),
   description: z.string().max(500).optional().default(''),
 });
 
 export const withdrawSchema = z.object({
-  amount: z.number().int().positive('Amount must be a positive integer (in cents)'),
+  amount: z
+    .number()
+    .int()
+    .positive('Amount must be a positive integer (in cents)')
+    .max(MAX_AMOUNT_CENTS, 'Amount exceeds maximum allowed'),
   category: z.enum(['compra', 'presente', 'tarefa', 'bonus', 'outro']).default('compra'),
   description: z.string().max(500).optional().default(''),
   receiptUrl: z.string().url().max(500).optional(),
@@ -58,7 +68,11 @@ export const withdrawSchema = z.object({
 
 export const createScheduleSchema = z
   .object({
-    amount: z.number().int().positive('Amount must be a positive integer (in cents)'),
+    amount: z
+      .number()
+      .int()
+      .positive('Amount must be a positive integer (in cents)')
+      .max(MAX_AMOUNT_CENTS, 'Amount exceeds maximum allowed'),
     frequency: z.enum(['daily', 'weekly', 'monthly']),
     dayOfWeek: z.number().int().min(0).max(6).optional(),
     dayOfMonth: z.number().int().min(1).max(28).optional(),
@@ -163,14 +177,14 @@ export const passkeyLoginOptionsSchema = z.object({
 export const createWishItemSchema = z.object({
   photoUrl: z.string().url().max(500),
   name: z.string().max(200).optional(),
-  priceCents: z.number().int().min(0).optional(),
+  priceCents: z.number().int().min(0).max(MAX_AMOUNT_CENTS).optional(),
   desireLevel: z.number().int().min(1).max(3).default(2),
   note: z.string().max(500).optional(),
 });
 
 export const updateWishItemSchema = z.object({
   name: z.string().max(200).optional().nullable(),
-  priceCents: z.number().int().min(0).optional().nullable(),
+  priceCents: z.number().int().min(0).max(MAX_AMOUNT_CENTS).optional().nullable(),
   desireLevel: z.number().int().min(1).max(3).optional(),
   status: z.enum(['active', 'conquered', 'archived']).optional(),
   note: z.string().max(500).optional().nullable(),
