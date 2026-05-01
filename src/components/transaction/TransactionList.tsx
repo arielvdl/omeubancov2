@@ -1,9 +1,10 @@
 import React, { useCallback } from 'react';
-import { View, Text, FlatList, ActivityIndicator, RefreshControl } from 'react-native';
+import { View, FlatList, ActivityIndicator, RefreshControl } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import type { Transaction } from '@/src/types/transaction';
 import { TransactionItem } from '@/src/components/transaction/TransactionItem';
-import { MaterialCommunityIcons } from '@expo/vector-icons';
+import { EmptyState } from '@/src/components/ui/EmptyState';
+import { useNetworkStore } from '@/src/stores/useNetworkStore';
 
 interface TransactionListProps {
   transactions: Transaction[];
@@ -25,6 +26,7 @@ export function TransactionList({
   onRefresh,
 }: TransactionListProps) {
   const { t } = useTranslation();
+  const online = useNetworkStore((s) => s.online);
 
   const renderItem = useCallback(
     ({ item }: { item: Transaction }) => (
@@ -40,24 +42,30 @@ export function TransactionList({
     [],
   );
 
-  const renderEmpty = useCallback(
-    () => (
-      <View className="items-center justify-center py-24 px-8">
-        <MaterialCommunityIcons
-          name="receipt"
-          size={80}
-          color="#e5e5d8"
+  const renderEmpty = useCallback(() => {
+    if (!online) {
+      return (
+        <View className="py-12 px-4">
+          <EmptyState
+            variant="offline"
+            title={t('network.offline', 'Sem conexão com a internet')}
+            hint={t('network.offlineHint', 'Verifique sua conexão e tente novamente.')}
+            actionLabel={onRefresh ? t('common.retry', 'Tentar novamente') : undefined}
+            onAction={onRefresh}
+          />
+        </View>
+      );
+    }
+    return (
+      <View className="py-12 px-4">
+        <EmptyState
+          icon="receipt"
+          title={emptyMessage ?? t('history.emptyState')}
+          hint={t('dashboard.noTransactionsHint')}
         />
-        <Text className="text-[20px] font-sans-semibold text-text-secondary mt-6 text-center" style={{ lineHeight: 28 }}>
-          {emptyMessage ?? t('history.emptyState')}
-        </Text>
-        <Text className="text-[15px] font-sans text-text-secondary mt-2.5 text-center" style={{ lineHeight: 22 }}>
-          {t('dashboard.noTransactionsHint')}
-        </Text>
       </View>
-    ),
-    [emptyMessage, t],
-  );
+    );
+  }, [emptyMessage, t, online, onRefresh]);
 
   const renderFooter = useCallback(() => {
     if (!isLoading) return null;

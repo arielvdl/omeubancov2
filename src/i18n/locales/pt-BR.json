@@ -153,6 +153,12 @@
       "goToDashboard": "Ir para o banco"
     }
   },
+  "network": {
+    "offline": "Sem conexão com a internet",
+    "offlineHint": "Verifique sua conexão e tente novamente.",
+    "timeout": "Conexão lenta — tentando novamente",
+    "serverError": "Erro no servidor. Tente novamente em instantes."
+  },
   "dashboard": {
     "greeting": "Olá, {{name}}!",
     "greetingMorning": "Bom dia, {{name}}!",

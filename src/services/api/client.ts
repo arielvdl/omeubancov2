@@ -1,6 +1,10 @@
 import axios from 'axios';
 import * as SecureStore from 'expo-secure-store';
 import { logger } from '@/src/utils/logger';
+import {
+  classifyAxiosError,
+  useNetworkStore,
+} from '@/src/stores/useNetworkStore';
 
 const API_BASE_URL =
   process.env.EXPO_PUBLIC_API_URL ?? 'http://localhost:3000/api/v1';
@@ -30,14 +34,18 @@ apiClient.interceptors.request.use(async (config) => {
   return config;
 });
 
-// Response interceptor -- clears token on 401
+// Response interceptor -- clears token on 401, tracks network state
 apiClient.interceptors.response.use(
-  (response) => response,
+  (response) => {
+    useNetworkStore.getState().reportSuccess();
+    return response;
+  },
   (error) => {
     if (error.response?.status === 401) {
       logger.warn('[API] 401 Unauthorized — clearing token');
       SecureStore.deleteItemAsync('auth_token');
     }
+    useNetworkStore.getState().reportError(classifyAxiosError(error));
     return Promise.reject(error);
   },
 );

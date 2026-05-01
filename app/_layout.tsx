@@ -6,6 +6,8 @@ import { StatusBar } from "expo-status-bar";
 import * as SplashScreen from "expo-splash-screen";
 import { Platform } from "react-native";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
+import { SafeAreaProvider } from "react-native-safe-area-context";
+import { NetworkBanner } from "@/src/components/ui/NetworkBanner";
 import {
   useFonts,
   PlusJakartaSans_400Regular,
@@ -148,6 +150,7 @@ export default function RootLayout() {
   if (!fontsLoaded || !appReady) return null;
 
   return (
+    <SafeAreaProvider>
     <GestureHandlerRootView style={{ flex: 1 }}>
       <Stack
         screenOptions={{
@@ -180,8 +183,10 @@ export default function RootLayout() {
           }}
         />
       </Stack>
+      <NetworkBanner />
       {!splashFinished && <AnimatedSplash onFinish={handleSplashFinish} />}
       <StatusBar style="auto" />
     </GestureHandlerRootView>
+    </SafeAreaProvider>
   );
 }

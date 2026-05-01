@@ -21,6 +21,8 @@ import { haptics } from '@/src/utils/haptics';
 import { GoalStack } from '@/src/components/wishlist/GoalProgressCard';
 import { useWishlistStore } from '@/src/stores/useWishlistStore';
 import { wishlistApi } from '@/src/services/api/wishlist';
+import { useNetworkStore } from '@/src/stores/useNetworkStore';
+import { EmptyState } from '@/src/components/ui/EmptyState';
 import type { Transaction } from '@/src/types/transaction';
 
 export default function DashboardScreen() {
@@ -40,6 +42,7 @@ export default function DashboardScreen() {
   const [refreshing, setRefreshing] = useState(false);
   const [selectedTx, setSelectedTx] = useState<Transaction | null>(null);
   const bottomSheetRef = useRef<BottomSheet>(null);
+  const online = useNetworkStore((s) => s.online);
 
 
   const recentTransactions = useMemo(() => {
@@ -269,17 +272,23 @@ export default function DashboardScreen() {
               </View>
             ))}
           </Card>
+        ) : !online ? (
+          <Card>
+            <EmptyState
+              variant="offline"
+              title={t('network.offline', 'Sem conexão com a internet')}
+              hint={t('network.offlineHint', 'Verifique sua conexão e tente novamente.')}
+              actionLabel={t('common.retry', 'Tentar novamente')}
+              onAction={onRefresh}
+            />
+          </Card>
         ) : (
           <Card>
-            <View className="items-center py-12">
-              <MaterialCommunityIcons name="receipt" size={64} color="#e5e5d8" />
-              <Text className="text-[18px] font-sans-semibold text-text-secondary mt-5">
-                {t('dashboard.noTransactions')}
-              </Text>
-              <Text className="text-[15px] font-sans text-text-secondary mt-2">
-                {t('dashboard.noTransactionsHint')}
-              </Text>
-            </View>
+            <EmptyState
+              icon="receipt"
+              title={t('dashboard.noTransactions')}
+              hint={t('dashboard.noTransactionsHint')}
+            />
           </Card>
         )}
       </ScrollView>
