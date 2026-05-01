@@ -7,7 +7,18 @@ import * as SplashScreen from "expo-splash-screen";
 import { Platform } from "react-native";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { SafeAreaProvider } from "react-native-safe-area-context";
+import { PersistQueryClientProvider } from "@tanstack/react-query-persist-client";
 import { NetworkBanner } from "@/src/components/ui/NetworkBanner";
+import { queryClient } from "@/src/services/queryClient";
+import { createFsPersister } from "@/src/services/persister";
+import { useMutationQueueDrain } from "@/src/hooks/useMutationQueueDrain";
+
+const fsPersister = createFsPersister();
+
+function MutationQueueDrainer() {
+  useMutationQueueDrain();
+  return null;
+}
 import {
   useFonts,
   PlusJakartaSans_400Regular,
@@ -150,8 +161,17 @@ export default function RootLayout() {
   if (!fontsLoaded || !appReady) return null;
 
   return (
+    <PersistQueryClientProvider
+      client={queryClient}
+      persistOptions={{
+        persister: fsPersister,
+        maxAge: 24 * 60 * 60 * 1000,
+        buster: 'v1',
+      }}
+    >
     <SafeAreaProvider>
     <GestureHandlerRootView style={{ flex: 1 }}>
+      <MutationQueueDrainer />
       <Stack
         screenOptions={{
           headerShown: false,
@@ -188,5 +208,6 @@ export default function RootLayout() {
       <StatusBar style="auto" />
     </GestureHandlerRootView>
     </SafeAreaProvider>
+    </PersistQueryClientProvider>
   );
 }
