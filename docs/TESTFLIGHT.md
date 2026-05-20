@@ -416,3 +416,4 @@ O Export Compliance so precisa ser resolvido na primeira vez.
 | 1.0.3 (29) | 2026-05-20 | Re-upload com bump de build number (ITMS-90189 no 28). Mesmo conteúdo do 28. |
 | 1.0.3 (30) | 2026-05-20 | Fix cold-boot network race: banner "Sem conexão" false-positive + hidratação vazia. NetworkStore grace 5s + threshold 2 falhas consecutivas. _layout.tsx withRetry 3x backoff 500ms→1s→2s na hidratação inicial. Sem nativo novo. |
 | 1.0.3 (31) | 2026-05-20 | Build 30 ainda mostrava banner em alguns cenários. Substituir heurística por `@react-native-community/netinfo` (11.4.1) — `online` controlado pelo OS, axios errors só atualizam `lastError`. Verdade de conectividade vem do iOS NetworkFramework. |
+| 1.0.3 (32) | 2026-05-20 | Build 31 ainda mostrava banner. Causa: `isInternetReachable` (probe Apple `captive.apple.com`) falha falso-positiva em operadoras/redes com DNS filter/proxy. Fix: usar apenas `isConnected` (link-layer status do OS), descartar probe. |
