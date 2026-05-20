@@ -1,4 +1,5 @@
 import { create } from 'zustand';
+import NetInfo, { NetInfoState } from '@react-native-community/netinfo';
 
 export type NetworkErrorKind = 'network' | 'server' | 'timeout' | null;
 
@@ -6,71 +7,58 @@ interface NetworkState {
   online: boolean;
   lastError: NetworkErrorKind;
   lastCheckedAt: number;
-  consecutiveFailures: number;
-  bootedAt: number;
   setOnline: (online: boolean) => void;
   reportError: (kind: Exclude<NetworkErrorKind, null>) => void;
   reportSuccess: () => void;
 }
 
-// Suppress offline banner during the first few seconds after boot — iOS often
-// reports the cellular/WiFi adapter as up before it's actually routable, so the
-// first request can fail with ERR_NETWORK / timeout despite real connectivity.
-const BOOT_GRACE_MS = 5_000;
-
-// Require multiple consecutive transient errors before flipping to offline, so a
-// single cold-boot flake or DNS hiccup doesn't paint the user as disconnected.
-const FAILURE_THRESHOLD = 2;
-
 export const useNetworkStore = create<NetworkState>((set, get) => ({
+  // Optimistic default — the NetInfo subscription below will correct this on
+  // the first event. Starting `true` avoids the "Sem conexão" banner flashing
+  // during the JS bundle bootstrap before NetInfo emits its initial value.
   online: true,
   lastError: null,
   lastCheckedAt: 0,
-  consecutiveFailures: 0,
-  bootedAt: Date.now(),
   setOnline: (online) =>
     set({
       online,
       lastCheckedAt: Date.now(),
-      consecutiveFailures: online ? 0 : get().consecutiveFailures,
     }),
   reportError: (kind) => {
-    const state = get();
-    const now = Date.now();
-
-    if (kind === 'server') {
-      // Server returned an error — connectivity itself is fine.
-      set({ lastError: kind, lastCheckedAt: now, consecutiveFailures: 0 });
-      return;
-    }
-
-    // kind === 'network' | 'timeout'
-    const consecutive = state.consecutiveFailures + 1;
-    const inGracePeriod = now - state.bootedAt < BOOT_GRACE_MS;
-    const shouldFlipOffline =
-      state.online &&
-      !inGracePeriod &&
-      consecutive >= FAILURE_THRESHOLD;
-
-    set({
-      online: shouldFlipOffline ? false : state.online,
-      lastError: kind,
-      lastCheckedAt: now,
-      consecutiveFailures: consecutive,
-    });
+    // Errors only update lastError so retry UX has context. They never flip
+    // `online` — that flag is owned exclusively by NetInfo (the OS-level
+    // truth), so axios cold-boot races or single backend hiccups stop being
+    // mistaken for "no internet".
+    set({ lastError: kind, lastCheckedAt: Date.now() });
   },
   reportSuccess: () => {
-    const state = get();
-    if (!state.online || state.lastError || state.consecutiveFailures > 0) {
-      set({
-        online: true,
-        lastError: null,
-        lastCheckedAt: Date.now(),
-        consecutiveFailures: 0,
-      });
+    if (get().lastError) {
+      set({ lastError: null, lastCheckedAt: Date.now() });
     }
   },
 }));
+
+function applyNetInfo(state: NetInfoState) {
+  const online =
+    state.isConnected === true && state.isInternetReachable !== false;
+  const current = useNetworkStore.getState().online;
+  if (online !== current) {
+    useNetworkStore.getState().setOnline(online);
+  }
+}
+
+// Subscribe once at module load. NetInfo handles its own lifecycle and is safe
+// to listen to for the entire app session.
+NetInfo.addEventListener(applyNetInfo);
+
+// Kick off an immediate fetch so the first paint reflects real state instead
+// of the optimistic `true` default.
+NetInfo.fetch()
+  .then(applyNetInfo)
+  .catch(() => {
+    // NetInfo can reject in degraded environments (e.g. permission denied);
+    // keep optimistic `online: true` rather than failing closed.
+  });
 
 export function classifyAxiosError(error: unknown): Exclude<NetworkErrorKind, null> {
   const err = error as { code?: string; message?: string; response?: { status?: number } };
