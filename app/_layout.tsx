@@ -36,6 +36,31 @@ import { logger, captureError } from "@/src/utils/logger";
 import { useNotifications } from "@/src/hooks/useNotifications";
 import AnimatedSplash from "@/src/components/ui/AnimatedSplash";
 
+// iOS often reports the network adapter as up before it's actually routable, so
+// the first request on cold boot can fail with ERR_NETWORK / 15s timeout. Retry
+// the initial hydration a few times with backoff before giving up; once a
+// connection is warm, subsequent calls return in <1s.
+async function withRetry<T>(fn: () => Promise<T>, attempts = 3): Promise<T> {
+  let lastErr: unknown;
+  for (let i = 0; i < attempts; i++) {
+    try {
+      return await fn();
+    } catch (err) {
+      lastErr = err;
+      const e = err as { code?: string; message?: string; response?: unknown };
+      const isTransient =
+        !e?.response ||
+        e?.code === 'ECONNABORTED' ||
+        e?.code === 'ETIMEDOUT' ||
+        e?.code === 'ERR_NETWORK' ||
+        (typeof e?.message === 'string' && e.message.toLowerCase().includes('timeout'));
+      if (!isTransient || i === attempts - 1) throw err;
+      await new Promise((r) => setTimeout(r, 500 * 2 ** i));
+    }
+  }
+  throw lastErr;
+}
+
 Sentry.init({
   dsn: process.env.EXPO_PUBLIC_SENTRY_DSN,
   tracesSampleRate: 0.2,
@@ -100,10 +125,9 @@ export default function RootLayout() {
       logger.info('[App] API URL:', process.env.EXPO_PUBLIC_API_URL);
       if (token) {
         try {
-          const [childrenRes, familyRes] = await Promise.all([
-            bankApi.getChildren(),
-            bankApi.getFamily(),
-          ]);
+          const [childrenRes, familyRes] = await withRetry(() =>
+            Promise.all([bankApi.getChildren(), bankApi.getFamily()]),
+          );
           if (familyRes.data) {
             useBankStore.getState().setFamily(familyRes.data);
           }
