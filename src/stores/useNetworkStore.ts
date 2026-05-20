@@ -39,8 +39,12 @@ export const useNetworkStore = create<NetworkState>((set, get) => ({
 }));
 
 function applyNetInfo(state: NetInfoState) {
-  const online =
-    state.isConnected === true && state.isInternetReachable !== false;
+  // Only trust the link-layer status (`isConnected`). `isInternetReachable`
+  // performs an Apple captive-portal probe that returns false on many cellular
+  // operators and corporate networks even when the user has working internet,
+  // which produced the persistent "Sem conexão" banner reported on builds 30
+  // and 31.
+  const online = state.isConnected !== false;
   const current = useNetworkStore.getState().online;
   if (online !== current) {
     useNetworkStore.getState().setOnline(online);
