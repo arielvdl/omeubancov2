@@ -12,10 +12,27 @@ interface NetworkState {
   reportSuccess: () => void;
 }
 
+// Configure NetInfo BEFORE any subscription. Using a 204 endpoint we control
+// (or Google's well-known one) avoids the iOS captive-portal probe to
+// `captive.apple.com` that returns false positives on cellular DNS-filtered
+// networks. Documented quirk: NetInfo on iOS with New Architecture
+// (newArchEnabled: true) emits the initial state with `isConnected: false`
+// until the first reachability resolves — we treat `null` as "unknown" and
+// only flip the banner once we've actually seen a `false`.
+NetInfo.configure({
+  reachabilityUrl: 'https://clients3.google.com/generate_204',
+  reachabilityTest: async (response) => response.status === 204,
+  reachabilityLongTimeout: 60_000,
+  reachabilityShortTimeout: 5_000,
+  reachabilityRequestTimeout: 15_000,
+  reachabilityShouldRun: () => true,
+  shouldFetchWiFiSSID: false,
+  useNativeReachability: true,
+});
+
 export const useNetworkStore = create<NetworkState>((set, get) => ({
-  // Optimistic default — the NetInfo subscription below will correct this on
-  // the first event. Starting `true` avoids the "Sem conexão" banner flashing
-  // during the JS bundle bootstrap before NetInfo emits its initial value.
+  // Optimistic default. We only ever flip to false after seeing an actual
+  // `isConnected: false` from NetInfo — never on `null` (unknown).
   online: true,
   lastError: null,
   lastCheckedAt: 0,
@@ -25,10 +42,9 @@ export const useNetworkStore = create<NetworkState>((set, get) => ({
       lastCheckedAt: Date.now(),
     }),
   reportError: (kind) => {
-    // Errors only update lastError so retry UX has context. They never flip
-    // `online` — that flag is owned exclusively by NetInfo (the OS-level
-    // truth), so axios cold-boot races or single backend hiccups stop being
-    // mistaken for "no internet".
+    // Errors only annotate `lastError` for retry UX. `online` is owned by
+    // NetInfo so an axios cold-boot flake or a single 5xx never paints the
+    // banner.
     set({ lastError: kind, lastCheckedAt: Date.now() });
   },
   reportSuccess: () => {
@@ -39,29 +55,25 @@ export const useNetworkStore = create<NetworkState>((set, get) => ({
 }));
 
 function applyNetInfo(state: NetInfoState) {
-  // Only trust the link-layer status (`isConnected`). `isInternetReachable`
-  // performs an Apple captive-portal probe that returns false on many cellular
-  // operators and corporate networks even when the user has working internet,
-  // which produced the persistent "Sem conexão" banner reported on builds 30
-  // and 31.
-  const online = state.isConnected !== false;
+  // `isConnected` is the link-layer truth (NWPathMonitor). On iOS New Arch we
+  // sometimes see the very first emission as `null` while the native module
+  // is still resolving — treat that as "unknown" and keep the optimistic
+  // `online: true` rather than flashing the offline banner.
+  if (state.isConnected === null) return;
+  const online = state.isConnected === true;
   const current = useNetworkStore.getState().online;
   if (online !== current) {
     useNetworkStore.getState().setOnline(online);
   }
 }
 
-// Subscribe once at module load. NetInfo handles its own lifecycle and is safe
-// to listen to for the entire app session.
 NetInfo.addEventListener(applyNetInfo);
 
-// Kick off an immediate fetch so the first paint reflects real state instead
-// of the optimistic `true` default.
 NetInfo.fetch()
   .then(applyNetInfo)
   .catch(() => {
-    // NetInfo can reject in degraded environments (e.g. permission denied);
-    // keep optimistic `online: true` rather than failing closed.
+    // NetInfo can reject in degraded environments (e.g. permission denied) —
+    // keep the optimistic `online: true` rather than failing closed.
   });
 
 export function classifyAxiosError(error: unknown): Exclude<NetworkErrorKind, null> {
