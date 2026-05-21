@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { Animated, Pressable, Text, View, Platform, StyleSheet } from 'react-native';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -9,21 +9,40 @@ interface NetworkBannerProps {
   onRetry?: () => void;
 }
 
+const FADE_DURATION = 220;
+
 export function NetworkBanner({ onRetry }: NetworkBannerProps) {
   const { t } = useTranslation();
   const insets = useSafeAreaInsets();
   const online = useNetworkStore((s) => s.online);
   const lastError = useNetworkStore((s) => s.lastError);
   const visible = !online;
-  const translateY = useRef(new Animated.Value(-80)).current;
+  const opacity = useRef(new Animated.Value(0)).current;
+  // Defer unmount until the fade-out animation finishes so the banner can't
+  // linger as a partially-visible strip when translateY-only animation left
+  // residual pixels on devices with large safe-area insets.
+  const [mounted, setMounted] = useState(visible);
 
   useEffect(() => {
-    Animated.timing(translateY, {
-      toValue: visible ? 0 : -80,
-      duration: 220,
-      useNativeDriver: true,
-    }).start();
-  }, [visible, translateY]);
+    if (visible) {
+      setMounted(true);
+      Animated.timing(opacity, {
+        toValue: 1,
+        duration: FADE_DURATION,
+        useNativeDriver: true,
+      }).start();
+    } else {
+      Animated.timing(opacity, {
+        toValue: 0,
+        duration: FADE_DURATION,
+        useNativeDriver: true,
+      }).start(({ finished }) => {
+        if (finished) setMounted(false);
+      });
+    }
+  }, [visible, opacity]);
+
+  if (!mounted) return null;
 
   const message =
     lastError === 'timeout'
@@ -37,7 +56,7 @@ export function NetworkBanner({ onRetry }: NetworkBannerProps) {
         styles.wrap,
         {
           paddingTop: insets.top + 8,
-          transform: [{ translateY }],
+          opacity,
         },
       ]}
       accessibilityRole="alert"
