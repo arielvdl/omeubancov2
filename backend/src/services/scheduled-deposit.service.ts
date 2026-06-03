@@ -15,9 +15,11 @@ function calculateNextRun(frequency: string, currentNextRun: Date): Date {
       next.setDate(next.getDate() + 7);
       break;
     case 'monthly': {
-      const currentDay = next.getDate();
+      const cappedDay = Math.min(next.getDate(), 28);
+      // Set day to 1 BEFORE changing month so e.g. Jan 31 + 1 month doesn't
+      // overflow into March (Feb 31 -> Mar 3) before the cap is applied.
+      next.setDate(1);
       next.setMonth(next.getMonth() + 1);
-      const cappedDay = Math.min(currentDay, 28);
       next.setDate(cappedDay);
       break;
     }
@@ -25,6 +27,22 @@ function calculateNextRun(frequency: string, currentNextRun: Date): Date {
       next.setDate(next.getDate() + 1);
   }
 
+  return next;
+}
+
+// Advance past NOW() in one shot so a schedule that fell behind (e.g. backend
+// downtime longer than one period) is not stuck advancing a single period per
+// cron tick. Missed periods are COLLAPSED into a single payment — we pay once
+// and jump to the next FUTURE occurrence, deliberately avoiding a surprise
+// lump sum of N back-dated deposits. With the healthy 15-min cron this loop
+// runs zero times (next is already in the future).
+function computeNextFutureRun(frequency: string, currentNextRun: Date): Date {
+  let next = calculateNextRun(frequency, currentNextRun);
+  const now = Date.now();
+  // Guard caps the loop (>1 year of daily) against a pathological stored date.
+  for (let i = 0; next.getTime() <= now && i < 500; i++) {
+    next = calculateNextRun(frequency, next);
+  }
   return next;
 }
 
@@ -39,7 +57,19 @@ export const scheduledDepositService = {
 
     for (const deposit of dueDeposits) {
       try {
+        const nextRunAt = computeNextFutureRun(deposit.frequency, deposit.nextRunAt);
+        let claimed = false;
+
         await rawSql.begin(async (txSql) => {
+          // Idempotency gate: atomically claim the row (advance next_run_at only
+          // if still active AND still due). Under concurrent/duplicate cron runs
+          // only one worker wins; the loser gets 0 rows and must NOT pay again.
+          const claim = await scheduledDepositRepo.claimDueInTx(txSql, deposit.id, nextRunAt);
+          if (claim.length === 0) {
+            return; // already processed by another run — skip without double-paying
+          }
+          claimed = true;
+
           const child = await childRepo.findByIdForUpdate(txSql, deposit.childId);
           if (!child) {
             throw new Error(`Child ${deposit.childId} not found`);
@@ -60,10 +90,12 @@ export const scheduledDepositService = {
           });
 
           await childRepo.updateBalanceInTx(txSql, deposit.childId, newBalance);
-
-          const nextRunAt = calculateNextRun(deposit.frequency, deposit.nextRunAt);
-          await scheduledDepositRepo.updateNextRunInTx(txSql, deposit.id, nextRunAt, new Date());
+          // next_run_at / last_run_at were already advanced by claimDueInTx.
         });
+
+        if (!claimed) {
+          continue; // lost the race — no payment, no notification
+        }
 
         processed++;
 

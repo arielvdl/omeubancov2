@@ -72,4 +72,21 @@ export const scheduledDepositRepo = {
       WHERE id = ${id}::uuid
     `;
   },
+
+  // Atomically CLAIM a due schedule: advance next_run_at only if the row is
+  // still active AND still due (next_run_at <= NOW()). The conditional WHERE +
+  // row-level lock makes this the idempotency gate — under two concurrent cron
+  // runs (Cloud Run scaling / retry), only ONE UPDATE matches; the loser sees
+  // next_run_at already advanced and gets 0 rows, so it must NOT pay again.
+  // Returns the claimed row id(s); empty array means "already processed".
+  async claimDueInTx(txSql: TxSql, id: string, nextRunAt: Date): Promise<{ id: string }[]> {
+    const nextRunIso = nextRunAt.toISOString();
+    const rows = (await txSql`
+      UPDATE scheduled_deposits
+      SET next_run_at = ${nextRunIso}::timestamptz, last_run_at = NOW(), updated_at = NOW()
+      WHERE id = ${id}::uuid AND status = 'active' AND next_run_at <= NOW()
+      RETURNING id
+    `) as { id: string }[];
+    return rows;
+  },
 };
