@@ -101,6 +101,30 @@ npx expo prebuild --clean --platform ios 2>&1 | tail -3
 
 echo -e "${GREEN}[OK] Prebuild concluído${NC}"
 
+# --- Forçar aps-environment=production (CRÍTICO para push) ---
+# 'expo prebuild --clean' regenera o entitlements com aps-environment=development.
+# Builds de distribuição (TestFlight/App Store) entregam pelo gateway APNs de
+# PRODUÇÃO; com 'development' o token fica no sandbox e a Apple descarta TODOS os
+# pushes silenciosamente. Reescrevemos AQUI (após o prebuild, antes do archive),
+# pois é o único momento em que o arquivo existe com o valor errado.
+ENTITLEMENTS="$IOS_DIR/OMeuBanco/OMeuBanco.entitlements"
+if [ -f "$ENTITLEMENTS" ]; then
+    if /usr/libexec/PlistBuddy -c "Print :aps-environment" "$ENTITLEMENTS" >/dev/null 2>&1; then
+        /usr/libexec/PlistBuddy -c "Set :aps-environment production" "$ENTITLEMENTS"
+    else
+        /usr/libexec/PlistBuddy -c "Add :aps-environment string production" "$ENTITLEMENTS"
+    fi
+    APS_ENV=$(/usr/libexec/PlistBuddy -c "Print :aps-environment" "$ENTITLEMENTS")
+    if [ "$APS_ENV" != "production" ]; then
+        echo -e "${RED}[ERRO] Falha ao definir aps-environment=production (valor: $APS_ENV)${NC}"
+        exit 1
+    fi
+    echo -e "${GREEN}[OK] aps-environment forçado para 'production' (push em produção)${NC}"
+else
+    echo -e "${RED}[ERRO] Entitlements não encontrado: $ENTITLEMENTS${NC}"
+    exit 1
+fi
+
 # NOTA: NÃO remover NSMicrophoneUsageDescription — expo-audio precisa da chave
 # no Info.plist mesmo que microphonePermission=false no app.json.
 # A remoção causava crash silencioso na inicialização do áudio (build 25).
