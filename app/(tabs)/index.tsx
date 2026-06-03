@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { View, Text, ScrollView, RefreshControl, Pressable, TouchableOpacity } from 'react-native';
-import { useRouter } from 'expo-router';
+import { View, Text, ScrollView, RefreshControl, Pressable, TouchableOpacity, ActivityIndicator } from 'react-native';
+import { useRouter, useFocusEffect } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import BottomSheet from '@gorhom/bottom-sheet';
@@ -23,6 +23,7 @@ import { useWishlistStore } from '@/src/stores/useWishlistStore';
 import { wishlistApi } from '@/src/services/api/wishlist';
 import { useNetworkStore } from '@/src/stores/useNetworkStore';
 import { EmptyState } from '@/src/components/ui/EmptyState';
+import { withRetry } from '@/src/utils/withRetry';
 import type { Transaction } from '@/src/types/transaction';
 
 export default function DashboardScreen() {
@@ -40,9 +41,11 @@ export default function DashboardScreen() {
   const setWishItems = useWishlistStore((s) => s.setItems);
 
   const [refreshing, setRefreshing] = useState(false);
+  const [loadError, setLoadError] = useState(false);
   const [selectedTx, setSelectedTx] = useState<Transaction | null>(null);
   const bottomSheetRef = useRef<BottomSheet>(null);
   const online = useNetworkStore((s) => s.online);
+  const prevOnline = useRef(online);
 
 
   const recentTransactions = useMemo(() => {
@@ -55,7 +58,10 @@ export default function DashboardScreen() {
   const fetchChildren = useCallback(async () => {
     if (!token) return;
     try {
-      const childrenRes = await bankApi.getChildren();
+      // withRetry survives the iOS cold-boot network race (adapter reported up
+      // before it's routable) instead of failing the single mount fetch and
+      // leaving the dashboard half-rendered with no child selected.
+      const childrenRes = await withRetry(() => bankApi.getChildren());
       if (childrenRes.data?.length > 0) {
         setChildren(childrenRes.data);
         const currentChildId = useBankStore.getState().selectedChildId;
@@ -64,14 +70,31 @@ export default function DashboardScreen() {
           setSelectedChild(childrenRes.data[0].id);
         }
       }
+      setLoadError(false);
     } catch {
-      // Silently handle -- data stays from store cache
+      // Surface a retry affordance instead of a silently broken screen. Any
+      // existing store cache stays put.
+      setLoadError(true);
     }
   }, [token, setChildren, setSelectedChild]);
 
+  // Re-fetch on every focus (cold boot, tab switch) so a failed first hydration
+  // self-heals without a force-quit — mirrors history.tsx.
+  useFocusEffect(
+    useCallback(() => {
+      fetchChildren();
+    }, [fetchChildren])
+  );
+
+  // When connectivity resolves after a cold-boot race, re-fetch if we still
+  // have no child. NetInfo flips `online` once the link is actually routable.
   useEffect(() => {
-    fetchChildren();
-  }, [fetchChildren]);
+    const cameOnline = online && !prevOnline.current;
+    prevOnline.current = online;
+    if (cameOnline && !selectedChild) {
+      fetchChildren();
+    }
+  }, [online, selectedChild, fetchChildren]);
 
   // Fetch transactions whenever the selected child changes
   useEffect(() => {
@@ -128,6 +151,29 @@ export default function DashboardScreen() {
     setSelectedTx(tx);
     bottomSheetRef.current?.snapToIndex(0);
   }, []);
+
+  // Cold-boot guard: token present but no child resolved yet (hydration still
+  // pending or a network race failed the fetch). Show an explicit loading /
+  // retry state instead of the half-empty dashboard that looked "broken".
+  if (token && !selectedChild) {
+    return (
+      <SafeArea>
+        <View className="flex-1 items-center justify-center px-8">
+          {loadError ? (
+            <EmptyState
+              variant={online ? 'error' : 'offline'}
+              title={t('dashboard.loadErrorTitle', 'Não foi possível carregar sua conta')}
+              hint={t('dashboard.loadErrorHint', 'Verifique sua conexão e toque para tentar de novo.')}
+              actionLabel={t('common.retry', 'Tentar novamente')}
+              onAction={fetchChildren}
+            />
+          ) : (
+            <ActivityIndicator size="large" color="#FFD600" />
+          )}
+        </View>
+      </SafeArea>
+    );
+  }
 
   return (
     <SafeArea>

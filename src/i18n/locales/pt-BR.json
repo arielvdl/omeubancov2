@@ -170,6 +170,8 @@
     "seeAll": "Ver todas",
     "noTransactions": "Nenhuma movimentação ainda.",
     "noTransactionsHint": "As movimentações aparecerão aqui.",
+    "loadErrorTitle": "Não foi possível carregar sua conta",
+    "loadErrorHint": "Verifique sua conexão e toque para tentar de novo.",
     "deposit": "Depositar",
     "withdraw": "Usar meu dinheiro",
     "schedule": "Agendar",
@@ -530,7 +532,11 @@
     "hours": "{{count}}h",
     "minutes": "{{count}}min",
     "invalidEmail": "Por favor, insira um e-mail válido.",
-    "passwordTooShort": "A senha deve ter pelo menos 6 caracteres."
+    "passwordTooShort": "A senha deve ter pelo menos 6 caracteres.",
+    "alreadyInFamilyTitle": "Você já está em outra família",
+    "alreadyInFamilyMessage": "Para aceitar este convite, saia da conta atual primeiro. Seus dados na família atual permanecem salvos.",
+    "switchAccount": "Sair e aceitar convite",
+    "keepCurrentFamily": "Manter conta atual"
   },
   "validation": {
     "nameRequired": "O nome é obrigatório.",

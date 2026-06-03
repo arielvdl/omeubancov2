@@ -170,6 +170,8 @@
     "seeAll": "See all",
     "noTransactions": "No transactions yet.",
     "noTransactionsHint": "Transactions will appear here.",
+    "loadErrorTitle": "We couldn't load your account",
+    "loadErrorHint": "Check your connection and tap to try again.",
     "deposit": "Deposit",
     "withdraw": "Use my money",
     "schedule": "Schedule",
@@ -528,7 +530,11 @@
     "hours": "{{count}}h",
     "minutes": "{{count}}min",
     "invalidEmail": "Please enter a valid email address.",
-    "passwordTooShort": "Password must be at least 6 characters."
+    "passwordTooShort": "Password must be at least 6 characters.",
+    "alreadyInFamilyTitle": "You are already in another family",
+    "alreadyInFamilyMessage": "To accept this invitation, sign out of your current account first. Your data in the current family stays saved.",
+    "switchAccount": "Sign out & accept invite",
+    "keepCurrentFamily": "Keep current account"
   },
   "validation": {
     "nameRequired": "Name is required.",
