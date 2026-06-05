@@ -41,7 +41,9 @@ Sentry.init({
   dsn: process.env.EXPO_PUBLIC_SENTRY_DSN,
   tracesSampleRate: 0.2,
   sendDefaultPii: false,
-  enabled: !__DEV__,
+  // Desativado por segurança: campanha de abuso contra apps com Sentry
+  // (erros forçados explorando a ingestão de eventos)
+  enabled: false,
 });
 
 SplashScreen.preventAutoHideAsync().catch(() => {});
