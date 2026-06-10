@@ -58,9 +58,15 @@ authRoutes.post('/register', async (c) => {
   if (existing) {
     throw new AppError(409, 'Email already registered');
   }
-  // E-mail de guardian PODE criar a própria família (multi-família): o
-  // login prioriza a família dona, e o acesso às demais vai por
-  // /families/memberships + /families/switch.
+  // SEGURANÇA (cross-tenant): /auth/register NÃO prova posse do e-mail.
+  // Se o e-mail já é guardian de alguma família, permitir criar uma família
+  // dona com ele agruparia ambas em listFamilies() e daria acesso à família
+  // alheia via /families/switch sem verificação. A entrada legítima em outra
+  // família é só pelo fluxo de convite autenticado (POST /invitations/accept).
+  const existingGuardian = await guardianRepo.findByEmail(data.email);
+  if (existingGuardian) {
+    throw new AppError(409, 'Email already registered');
+  }
 
   const passwordHash = await hashPassword(data.password);
 
