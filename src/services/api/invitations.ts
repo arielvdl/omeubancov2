@@ -23,8 +23,12 @@ export const invitationsApi = {
     publicClient.get(`/invitations/code/${inviteCode}`),
 
   // Accept invitation with existing account (authenticated)
-  acceptInvitation: (inviteCode: string) =>
-    apiClient.post(`/invitations/accept/${inviteCode}`),
+  acceptInvitation: (inviteCode: string, roleLabel?: string) =>
+    apiClient.post(`/invitations/accept/${inviteCode}`, roleLabel ? { roleLabel } : {}),
+
+  // Multi-family (authenticated)
+  getMemberships: () => apiClient.get('/families/memberships'),
+  switchFamily: (familyId: string) => apiClient.post('/families/switch', { familyId }),
 
   // Guardians (authenticated)
   listGuardians: () => apiClient.get('/guardians'),

@@ -145,7 +145,9 @@
       "title": "Time to sign!",
       "subtitle": "Use your finger to sign below.",
       "clear": "Clear",
-      "confirmSignature": "Confirm signature"
+      "confirmSignature": "Confirm signature",
+      "childLimitTitle": "Plan limit reached",
+      "childLimitMessage": "{{created}} of {{total}} children were created. Your current plan hit its limit — subscribe to add the rest. The remaining children stay saved and can be added later."
     },
     "complete": {
       "title": "All set!",
@@ -532,9 +534,23 @@
     "invalidEmail": "Please enter a valid email address.",
     "passwordTooShort": "Password must be at least 6 characters.",
     "alreadyInFamilyTitle": "You are already in another family",
-    "alreadyInFamilyMessage": "To accept this invitation, sign out of your current account first. Your data in the current family stays saved.",
+    "alreadyInFamilyMessage": "To accept this invite, accept with this account or sign in with another one.",
     "switchAccount": "Sign out & accept invite",
-    "keepCurrentFamily": "Keep current account"
+    "keepCurrentFamily": "Keep current account",
+    "alreadyMemberTitle": "You are already part of this family",
+    "alreadyMemberMessage": "This invite is for the family you already belong to. You can keep using the app as usual.",
+    "openApp": "Open the app",
+    "acceptInviteTitle": "Accept invite?",
+    "acceptWithAccountMessage": "You can be part of more than one family. Accept the invite with this account or use another one.",
+    "acceptWithAccount": "Accept with this account",
+    "useAnotherAccount": "Use another account",
+    "orContinueWith": "or continue with",
+    "continueWithGoogle": "Continue with Google",
+    "continueWithApple": "Continue with Apple",
+    "emailInUseLogin": "This email already has an account. Sign in with it to accept the invite with the existing account.",
+    "myFamilies": "My families",
+    "myFamiliesHint": "Switch between the families you belong to",
+    "currentFamily": "Current"
   },
   "validation": {
     "nameRequired": "Name is required.",

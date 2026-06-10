@@ -1,4 +1,4 @@
-import { pgTable, uuid, varchar, integer, date, timestamp } from 'drizzle-orm/pg-core';
+import { pgTable, uuid, varchar, text, integer, date, timestamp } from 'drizzle-orm/pg-core';
 import { families } from './families.js';
 
 export const children = pgTable('children', {
@@ -8,7 +8,7 @@ export const children = pgTable('children', {
     .references(() => families.id, { onDelete: 'cascade' }),
   name: varchar('name', { length: 100 }).notNull(),
   pinHash: varchar('pin_hash', { length: 255 }),
-  avatarUrl: varchar('avatar_url', { length: 500 }),
+  avatarUrl: text('avatar_url'),
   mascotId: varchar('mascot_id', { length: 50 }).default('dino'),
   balance: integer('balance').notNull().default(0),
   birthDate: date('birth_date'),

@@ -55,6 +55,27 @@ export const familyRepo = {
     return results[0];
   },
 
+  async linkAppleUserId(id: string, appleUserId: string): Promise<SelectFamily | undefined> {
+    const results = await db
+      .update(families)
+      .set({ appleUserId, updatedAt: new Date() })
+      .where(eq(families.id, id))
+      .returning();
+    return results[0];
+  },
+
+  async linkGoogleAccount(
+    id: string,
+    data: { googleEmail: string; googleName?: string | null; googlePhoto?: string | null }
+  ): Promise<SelectFamily | undefined> {
+    const results = await db
+      .update(families)
+      .set({ ...data, updatedAt: new Date() })
+      .where(eq(families.id, id))
+      .returning();
+    return results[0];
+  },
+
   async delete(id: string): Promise<void> {
     await db.delete(families).where(eq(families.id, id));
   },

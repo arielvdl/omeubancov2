@@ -150,17 +150,175 @@ invitationsRoutes.post('/accept/:inviteCode', authMiddleware, requireParent, asy
     throw new AppError(400, 'Invitation has expired');
   }
 
-  // If user is already a member of this family, just mark invite as accepted
+  // If user is already a member of this family, no-op success.
+  // The invite stays pending so the intended recipient can still use it.
   if (user.familyId === invitation.familyId) {
-    await familyInvitationRepo.updateStatus(invitation.id, 'accepted', {
-      acceptedAt: new Date(),
-      acceptedByGuardianId: user.guardianId ?? undefined,
-    });
     return c.json({ message: 'Already a member of this family', alreadyMember: true });
   }
 
-  // User belongs to a different family — not supported yet
-  throw new AppError(400, 'You already belong to another family. Multi-family support is not available yet.');
+  // Multi-família: usuário existente (dono ou guardian de outra família)
+  // entra na família do convite como guardian, mantendo a conta atual.
+  const { membershipService } = await import('../services/membership.service.js');
+  const { guardianRepo } = await import('../repositories/guardian.repo.js');
+  const { generateToken } = await import('../auth/index.js');
+  const { db } = await import('../db/index.js');
+  const { guardians: guardiansTable } = await import('../db/schema/guardians.js');
+  const { familyInvitations } = await import('../db/schema/family-invitations.js');
+  const { and, eq } = await import('drizzle-orm');
+
+  const identity = await membershipService.getIdentityForUser(user);
+  if (!identity) {
+    throw new AppError(401, 'Invalid or expired token');
+  }
+
+  const targetFamily = await familyRepo.findById(invitation.familyId);
+  if (!targetFamily) {
+    throw new AppError(404, 'Family no longer exists');
+  }
+
+  // Já é dona ou guardian ativa da família-alvo? Devolver token de troca
+  // sem consumir o convite.
+  const ownsTarget =
+    (identity.email && targetFamily.email === identity.email) ||
+    (identity.googleEmail && targetFamily.googleEmail === identity.googleEmail);
+  if (ownsTarget) {
+    const token = await generateToken({ familyId: targetFamily.id, role: 'parent' });
+    return c.json({
+      message: 'Already the owner of this family',
+      alreadyMember: true,
+      token,
+      family: {
+        id: targetFamily.id,
+        name: targetFamily.name,
+        currency: targetFamily.currency,
+        locale: targetFamily.locale,
+        timezone: targetFamily.timezone,
+      },
+    });
+  }
+
+  const existingInTarget =
+    (identity.email &&
+      (await guardianRepo.findActiveByFamilyAndEmail(invitation.familyId, identity.email))) ||
+    (identity.googleEmail &&
+      (await guardianRepo.findActiveByFamilyAndGoogleEmail(
+        invitation.familyId,
+        identity.googleEmail
+      ))) ||
+    undefined;
+  if (existingInTarget) {
+    const token = await generateToken({
+      familyId: invitation.familyId,
+      role: 'parent',
+      guardianId: existingInTarget.id,
+      guardianAccessLevel: existingInTarget.accessLevel === 'admin' ? 'admin' : 'member',
+    });
+    return c.json({
+      message: 'Already a member of this family',
+      alreadyMember: true,
+      token,
+      family: {
+        id: targetFamily.id,
+        name: targetFamily.name,
+        currency: targetFamily.currency,
+        locale: targetFamily.locale,
+        timezone: targetFamily.timezone,
+      },
+      guardianId: existingInTarget.id,
+      roleLabel: existingInTarget.roleLabel,
+      guardianAccessLevel: existingInTarget.accessLevel,
+    });
+  }
+
+  const body = await c.req.json().catch(() => ({}));
+  const roleLabelRaw = typeof body?.roleLabel === 'string' ? body.roleLabel.trim() : '';
+  const roleLabel = (roleLabelRaw || 'Responsável').slice(0, 50);
+
+  // Transação com lock: consumir o convite e criar o guardian atomicamente.
+  const guardian = await db.transaction(async (tx) => {
+    const [freshInvitation] = await tx
+      .select()
+      .from(familyInvitations)
+      .where(
+        and(
+          eq(familyInvitations.id, invitation.id),
+          eq(familyInvitations.status, 'pending')
+        )
+      )
+      .limit(1)
+      .for('update');
+
+    if (!freshInvitation) {
+      throw new AppError(409, 'Invitation already accepted or no longer available');
+    }
+
+    const [created] = await tx
+      .insert(guardiansTable)
+      .values({
+        familyId: invitation.familyId,
+        email: identity.email,
+        googleEmail: identity.googleEmail,
+        googleName: identity.googleName,
+        googlePhoto: identity.googlePhoto,
+        passwordHash: identity.passwordHash,
+        name: identity.name,
+        avatarUrl: identity.avatarUrl,
+        roleLabel,
+        accessLevel: invitation.accessLevel,
+        invitedBy: invitation.invitedBy,
+      })
+      .returning();
+
+    await tx
+      .update(familyInvitations)
+      .set({
+        status: 'accepted',
+        acceptedAt: new Date(),
+        acceptedByGuardianId: created.id,
+      })
+      .where(eq(familyInvitations.id, invitation.id));
+
+    return created;
+  });
+
+  const token = await generateToken({
+    familyId: invitation.familyId,
+    role: 'parent',
+    guardianId: guardian.id,
+    guardianAccessLevel: guardian.accessLevel === 'admin' ? 'admin' : 'member',
+  });
+
+  await auditLogRepo.create({
+    familyId: invitation.familyId,
+    action: 'guardian.join_existing_account',
+    actor: `guardian:${guardian.id}`,
+    details: { name: guardian.name, roleLabel: guardian.roleLabel },
+  });
+
+  const { notificationService } = await import('../services/notification.service.js');
+  notificationService
+    .sendToFamily(
+      invitation.familyId,
+      'Novo membro na família!',
+      `${guardian.name} (${guardian.roleLabel}) aceitou o convite`,
+      { type: 'invitation_accepted', guardianId: guardian.id }
+    )
+    .catch((err) => console.error('[Notification] invitation_accepted failed:', err));
+
+  return c.json({
+    joined: true,
+    family: {
+      id: targetFamily.id,
+      name: targetFamily.name,
+      currency: targetFamily.currency,
+      locale: targetFamily.locale,
+      timezone: targetFamily.timezone,
+    },
+    token,
+    guardianId: guardian.id,
+    roleLabel: guardian.roleLabel,
+    guardianAccessLevel: guardian.accessLevel,
+  });
 });
 
 // Public: get invitation info by code
@@ -201,6 +359,7 @@ invitationsRoutes.get('/code/:inviteCode', inviteInfoRateLimit, async (c) => {
 
   return c.json({
     status: 'pending',
+    familyId: invitation.familyId,
     familyName: family?.name ?? null,
     accessLevel: invitation.accessLevel,
     expiresAt: invitation.expiresAt,

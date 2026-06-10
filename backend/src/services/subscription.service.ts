@@ -40,6 +40,19 @@ const TIER_LIMITS: Record<Entitlement, TierLimits> = {
   },
 };
 
+// Margem além de expiresAt antes de rebaixar para free sem webhook de
+// EXPIRATION — cobre retry de cobrança e webhooks perdidos. Renovações
+// normais atualizam expiresAt via webhook RENEWAL antes disso.
+const EXPIRY_GRACE_MS = 3 * 24 * 60 * 60 * 1000;
+
+function isSubscriptionLive(sub: { isActive: boolean; expiresAt: Date | null } | undefined): boolean {
+  if (!sub || !sub.isActive) return false;
+  if (sub.expiresAt && sub.expiresAt.getTime() + EXPIRY_GRACE_MS < Date.now()) {
+    return false;
+  }
+  return true;
+}
+
 export const subscriptionService = {
   getTierLimits(entitlement: string): TierLimits {
     return TIER_LIMITS[entitlement as Entitlement] ?? TIER_LIMITS.free;
@@ -47,13 +60,13 @@ export const subscriptionService = {
 
   async getEntitlementForFamily(familyId: string): Promise<string> {
     const sub = await subscriptionRepo.findByFamilyId(familyId);
-    if (!sub || !sub.isActive) return 'free';
-    return sub.entitlement;
+    if (!isSubscriptionLive(sub)) return 'free';
+    return sub!.entitlement;
   },
 
   async getSubscription(familyId: string) {
     const sub = await subscriptionRepo.findByFamilyId(familyId);
-    const entitlement = sub?.isActive ? sub.entitlement : 'free';
+    const entitlement = isSubscriptionLive(sub) ? sub!.entitlement : 'free';
     const limits = this.getTierLimits(entitlement);
     return { subscription: sub ?? null, entitlement, limits };
   },

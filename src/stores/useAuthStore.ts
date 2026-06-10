@@ -170,6 +170,11 @@ export const useAuthStore = create<AuthStoreState>((set, get) => ({
       googleName: null,
       googlePhoto: null,
     });
+
+    // Limites/entitlement são por família — não podem vazar para a
+    // próxima conta logada neste device.
+    const { useSubscriptionStore } = await import('./useSubscriptionStore');
+    useSubscriptionStore.getState().reset();
   },
 
   loadPersistedState: async () => {

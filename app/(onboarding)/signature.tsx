@@ -23,6 +23,7 @@ export default function SignatureScreen() {
   const contractRules = useBankStore((s) => s.contractRules);
   const childContractRules = useBankStore((s) => s.childContractRules);
   const updateOnboardingChild = useBankStore((s) => s.updateOnboardingChild);
+  const removeOnboardingChild = useBankStore((s) => s.removeOnboardingChild);
   const setChildren = useBankStore((s) => s.setChildren);
   const clearOnboardingChildren = useBankStore((s) => s.clearOnboardingChildren);
 
@@ -50,10 +51,9 @@ export default function SignatureScreen() {
 
     if (isLastChild) {
       setIsSaving(true);
+      // Fora do try: usado no catch para persistir o que já foi criado
+      const createdChildren: Child[] = [];
       try {
-        // Create all children via API and collect the real records
-        const createdChildren: Child[] = [];
-
         for (const oc of onboardingChildren) {
           // Upload photo to cloud if it's a local file URI
           let avatarUrl = oc.avatarId;
@@ -109,12 +109,53 @@ export default function SignatureScreen() {
         haptics.success();
         await setOnboardingComplete(true);
         router.replace('/(tabs)');
-      } catch (error) {
+      } catch (error: any) {
         haptics.error();
-        Alert.alert(
-          t('common.error'),
-          t('common.errorGeneric'),
-        );
+
+        // Filhos criados antes da falha já existem no servidor: persistir
+        // localmente e tirar da fila, senão o retry duplicaria.
+        if (createdChildren.length > 0) {
+          setChildren(createdChildren);
+          onboardingChildren
+            .slice(0, createdChildren.length)
+            .forEach((oc) => removeOnboardingChild(oc.id));
+          setCurrentChildIndex(0);
+        }
+
+        const isSubscriptionLimit =
+          error?.response?.status === 403 &&
+          error?.response?.data?.error === 'subscription_required';
+
+        if (isSubscriptionLimit) {
+          const finishWithCreated = async () => {
+            if (createdChildren.length > 0) {
+              await setOnboardingComplete(true);
+              router.replace('/(tabs)');
+            }
+          };
+          Alert.alert(
+            t('onboarding.signature.childLimitTitle'),
+            t('onboarding.signature.childLimitMessage', {
+              created: createdChildren.length,
+              total: onboardingChildren.length,
+            }),
+            [
+              {
+                text: t('subscription.seePlans', { defaultValue: 'Ver planos' }),
+                onPress: async () => {
+                  await finishWithCreated();
+                  router.push({
+                    pathname: '/(modals)/paywall',
+                    params: { feature: 'add_child' },
+                  });
+                },
+              },
+              { text: t('common.ok'), onPress: finishWithCreated },
+            ],
+          );
+        } else {
+          Alert.alert(t('common.error'), t('common.errorGeneric'));
+        }
       } finally {
         setIsSaving(false);
       }
@@ -124,7 +165,8 @@ export default function SignatureScreen() {
     }
   }, [
     currentChild, isLastChild, onboardingChildren, contractRules, childContractRules,
-    bankName, setChildren, clearOnboardingChildren, setOnboardingComplete, router, t,
+    bankName, setChildren, removeOnboardingChild, clearOnboardingChildren,
+    setOnboardingComplete, router, t,
   ]);
 
   if (!currentChild) return null;

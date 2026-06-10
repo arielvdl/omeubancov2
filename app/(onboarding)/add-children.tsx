@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useRef } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
 import { View, Text, ScrollView, Pressable, Alert } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
@@ -9,7 +9,9 @@ import { Input } from '@/src/components/ui/Input';
 import { Button } from '@/src/components/ui/Button';
 import { Avatar } from '@/src/components/ui/Avatar';
 import { Card } from '@/src/components/ui/Card';
+import { PaywallPrompt } from '@/src/components/ui/PaywallPrompt';
 import { useBankStore } from '@/src/stores/useBankStore';
+import { useSubscriptionStore } from '@/src/stores/useSubscriptionStore';
 import { AVATARS, DEFAULT_AVATAR_ID } from '@/src/constants/avatars';
 import { isValidName, sanitizeInput } from '@/src/utils/validation';
 import { haptics } from '@/src/utils/haptics';
@@ -22,6 +24,17 @@ export default function AddChildrenScreen() {
   const onboardingChildren = useBankStore((s) => s.onboardingChildren);
   const addOnboardingChild = useBankStore((s) => s.addOnboardingChild);
   const removeOnboardingChild = useBankStore((s) => s.removeOnboardingChild);
+  const existingChildren = useBankStore((s) => s.children);
+  const maxChildren = useSubscriptionStore((s) => s.limits.maxChildren);
+  const loadLimits = useSubscriptionStore((s) => s.loadLimits);
+
+  useEffect(() => {
+    loadLimits();
+  }, [loadLimits]);
+
+  // Conta filhos já criados no servidor + os enfileirados no onboarding
+  const atChildLimit =
+    existingChildren.length + onboardingChildren.length >= maxChildren;
 
   const [showForm, setShowForm] = useState(false);
   const [childName, setChildName] = useState('');
@@ -30,6 +43,11 @@ export default function AddChildrenScreen() {
   const [nameError, setNameError] = useState('');
 
   const handleAddChild = useCallback(() => {
+    if (atChildLimit) {
+      haptics.warning();
+      setShowForm(false);
+      return;
+    }
     const sanitized = sanitizeInput(childName);
     if (!isValidName(sanitized)) {
       setNameError(t('validation.nameTooShort'));
@@ -51,7 +69,7 @@ export default function AddChildrenScreen() {
     setSelectedAvatarId(DEFAULT_AVATAR_ID);
     setPhotoUri(null);
     setShowForm(false);
-  }, [childName, selectedAvatarId, photoUri, addOnboardingChild, t]);
+  }, [atChildLimit, childName, selectedAvatarId, photoUri, addOnboardingChild, t]);
 
   const handlePickFromGallery = useCallback(async () => {
     haptics.light();
@@ -286,6 +304,8 @@ export default function AddChildrenScreen() {
               </View>
             </View>
           </Card>
+        ) : atChildLimit ? (
+          <PaywallPrompt feature="add_child" />
         ) : (
           <Button
             title={t('onboarding.addChildren.addChild')}

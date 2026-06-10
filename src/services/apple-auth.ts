@@ -68,10 +68,23 @@ export async function startAppleSignIn(): Promise<AppleAuthResult | null> {
     };
   } catch (err: any) {
     const status = err?.response?.status;
-    const message = err?.response?.data?.error || err?.message || 'Unknown error';
+    const data = err?.response?.data;
+    const backendError = data?.error || err?.message || 'Unknown error';
+    const backendCode = data?.code ?? null;
+    const constraint = data?.constraint ?? null;
     const isNetworkError = !err?.response && (err?.code === 'ECONNABORTED' || err?.message?.includes('Network'));
-    logger.error('[AppleAuth] Backend callback failed', { status, message, isNetworkError, API_BASE });
-    throw Object.assign(new Error(isNetworkError ? 'NETWORK_ERROR' : message), { status, isNetworkError });
+    logger.error('[AppleAuth] Backend callback failed', {
+      status,
+      backendError,
+      backendCode,
+      constraint,
+      isNetworkError,
+      API_BASE,
+    });
+    throw Object.assign(
+      new Error(isNetworkError ? 'NETWORK_ERROR' : backendError),
+      { status, isNetworkError, backendCode, constraint }
+    );
   }
 }
 

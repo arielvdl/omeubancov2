@@ -145,7 +145,9 @@
       "title": "Hora de assinar!",
       "subtitle": "Use o dedo para assinar abaixo.",
       "clear": "Limpar",
-      "confirmSignature": "Confirmar assinatura"
+      "confirmSignature": "Confirmar assinatura",
+      "childLimitTitle": "Limite do plano atingido",
+      "childLimitMessage": "Foram criadas {{created}} de {{total}} crianças. Seu plano atual chegou ao limite — assine para adicionar as demais. As crianças que ficaram de fora continuam salvas e podem ser adicionadas depois."
     },
     "complete": {
       "title": "Tudo pronto!",
@@ -534,9 +536,23 @@
     "invalidEmail": "Por favor, insira um e-mail válido.",
     "passwordTooShort": "A senha deve ter pelo menos 6 caracteres.",
     "alreadyInFamilyTitle": "Você já está em outra família",
-    "alreadyInFamilyMessage": "Para aceitar este convite, saia da conta atual primeiro. Seus dados na família atual permanecem salvos.",
+    "alreadyInFamilyMessage": "Para aceitar este convite, aceite com esta conta ou entre com outra.",
     "switchAccount": "Sair e aceitar convite",
-    "keepCurrentFamily": "Manter conta atual"
+    "keepCurrentFamily": "Manter conta atual",
+    "alreadyMemberTitle": "Você já faz parte desta família",
+    "alreadyMemberMessage": "Este convite é para a família em que você já está. Pode continuar usando o app normalmente.",
+    "openApp": "Abrir o app",
+    "acceptInviteTitle": "Aceitar convite?",
+    "acceptWithAccountMessage": "Você pode participar de mais de uma família. Aceite o convite com esta conta ou use outra.",
+    "acceptWithAccount": "Aceitar com esta conta",
+    "useAnotherAccount": "Usar outra conta",
+    "orContinueWith": "ou continue com",
+    "continueWithGoogle": "Continuar com Google",
+    "continueWithApple": "Continuar com Apple",
+    "emailInUseLogin": "Este e-mail já tem conta. Faça login com ele para aceitar o convite com a conta existente.",
+    "myFamilies": "Minhas famílias",
+    "myFamiliesHint": "Troque entre as famílias que você participa",
+    "currentFamily": "Atual"
   },
   "validation": {
     "nameRequired": "O nome é obrigatório.",

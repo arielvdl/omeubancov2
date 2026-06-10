@@ -16,6 +16,7 @@ import { auditLogRepo } from '../repositories/audit-log.repo.js';
 import { authRateLimit } from '../middleware/rate-limit.js';
 import { AppError } from '../middleware/error-handler.js';
 import { notificationService } from '../services/notification.service.js';
+import { membershipService } from '../services/membership.service.js';
 import { env } from '../config/index.js';
 import { db } from '../db/index.js';
 import { guardians as guardiansTable } from '../db/schema/guardians.js';
@@ -26,6 +27,14 @@ import { eq, and } from 'drizzle-orm';
 const childLoginAttempts = new Map<string, { count: number; lockedUntil: number }>();
 const MAX_CHILD_LOGIN_ATTEMPTS = 5;
 const CHILD_LOCKOUT_MS = 15 * 60 * 1000; // 15 minutes
+
+// Defensive truncation for values coming from external IdPs.
+const MAX_NAME = 100;
+const MAX_GOOGLE_NAME = 255;
+function truncate(value: string | null | undefined, max: number): string | null {
+  if (value == null) return null;
+  return value.length > max ? value.slice(0, max) : value;
+}
 
 // Cleanup stale entries every 5 minutes
 setInterval(() => {
@@ -49,6 +58,9 @@ authRoutes.post('/register', async (c) => {
   if (existing) {
     throw new AppError(409, 'Email already registered');
   }
+  // E-mail de guardian PODE criar a própria família (multi-família): o
+  // login prioriza a família dona, e o acesso às demais vai por
+  // /families/memberships + /families/switch.
 
   const passwordHash = await hashPassword(data.password);
 
@@ -111,6 +123,11 @@ authRoutes.post('/login', async (c) => {
       actor: 'parent',
     });
 
+    const memberships = await membershipService.listFamilies({
+      email: family.email,
+      googleEmail: family.googleEmail,
+    });
+
     return c.json({
       family: {
         id: family.id,
@@ -121,21 +138,21 @@ authRoutes.post('/login', async (c) => {
       },
       token,
       isNewUser: false,
+      families: memberships,
     });
   }
 
-  // Try guardian
-  const guardian = await guardianRepo.findByEmail(data.email);
-  if (!guardian || guardian.status !== 'active') {
-    throw new AppError(401, 'Invalid credentials');
+  // Try guardian (multi-família: pode existir uma linha por família;
+  // a senha vale para a identidade, então qualquer hash que bater serve)
+  const guardianRows = await guardianRepo.findAllActiveByEmail(data.email);
+  let guardian: (typeof guardianRows)[number] | undefined;
+  for (const row of guardianRows) {
+    if (row.passwordHash && (await comparePassword(data.password, row.passwordHash))) {
+      guardian = row;
+      break;
+    }
   }
-
-  if (!guardian.passwordHash) {
-    throw new AppError(401, 'Invalid credentials');
-  }
-
-  const valid = await comparePassword(data.password, guardian.passwordHash);
-  if (!valid) {
+  if (!guardian) {
     throw new AppError(401, 'Invalid credentials');
   }
 
@@ -157,6 +174,11 @@ authRoutes.post('/login', async (c) => {
     actor: `guardian:${guardian.id}`,
   });
 
+  const memberships = await membershipService.listFamilies({
+    email: guardian.email,
+    googleEmail: guardian.googleEmail,
+  });
+
   return c.json({
     family: {
       id: guardianFamily.id,
@@ -170,6 +192,7 @@ authRoutes.post('/login', async (c) => {
     guardianId: guardian.id,
     roleLabel: guardian.roleLabel,
     guardianAccessLevel: guardian.accessLevel,
+    families: memberships,
   });
 });
 
@@ -272,6 +295,7 @@ authRoutes.post('/google', async (c) => {
     email: string;
     name: string;
     picture: string;
+    verified_email?: boolean;
   };
 
   if (!googleUser.email) {
@@ -305,9 +329,9 @@ authRoutes.post('/google', async (c) => {
     });
   }
 
-  // Check if returning guardian
-  const existingGuardian = await guardianRepo.findByGoogleEmail(googleUser.email);
-  if (existingGuardian && existingGuardian.status === 'active') {
+  // Check if returning guardian (multi-família: primeira linha ativa)
+  const [existingGuardian] = await guardianRepo.findAllActiveByGoogleEmail(googleUser.email);
+  if (existingGuardian) {
     const guardianFamily = await familyRepo.findById(existingGuardian.familyId);
     if (guardianFamily) {
       const token = await generateToken({
@@ -341,11 +365,90 @@ authRoutes.post('/google', async (c) => {
     }
   }
 
+  // Same verified e-mail already registered via email/password: LINK the
+  // Google account instead of creating a second, disconnected family.
+  // Mirrors the Apple flow. Only with verified_email to prevent takeover
+  // via unverified Google addresses.
+  if (googleUser.verified_email === true) {
+    const familyByEmail = await familyRepo.findByEmail(googleUser.email);
+    if (familyByEmail) {
+      const linked = await familyRepo.linkGoogleAccount(familyByEmail.id, {
+        googleEmail: googleUser.email,
+        googleName: truncate(googleUser.name, MAX_GOOGLE_NAME),
+        googlePhoto: googleUser.picture || null,
+      });
+      const familyToUse = linked ?? familyByEmail;
+      const token = await generateToken({ familyId: familyToUse.id, role: 'parent' });
+
+      await auditLogRepo.create({
+        familyId: familyToUse.id,
+        action: 'family.google_link',
+        actor: 'parent',
+        details: { email: googleUser.email },
+      });
+
+      return c.json({
+        family: {
+          id: familyToUse.id,
+          name: familyToUse.name,
+          currency: familyToUse.currency,
+          locale: familyToUse.locale,
+          timezone: familyToUse.timezone,
+          createdAt: familyToUse.createdAt,
+        },
+        token,
+        isNewUser: false,
+      });
+    }
+
+    const guardianByEmail = await guardianRepo.findByEmail(googleUser.email);
+    if (guardianByEmail && guardianByEmail.status === 'active') {
+      const guardianFamily = await familyRepo.findById(guardianByEmail.familyId);
+      if (guardianFamily) {
+        await guardianRepo.linkGoogleAccount(guardianByEmail.id, {
+          googleEmail: googleUser.email,
+          googleName: truncate(googleUser.name, MAX_GOOGLE_NAME),
+          googlePhoto: googleUser.picture || null,
+        });
+
+        const token = await generateToken({
+          familyId: guardianByEmail.familyId,
+          role: 'parent',
+          guardianId: guardianByEmail.id,
+          guardianAccessLevel: guardianByEmail.accessLevel === 'admin' ? 'admin' : 'member',
+        });
+
+        await auditLogRepo.create({
+          familyId: guardianByEmail.familyId,
+          action: 'guardian.google_link',
+          actor: `guardian:${guardianByEmail.id}`,
+          details: { email: googleUser.email },
+        });
+
+        return c.json({
+          family: {
+            id: guardianFamily.id,
+            name: guardianFamily.name,
+            currency: guardianFamily.currency,
+            locale: guardianFamily.locale,
+            timezone: guardianFamily.timezone,
+            createdAt: guardianFamily.createdAt,
+          },
+          token,
+          isNewUser: false,
+          guardianId: guardianByEmail.id,
+          roleLabel: guardianByEmail.roleLabel,
+          guardianAccessLevel: guardianByEmail.accessLevel,
+        });
+      }
+    }
+  }
+
   // New user: create family with placeholder name
   const family = await familyRepo.create({
-    name: googleUser.name || 'Meu Banco',
+    name: truncate(googleUser.name, MAX_NAME) || 'Meu Banco',
     googleEmail: googleUser.email,
-    googleName: googleUser.name || null,
+    googleName: truncate(googleUser.name, MAX_GOOGLE_NAME),
     googlePhoto: googleUser.picture || null,
     currency: 'BRL',
     locale: 'pt-BR',
@@ -396,13 +499,18 @@ authRoutes.post('/guardian-register', async (c) => {
     throw new AppError(400, 'Invitation has expired');
   }
 
+  // E-mail já tem conta (dona ou guardian): orientar login + aceitar com a
+  // conta existente (multi-família) em vez de criar credencial duplicada.
   const existingFamily = await familyRepo.findByEmail(data.email);
-  if (existingFamily) {
-    throw new AppError(409, 'Email already registered');
-  }
-  const existingGuardian = await guardianRepo.findByEmail(data.email);
-  if (existingGuardian) {
-    throw new AppError(409, 'Email already registered');
+  const existingGuardian = existingFamily ? undefined : await guardianRepo.findByEmail(data.email);
+  if (existingFamily || existingGuardian) {
+    return c.json(
+      {
+        error: 'Email already registered',
+        code: 'email_in_use',
+      },
+      409
+    );
   }
 
   const passwordHash = await hashPassword(data.password);
@@ -420,7 +528,8 @@ authRoutes.post('/guardian-register', async (c) => {
           eq(familyInvitations.status, 'pending')
         )
       )
-      .limit(1);
+      .limit(1)
+      .for('update');
 
     if (!freshInvitation) {
       throw new AppError(409, 'Invitation already accepted or no longer available');
@@ -551,13 +660,20 @@ authRoutes.post('/guardian-google', async (c) => {
     throw new AppError(401, 'Google account has no email');
   }
 
+  // Conta Google já existe (dona ou guardian): orientar login + aceitar com
+  // a conta existente (multi-família).
   const existingFamilyG = await familyRepo.findByGoogleEmail(googleUser.email);
-  if (existingFamilyG) {
-    throw new AppError(409, 'Google account already registered as family owner');
-  }
-  const existingGuardianG = await guardianRepo.findByGoogleEmail(googleUser.email);
-  if (existingGuardianG) {
-    throw new AppError(409, 'Google account already registered');
+  const existingGuardianG = existingFamilyG
+    ? undefined
+    : await guardianRepo.findByGoogleEmail(googleUser.email);
+  if (existingFamilyG || existingGuardianG) {
+    return c.json(
+      {
+        error: 'Google account already registered',
+        code: 'email_in_use',
+      },
+      409
+    );
   }
 
   // Transaction: create guardian + accept invitation atomically
@@ -572,7 +688,8 @@ authRoutes.post('/guardian-google', async (c) => {
           eq(familyInvitations.status, 'pending')
         )
       )
-      .limit(1);
+      .limit(1)
+      .for('update');
 
     if (!freshInvitation) {
       throw new AppError(409, 'Invitation already accepted or no longer available');
@@ -582,11 +699,11 @@ authRoutes.post('/guardian-google', async (c) => {
       .insert(guardiansTable)
       .values({
         familyId: invitation.familyId,
-        name: googleUser.name || data.roleLabel,
+        name: truncate(googleUser.name, MAX_NAME) || data.roleLabel,
         roleLabel: data.roleLabel,
         accessLevel: invitation.accessLevel,
         googleEmail: googleUser.email,
-        googleName: googleUser.name || null,
+        googleName: truncate(googleUser.name, MAX_GOOGLE_NAME),
         googlePhoto: googleUser.picture || null,
         invitedBy: invitation.invitedBy,
       })

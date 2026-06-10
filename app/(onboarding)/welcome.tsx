@@ -165,14 +165,44 @@ export default function WelcomeScreen() {
   }));
 
   // --- Auth logic (preserved exactly) ---
-  const tryAcceptInvite = async () => {
-    if (!inviteCode) return;
+  // Multi-família: aceitar convite pendente após login. Retorna true quando
+  // a navegação já foi resolvida aqui (entrou na família do convite).
+  const tryAcceptInvite = async (): Promise<boolean> => {
+    if (!inviteCode) return false;
     try {
-      await invitationsApi.acceptInvitation(inviteCode);
+      const res = await invitationsApi.acceptInvitation(inviteCode);
+      const data = res.data;
+      if (data.token && data.family) {
+        const { activateFamilySession } = await import('@/src/services/family-session');
+        await activateFamilySession({
+          token: data.token,
+          family: data.family,
+          guardianId: data.guardianId,
+          roleLabel: data.roleLabel,
+          guardianAccessLevel: data.guardianAccessLevel,
+        });
+        haptics.success();
+        if (data.joined) {
+          router.replace({
+            pathname: '/(invite)/welcome-family',
+            params: {
+              familyName: data.family.name,
+              roleLabel: data.roleLabel,
+              accessLevel: data.guardianAccessLevel,
+            },
+          });
+        } else {
+          router.replace('/(tabs)');
+        }
+        return true;
+      }
+      // alreadyMember na família atual — segue o fluxo normal de login
+      return false;
     } catch (err: any) {
       const message = err?.response?.data?.error ?? t('common.errorGeneric');
       logger.warn('[Invite] Accept after login failed', { inviteCode, error: message });
-      Alert.alert(t('invitation.invalidInvite'), message);
+      Alert.alert(t('common.error'), message);
+      return false;
     }
   };
 
@@ -197,7 +227,7 @@ export default function WelcomeScreen() {
         result.roleLabel,
         result.guardianAccessLevel,
       );
-      await tryAcceptInvite();
+      if (await tryAcceptInvite()) return;
 
       if (result.isNewUser) {
         router.replace('/(onboarding)/bank-setup');
@@ -205,7 +235,15 @@ export default function WelcomeScreen() {
         await setBankName(result.familyName);
         await setCurrency(result.currency as 'BRL' | 'USD' | 'EUR');
 
-        const childrenRes = await bankApi.getChildren();
+        const [childrenRes, familyRes] = await Promise.all([
+          bankApi.getChildren(),
+          bankApi.getFamily(),
+        ]);
+
+        if (familyRes.data) {
+          useBankStore.getState().setFamily(familyRes.data);
+        }
+
         useBankStore.getState().setHydrated(true);
         if (childrenRes.data?.length > 0) {
           useBankStore.getState().setChildren(childrenRes.data);
@@ -251,7 +289,7 @@ export default function WelcomeScreen() {
         result.roleLabel,
         result.guardianAccessLevel,
       );
-      await tryAcceptInvite();
+      if (await tryAcceptInvite()) return;
 
       if (result.isNewUser) {
         router.replace('/(onboarding)/bank-setup');
@@ -283,6 +321,8 @@ export default function WelcomeScreen() {
       captureError(error, 'AppleAuth sign-in');
       if (error?.isNetworkError || error?.message === 'NETWORK_ERROR') {
         Alert.alert(t('common.error'), t('common.errorNetwork'));
+      } else if (error?.message === 'account_conflict' || error?.status === 409) {
+        Alert.alert(t('common.error'), t('auth.appleSignInError'));
       } else if (error?.status === 500 || error?.status === 503) {
         Alert.alert(t('common.error'), t('auth.appleSignInError'));
       } else {
@@ -312,7 +352,7 @@ export default function WelcomeScreen() {
         result.roleLabel,
         result.guardianAccessLevel,
       );
-      await tryAcceptInvite();
+      if (await tryAcceptInvite()) return;
 
       if (result.isNewUser) {
         router.replace('/(onboarding)/bank-setup');
@@ -391,7 +431,7 @@ export default function WelcomeScreen() {
           data.roleLabel,
           data.guardianAccessLevel,
         );
-        await tryAcceptInvite();
+        if (await tryAcceptInvite()) return;
 
         if (data.isNewUser) {
           router.replace('/(onboarding)/bank-setup');

@@ -1,4 +1,4 @@
-import { pgTable, uuid, varchar, timestamp } from 'drizzle-orm/pg-core';
+import { pgTable, uuid, varchar, text, timestamp } from 'drizzle-orm/pg-core';
 
 export const families = pgTable('families', {
   id: uuid('id').defaultRandom().primaryKey(),
@@ -10,7 +10,7 @@ export const families = pgTable('families', {
   timezone: varchar('timezone', { length: 50 }).notNull().default('America/Sao_Paulo'),
   googleEmail: varchar('google_email', { length: 255 }).unique(),
   googleName: varchar('google_name', { length: 255 }),
-  googlePhoto: varchar('google_photo', { length: 500 }),
+  googlePhoto: text('google_photo'),
   appleUserId: varchar('apple_user_id', { length: 255 }).unique(),
   createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
   updatedAt: timestamp('updated_at', { withTimezone: true }).defaultNow().notNull(),

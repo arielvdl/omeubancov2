@@ -21,6 +21,7 @@ export interface FamilyInvitation {
 }
 
 export interface InvitationInfo {
+  familyId?: string;
   familyName: string | null;
   accessLevel?: 'admin' | 'member';
   status: string;

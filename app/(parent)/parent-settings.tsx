@@ -629,6 +629,29 @@ export default function ParentSettingsScreen() {
             </View>
             <MaterialCommunityIcons name="chevron-right" size={24} color="#9ca3af" />
           </Pressable>
+
+          {/* Multi-família: trocar de família */}
+          <Pressable
+            onPress={() => {
+              haptics.light();
+              router.push('/(modals)/family-switcher');
+            }}
+            className="flex-row items-center py-4 px-5 rounded-2xl bg-background-light mt-3"
+            style={({ pressed }) => ({ opacity: pressed ? 0.7 : 1 })}
+          >
+            <MaterialCommunityIcons name="swap-horizontal" size={24} color="#3b82f6" />
+            <View className="flex-1 ml-3.5">
+              <Text className="text-[17px] font-sans-semibold text-text">
+                {t('invitation.myFamilies', { defaultValue: 'Minhas famílias' })}
+              </Text>
+              <Text className="text-[13px] font-sans text-text-secondary mt-0.5">
+                {t('invitation.myFamiliesHint', {
+                  defaultValue: 'Troque entre as famílias que você participa',
+                })}
+              </Text>
+            </View>
+            <MaterialCommunityIcons name="chevron-right" size={24} color="#9ca3af" />
+          </Pressable>
         </Card>
 
         {/* Contract */}
