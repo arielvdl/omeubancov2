@@ -2,14 +2,14 @@
   "expo": {
     "name": "O Meu Banco",
     "slug": "omeubanco",
-    "version": "1.0.3",
+    "version": "1.0.4",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
     "scheme": "omeubanco",
     "userInterfaceStyle": "automatic",
     "backgroundColor": "#f8f8f5",
     "newArchEnabled": true,
-    "runtimeVersion": "1.0.3",
+    "runtimeVersion": "1.0.4",
     "updates": {
       "url": "https://u.expo.dev/36e73d9b-2c6e-481b-b916-53c4650beeed",
       "fallbackToCacheTimeout": 0,
