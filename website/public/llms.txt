@@ -1,0 +1,35 @@
+# O Meu Banco
+
+> O Meu Banco é um app iOS de educação financeira infantil para pais, responsáveis e crianças no Brasil. Funciona como um simulador educacional de mesada, cofrinho digital e metas de poupança — não movimenta dinheiro real. Privacidade infantil com foco em LGPD e COPPA, login com Passkey e área dos pais protegida com PIN e biometria.
+
+O app ensina crianças a poupar, planejar e administrar mesada de forma lúdica: os pais definem mesada (com ou sem tarefas), acompanham saldo, metas e histórico; as crianças aprendem conceitos financeiros sem risco, sem publicidade e sem dinheiro real.
+
+## Principal
+
+- [Página inicial](https://omeubanco.xyz/): apresentação do app, benefícios e download
+- [Download na App Store](https://apps.apple.com/app/o-meu-banco-mesada-infantil/id6761734592): O Meu Banco — Mesada Infantil (iOS)
+- [Suporte](https://omeubanco.xyz/suporte): atendimento, exclusão de conta e contato
+- [Política de Privacidade](https://omeubanco.xyz/privacidade): coleta e proteção de dados, LGPD e COPPA
+- [Termos de Uso](https://omeubanco.xyz/termos): regras de uso da plataforma
+
+## Conteúdo educativo
+
+- [Central de conhecimento](https://blog.omeubanco.xyz): hub oficial de conteúdo da marca, com llms.txt próprio
+- [Insights](https://blog.omeubanco.xyz/insights): artigos sobre mesada educativa, educação financeira infantil e como ensinar crianças a poupar
+- [Conteúdos](https://blog.omeubanco.xyz/conteudos): guias práticos de mesada por idade, cofrinho digital e metas de poupança
+
+## Desenvolvedores e agentes
+
+- [Documentação da API](https://omeubanco.xyz/docs/api): API pública do backend
+- [OpenAPI spec](https://omeubanco.xyz/docs/api/openapi.json): descrição OpenAPI 3.1 da API
+- [Catálogo de APIs](https://omeubanco.xyz/.well-known/api-catalog): linkset RFC 9727
+- [Agent Skills](https://omeubanco.xyz/.well-known/agent-skills/index.json): skills para agentes (download, suporte, políticas)
+- [MCP server card](https://omeubanco.xyz/.well-known/mcp/server-card.json): WebMCP do site
+
+## Optional
+
+- Todas as páginas principais servem Markdown via content negotiation (header `Accept: text/markdown`)
+- [Home em Markdown](https://omeubanco.xyz/__markdown/index.md)
+- [Suporte em Markdown](https://omeubanco.xyz/__markdown/suporte.md)
+- [Privacidade em Markdown](https://omeubanco.xyz/__markdown/privacidade.md)
+- [Termos em Markdown](https://omeubanco.xyz/__markdown/termos.md)

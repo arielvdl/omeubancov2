@@ -1,0 +1,736 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>O Meu Banco - Welcome Prototype</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    :root {
+      --primary: #FFD600;
+      --primary-dark: #E6C000;
+      --dark: #1a1a0e;
+      --dark-surface: #2a2a1a;
+      --bg-light: #f8f8f5;
+      --text-secondary: #6b6b5a;
+      --border: #e5e5d8;
+      --white: #ffffff;
+    }
+
+    body {
+      font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: #000;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      overflow: hidden;
+    }
+
+    /* Phone frame */
+    .phone-frame {
+      width: 393px;
+      height: 852px;
+      background: var(--primary);
+      border-radius: 48px;
+      overflow: hidden;
+      position: relative;
+      box-shadow: 0 25px 80px rgba(0,0,0,0.4);
+    }
+
+    /* Notch */
+    .notch {
+      position: absolute;
+      top: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 126px;
+      height: 34px;
+      background: #000;
+      border-radius: 0 0 20px 20px;
+      z-index: 100;
+    }
+
+    /* Status bar */
+    .status-bar {
+      height: 54px;
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      padding: 0 32px 4px;
+      color: var(--dark);
+      font-size: 14px;
+      font-weight: 600;
+    }
+
+    /* Main content */
+    .welcome-content {
+      display: flex;
+      flex-direction: column;
+      height: calc(100% - 54px);
+      position: relative;
+    }
+
+    /* Top bar with legal menu */
+    .top-bar {
+      display: flex;
+      justify-content: flex-end;
+      align-items: center;
+      padding: 4px 24px 0;
+      position: relative;
+    }
+
+    .menu-dots {
+      background: none;
+      border: none;
+      cursor: pointer;
+      padding: 8px;
+      border-radius: 12px;
+      transition: background 0.2s;
+    }
+
+    .menu-dots:hover {
+      background: rgba(0,0,0,0.06);
+    }
+
+    .legal-menu {
+      position: absolute;
+      top: 44px;
+      right: 24px;
+      background: var(--white);
+      border-radius: 14px;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.15);
+      padding: 8px 0;
+      opacity: 0;
+      pointer-events: none;
+      transform: translateY(-8px) scale(0.95);
+      transition: all 0.2s ease;
+      z-index: 50;
+      min-width: 200px;
+    }
+
+    .legal-menu.active {
+      opacity: 1;
+      pointer-events: all;
+      transform: translateY(0) scale(1);
+    }
+
+    .legal-link {
+      display: block;
+      padding: 12px 20px;
+      color: var(--dark);
+      text-decoration: none;
+      font-size: 14px;
+      font-weight: 500;
+      transition: background 0.15s;
+    }
+
+    .legal-link:hover {
+      background: var(--bg-light);
+    }
+
+    /* Top section - yellow with carousel */
+    .top-section {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 10px 24px 0;
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* Character carousel container */
+    .carousel-container {
+      width: 100%;
+      height: 220px;
+      position: relative;
+      perspective: 800px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .carousel-track {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      width: 100%;
+      height: 100%;
+    }
+
+    /* Character card - square 1:1 ratio */
+    .character-card {
+      width: 160px;
+      height: 160px;
+      border-radius: 16px;
+      position: absolute;
+      transition: all 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+      box-shadow: 0 12px 40px rgba(0,0,0,0.15);
+      overflow: hidden;
+      background: var(--white);
+      padding: 12px;
+    }
+
+    .character-card .card-inner {
+      width: 100%;
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      overflow: hidden;
+      border-radius: 10px;
+    }
+
+    .character-card video {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      border-radius: 10px;
+    }
+
+    /* Carousel positions - more spaced, smaller behind */
+    .pos-far-left {
+      transform: translateX(-280px) scale(0.45);
+      opacity: 0;
+      z-index: 1;
+    }
+    .pos-left {
+      transform: translateX(-170px) scale(0.65);
+      opacity: 0.4;
+      z-index: 2;
+      filter: blur(1.5px);
+    }
+    .pos-center {
+      transform: translateX(0) scale(1);
+      opacity: 1;
+      z-index: 4;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.25);
+    }
+    .pos-right {
+      transform: translateX(170px) scale(0.65);
+      opacity: 0.4;
+      z-index: 2;
+      filter: blur(1.5px);
+    }
+    .pos-far-right {
+      transform: translateX(280px) scale(0.45);
+      opacity: 0;
+      z-index: 1;
+    }
+    .pos-hidden {
+      transform: translateX(0) scale(0.3);
+      opacity: 0;
+      z-index: 0;
+      pointer-events: none;
+    }
+
+    /* Bottom section - white curved */
+    .bottom-section {
+      background: var(--white);
+      border-radius: 36px 36px 0 0;
+      padding: 32px 32px 48px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      position: relative;
+      min-height: 310px;
+      z-index: 10;
+    }
+
+    /* Logo icon - uses real app icon */
+    .logo-icon {
+      width: 76px;
+      height: 76px;
+      border-radius: 20px;
+      margin-top: -58px;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.2);
+      position: relative;
+      z-index: 11;
+      overflow: hidden;
+    }
+
+    .logo-icon img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+
+    /* Carousel dots */
+    .carousel-dots {
+      display: flex;
+      gap: 6px;
+      margin-top: 18px;
+    }
+
+    .dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--border);
+      transition: all 0.3s ease;
+    }
+
+    .dot.active {
+      background: var(--primary);
+      width: 24px;
+      border-radius: 4px;
+    }
+
+    /* Title */
+    .welcome-title {
+      font-size: 28px;
+      font-weight: 800;
+      color: var(--dark);
+      text-align: center;
+      margin-top: 14px;
+      line-height: 1.2;
+    }
+
+    .welcome-subtitle {
+      font-size: 15px;
+      color: var(--text-secondary);
+      text-align: center;
+      margin-top: 8px;
+      line-height: 1.5;
+    }
+
+    /* Enter button */
+    .enter-btn {
+      width: 64px;
+      height: 64px;
+      border-radius: 18px;
+      background: var(--primary);
+      border: none;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-top: 20px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      box-shadow: 0 4px 16px rgba(255, 214, 0, 0.4);
+    }
+
+    .enter-btn:hover {
+      transform: scale(1.05);
+      box-shadow: 0 6px 24px rgba(255, 214, 0, 0.5);
+    }
+
+    .enter-btn:active {
+      transform: scale(0.95);
+    }
+
+    .enter-btn svg {
+      width: 28px;
+      height: 28px;
+      fill: var(--dark);
+    }
+
+    /* ===== LOGIN MODAL ===== */
+    .modal-overlay {
+      position: absolute;
+      inset: 0;
+      background: rgba(0,0,0,0.5);
+      z-index: 200;
+      display: flex;
+      align-items: flex-end;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s ease;
+      border-radius: 48px;
+    }
+
+    .modal-overlay.active {
+      opacity: 1;
+      pointer-events: all;
+    }
+
+    .modal-sheet {
+      background: var(--white);
+      width: 100%;
+      border-radius: 32px 32px 0 0;
+      padding: 20px 28px 48px;
+      transform: translateY(100%);
+      transition: transform 0.4s cubic-bezier(0.32, 0.72, 0, 1);
+    }
+
+    .modal-overlay.active .modal-sheet {
+      transform: translateY(0);
+    }
+
+    .modal-handle {
+      width: 40px;
+      height: 5px;
+      background: var(--border);
+      border-radius: 3px;
+      margin: 0 auto 20px;
+    }
+
+    .modal-title {
+      font-size: 22px;
+      font-weight: 800;
+      color: var(--dark);
+      text-align: center;
+      margin-bottom: 24px;
+    }
+
+    /* Input fields */
+    .input-group {
+      margin-bottom: 16px;
+    }
+
+    .input-label {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--dark);
+      margin-bottom: 8px;
+      display: block;
+      margin-left: 4px;
+    }
+
+    .input-field {
+      width: 100%;
+      padding: 14px 18px;
+      border: 2px solid var(--border);
+      border-radius: 16px;
+      font-size: 16px;
+      font-family: inherit;
+      color: var(--dark);
+      background: var(--bg-light);
+      outline: none;
+      transition: border-color 0.2s ease;
+    }
+
+    .input-field:focus {
+      border-color: var(--primary);
+    }
+
+    .input-field::placeholder {
+      color: #aaa;
+    }
+
+    /* Login buttons */
+    .btn-primary {
+      width: 100%;
+      padding: 16px;
+      border: none;
+      border-radius: 20px;
+      background: var(--dark);
+      color: var(--white);
+      font-size: 16px;
+      font-weight: 700;
+      font-family: inherit;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      margin-top: 8px;
+    }
+
+    .btn-primary:hover {
+      opacity: 0.9;
+    }
+
+    .btn-primary:active {
+      transform: scale(0.98);
+    }
+
+    .divider {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      margin: 20px 0;
+    }
+
+    .divider-line {
+      flex: 1;
+      height: 1px;
+      background: var(--border);
+    }
+
+    .divider-text {
+      font-size: 13px;
+      color: var(--text-secondary);
+    }
+
+    .btn-social {
+      width: 100%;
+      padding: 14px;
+      border: 2px solid var(--border);
+      border-radius: 16px;
+      background: var(--white);
+      font-size: 15px;
+      font-weight: 600;
+      font-family: inherit;
+      color: var(--dark);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      transition: all 0.2s ease;
+      margin-bottom: 10px;
+    }
+
+    .btn-social:hover {
+      background: var(--bg-light);
+    }
+
+    .btn-social:active {
+      transform: scale(0.98);
+    }
+
+    .toggle-text {
+      text-align: center;
+      font-size: 14px;
+      color: var(--text-secondary);
+      margin-top: 16px;
+      cursor: pointer;
+    }
+
+    .toggle-text span {
+      color: var(--dark);
+      font-weight: 700;
+    }
+
+    /* Responsive */
+    @media (max-height: 700px) {
+      .phone-frame {
+        height: 100vh;
+        border-radius: 0;
+      }
+      .notch { display: none; }
+    }
+
+    @media (max-width: 420px) {
+      .phone-frame {
+        width: 100vw;
+        height: 100vh;
+        border-radius: 0;
+      }
+      .notch { display: none; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="phone-frame">
+  <div class="notch"></div>
+  <div class="status-bar">
+    <span>9:41</span>
+    <span style="display:flex; gap:6px; align-items:center;">
+      <svg width="16" height="12" viewBox="0 0 16 12"><path d="M1 8h2v4H1zM5 5h2v7H5zM9 3h2v9H9zM13 0h2v12h-2z" fill="currentColor"/></svg>
+      <svg width="16" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M1 9l2 2c5.5-5.5 14.5-5.5 20 0l2-2C18.5 2.5 6.5 2.5 1 9zm8 8l3 3 3-3c-1.6-1.6-4.4-1.6-6 0zm-4-4l2 2c3.3-3.3 8.7-3.3 12 0l2-2c-4.4-4.4-11.6-4.4-16 0z"/></svg>
+      <svg width="25" height="12" viewBox="0 0 25 12"><rect x="0" y="1" width="21" height="10" rx="2" ry="2" stroke="currentColor" stroke-width="1" fill="none"/><rect x="22" y="4" width="2" height="4" rx="1" fill="currentColor"/><rect x="2" y="3" width="14" height="6" rx="1" fill="currentColor"/></svg>
+    </span>
+  </div>
+
+  <div class="welcome-content">
+    <!-- Top bar with menu -->
+    <div class="top-bar">
+      <div></div>
+      <button class="menu-dots" onclick="toggleLegalMenu()" aria-label="Menu">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="var(--dark)"><circle cx="12" cy="5" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="12" cy="19" r="2"/></svg>
+      </button>
+      <div class="legal-menu" id="legalMenu">
+        <a href="#" class="legal-link">Politica de privacidade</a>
+        <a href="#" class="legal-link">Termos de uso</a>
+      </div>
+    </div>
+
+    <!-- Top yellow section with character carousel -->
+    <div class="top-section">
+      <div class="carousel-container">
+        <div class="carousel-track" id="carousel">
+          <!-- Cards rendered by JS -->
+        </div>
+      </div>
+    </div>
+
+    <!-- Bottom white section -->
+    <div class="bottom-section">
+      <!-- Real app logo -->
+      <div class="logo-icon">
+        <img src="assets/images/icon.png" alt="O Meu Banco">
+      </div>
+
+      <div class="carousel-dots" id="dots"></div>
+
+      <h1 class="welcome-title">Financas divertidas<br>para toda familia</h1>
+      <p class="welcome-subtitle">Ensine seus filhos sobre dinheiro<br>de um jeito ludico e seguro</p>
+
+      <button class="enter-btn" onclick="openModal()" aria-label="Entrar">
+        <svg viewBox="0 0 24 24"><path d="M12 4l-1.41 1.41L16.17 11H4v2h12.17l-5.58 5.59L12 20l8-8z"/></svg>
+      </button>
+    </div>
+  </div>
+
+  <!-- Login Modal -->
+  <div class="modal-overlay" id="modalOverlay" onclick="closeModal(event)">
+    <div class="modal-sheet" onclick="event.stopPropagation()">
+      <div class="modal-handle"></div>
+      <h2 class="modal-title">Entrar no Meu Banco</h2>
+
+      <div class="input-group">
+        <label class="input-label">E-mail</label>
+        <input type="email" class="input-field" placeholder="seu@email.com">
+      </div>
+
+      <div class="input-group">
+        <label class="input-label">Senha</label>
+        <input type="password" class="input-field" placeholder="Sua senha">
+      </div>
+
+      <button class="btn-primary">Entrar</button>
+
+      <div class="divider">
+        <div class="divider-line"></div>
+        <span class="divider-text">ou</span>
+        <div class="divider-line"></div>
+      </div>
+
+      <button class="btn-social">
+        <svg width="20" height="20" viewBox="0 0 24 24"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 01-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z" fill="#4285F4"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/></svg>
+        Entrar com Google
+      </button>
+
+      <button class="btn-social">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="#1a1a0e"><path d="M17.81 4.47c-.08 0-.16-.02-.23-.06C15.66 3.42 14 3 12.01 3c-1.98 0-3.86.47-5.57 1.41-.24.13-.54.04-.68-.2-.13-.24-.04-.55.2-.68C7.82 2.52 9.86 2 12.01 2c2.13 0 3.99.47 6.03 1.52.25.13.34.43.21.67-.09.18-.26.28-.44.28zM3.5 9.72c-.1 0-.2-.03-.29-.09-.23-.16-.28-.47-.12-.7.99-1.4 2.25-2.51 3.75-3.3C8.34 4.83 10.13 4.42 12 4.42c1.87 0 3.66.41 5.16 1.21 1.5.79 2.76 1.9 3.75 3.3.16.22.1.54-.12.7-.23.16-.54.11-.7-.12-.9-1.26-2.04-2.27-3.39-2.98-1.36-.72-2.96-1.11-4.7-1.11-1.74 0-3.34.39-4.7 1.11-1.35.71-2.49 1.72-3.39 2.98-.09.15-.25.22-.41.22zM9.75 21.79c-.13 0-.26-.05-.35-.15-.87-.87-1.34-1.43-2.01-2.64-.69-1.23-1.05-2.73-1.05-4.34 0-2.97 2.54-5.39 5.66-5.39s5.66 2.42 5.66 5.39c0 .28-.22.5-.5.5s-.5-.22-.5-.5c0-2.42-2.09-4.39-4.66-4.39-2.57 0-4.66 1.97-4.66 4.39 0 1.44.32 2.77.93 3.85.64 1.15 1.08 1.64 1.85 2.42.19.2.19.51 0 .71-.11.1-.24.15-.37.15zM16.92 19.94c-1.19 0-2.24-.3-3.1-.89-1.49-1.01-2.38-2.65-2.38-4.39 0-.28.22-.5.5-.5s.5.22.5.5c0 1.36.72 2.64 1.92 3.45.69.47 1.57.72 2.56.72.7 0 1.37-.14 1.94-.41.27-.13.6 0 .71.27.12.27 0 .6-.27.72-.72.33-1.55.53-2.38.53zM12 21.35c-.13 0-.26-.05-.36-.15-.17-.18-.34-.36-.51-.56-.22-.25-.19-.61.06-.83.25-.22.61-.19.83.06.14.17.28.33.43.48.2.19.2.51 0 .71-.1.11-.24.16-.37.16l-.08-.01z"/></svg>
+        Entrar com Passkey
+      </button>
+
+      <p class="toggle-text">Ainda nao tem conta? <span>Criar conta</span></p>
+    </div>
+  </div>
+</div>
+
+<script>
+  // Character data - using real mascot videos
+  const characters = [
+    { video: 'assets/characters/fox_loop.mp4', name: 'Raposa' },
+    { video: 'assets/characters/lion_loop.mp4', name: 'Leao' },
+    { video: 'assets/characters/cat_loop.mp4', name: 'Gatinho' },
+    { video: 'assets/characters/dino_loop.mp4', name: 'Dino' },
+    { video: 'assets/characters/cow_loop.mp4', name: 'Vaquinha' },
+    { video: 'assets/characters/spitz_loop.mp4', name: 'Spitz' },
+    { video: 'assets/characters/giraffe_loop.mp4', name: 'Girafa' },
+    { video: 'assets/characters/unicorn_loop.mp4', name: 'Unicornio' },
+  ];
+
+  const carousel = document.getElementById('carousel');
+  const dotsContainer = document.getElementById('dots');
+  let currentIndex = 0;
+
+  // Create cards with real video elements
+  characters.forEach((char, i) => {
+    const card = document.createElement('div');
+    card.className = 'character-card';
+    card.innerHTML = `
+      <div class="card-inner">
+        <video
+          src="${char.video}"
+          autoplay
+          loop
+          muted
+          playsinline
+          preload="auto"
+        ></video>
+      </div>
+    `;
+    carousel.appendChild(card);
+  });
+
+  // Create dots
+  characters.forEach((_, i) => {
+    const dot = document.createElement('div');
+    dot.className = 'dot' + (i === 0 ? ' active' : '');
+    dotsContainer.appendChild(dot);
+  });
+
+  const cards = document.querySelectorAll('.character-card');
+  const dots = document.querySelectorAll('.dot');
+
+  function updateCarousel() {
+    const positions = ['pos-far-left', 'pos-left', 'pos-center', 'pos-right', 'pos-far-right', 'pos-hidden'];
+
+    cards.forEach((card, i) => {
+      // Remove all position classes
+      positions.forEach(p => card.classList.remove(p));
+      card.style.opacity = '';
+      card.style.pointerEvents = '';
+      card.style.filter = '';
+
+      // Calculate relative position
+      let diff = i - currentIndex;
+
+      // Wrap around
+      if (diff > characters.length / 2) diff -= characters.length;
+      if (diff < -characters.length / 2) diff += characters.length;
+
+      if (diff === 0) {
+        card.classList.add('pos-center');
+      } else if (diff === 1) {
+        card.classList.add('pos-right');
+      } else if (diff === -1) {
+        card.classList.add('pos-left');
+      } else if (diff === 2) {
+        card.classList.add('pos-far-right');
+      } else if (diff === -2) {
+        card.classList.add('pos-far-left');
+      } else {
+        card.classList.add('pos-hidden');
+      }
+    });
+
+    // Update dots
+    dots.forEach((dot, i) => {
+      dot.classList.toggle('active', i === currentIndex);
+    });
+  }
+
+  // Initialize
+  updateCarousel();
+
+  // Auto-advance every 6 seconds
+  setInterval(() => {
+    currentIndex = (currentIndex + 1) % characters.length;
+    updateCarousel();
+  }, 6000);
+
+  // Modal
+  function openModal() {
+    document.getElementById('modalOverlay').classList.add('active');
+  }
+
+  function closeModal(e) {
+    if (e.target === e.currentTarget) {
+      document.getElementById('modalOverlay').classList.remove('active');
+    }
+  }
+
+  // Legal menu
+  function toggleLegalMenu() {
+    document.getElementById('legalMenu').classList.toggle('active');
+  }
+
+  // Close menu when clicking outside
+  document.addEventListener('click', (e) => {
+    const menu = document.getElementById('legalMenu');
+    const btn = document.querySelector('.menu-dots');
+    if (!menu.contains(e.target) && !btn.contains(e.target)) {
+      menu.classList.remove('active');
+    }
+  });
+</script>
+
+</body>
+</html>

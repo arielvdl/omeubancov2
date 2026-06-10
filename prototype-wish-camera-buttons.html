@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=390, initial-scale=1.0">
+  <title>Wish Camera - Botões Sim/Não</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: -apple-system, 'SF Pro Display', sans-serif;
+      background: #000;
+      width: 390px;
+      height: 844px;
+      margin: 0 auto;
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* Status bar */
+    .status-bar {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 54px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 24px 0;
+      z-index: 10;
+      color: #fff;
+      font-size: 15px;
+      font-weight: 600;
+    }
+
+    .status-bar .time { font-weight: 700; }
+    .status-bar .icons { display: flex; gap: 6px; align-items: center; }
+
+    /* Fake camera preview */
+    .camera-preview {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(160deg, #2a2a2a 0%, #1a1a1a 40%, #111 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .camera-preview::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 800"><rect fill="%23222" width="400" height="800"/><circle cx="200" cy="350" r="120" fill="%23333" opacity="0.3"/></svg>');
+      background-size: cover;
+      opacity: 0.5;
+    }
+
+    /* Photo captured overlay - simulating captured photo */
+    .photo-captured {
+      position: absolute;
+      inset: 0;
+      background:
+        linear-gradient(180deg, rgba(0,0,0,0.1) 0%, transparent 15%, transparent 75%, rgba(0,0,0,0.6) 100%);
+      z-index: 1;
+    }
+
+    /* Bottom buttons area */
+    .bottom-bar {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      padding: 0 28px 48px;
+      z-index: 5;
+      display: flex;
+      gap: 16px;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .btn {
+      flex: 1;
+      height: 56px;
+      border-radius: 28px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: none;
+      cursor: pointer;
+      transition: transform 0.15s ease, opacity 0.15s ease;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.25);
+    }
+
+    .btn:active {
+      transform: scale(0.95);
+      opacity: 0.9;
+    }
+
+    .btn-no {
+      background: #FEE2E2;
+    }
+
+    .btn-yes {
+      background: #DCFCE7;
+    }
+
+    .btn svg {
+      width: 28px;
+      height: 28px;
+    }
+
+    /* Label below for reference */
+    .label-row {
+      position: absolute;
+      bottom: 28px;
+      left: 0;
+      right: 0;
+      display: flex;
+      justify-content: center;
+      gap: 100px;
+      z-index: 5;
+    }
+
+    .label {
+      font-size: 11px;
+      color: rgba(255,255,255,0.5);
+      text-align: center;
+    }
+
+    /* ===== Variação 2: com ícones maiores ===== */
+    .variant-label {
+      position: absolute;
+      top: 70px;
+      left: 0;
+      right: 0;
+      text-align: center;
+      color: rgba(255,255,255,0.3);
+      font-size: 12px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      z-index: 10;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Status bar -->
+  <div class="status-bar">
+    <span class="time">10:42</span>
+    <div class="icons">
+      <svg width="17" height="12" fill="none"><rect x="0" y="2" width="3" height="10" rx="1" fill="#fff"/><rect x="4.5" y="0" width="3" height="12" rx="1" fill="#fff"/><rect x="9" y="4" width="3" height="8" rx="1" fill="#fff"/><rect x="13.5" y="6" width="3" height="6" rx="1" fill="#fff"/></svg>
+      <svg width="16" height="12" fill="none"><path d="M8 3C5 3 2.4 4.3 1 6.5L0 5.5C1.7 3 4.6 1.5 8 1.5s6.3 1.5 8 4L15 6.5C13.6 4.3 11 3 8 3z" fill="#fff"/><circle cx="8" cy="9.5" r="2.5" fill="#fff"/></svg>
+      <svg width="27" height="13" fill="none"><rect x="0" y="1" width="22" height="11" rx="3" stroke="#fff" stroke-opacity=".35"/><rect x="1.5" y="2.5" width="16" height="8" rx="2" fill="#fff"/><rect x="23" y="4" width="3" height="5" rx="1" fill="#fff" fill-opacity=".4"/></svg>
+    </div>
+  </div>
+
+  <!-- Camera preview background -->
+  <div class="camera-preview"></div>
+  <div class="photo-captured"></div>
+
+  <!-- Bottom buttons -->
+  <div class="bottom-bar">
+    <!-- Botão NÃO (tirar outra) - Vermelho claro -->
+    <button class="btn btn-no" title="Tirar outra">
+      <svg viewBox="0 0 24 24" fill="none" stroke="#DC2626" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M18 6L6 18"/>
+        <path d="M6 6l12 12"/>
+      </svg>
+    </button>
+
+    <!-- Botão SIM (salvar) - Verde claro -->
+    <button class="btn btn-yes" title="Salvar">
+      <svg viewBox="0 0 24 24" fill="none" stroke="#16A34A" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3H14z"/>
+        <path d="M7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3"/>
+      </svg>
+    </button>
+  </div>
+
+
+</body>
+</html>

@@ -4,7 +4,7 @@ export const dynamic = "force-static";
 
 export default function sitemap(): MetadataRoute.Sitemap {
   const baseUrl = "https://omeubanco.xyz";
-  const artefactoUrl = "https://artefacto.omeubanco.xyz";
+  const artefactoUrl = "https://blog.omeubanco.xyz";
 
   return [
     {
@@ -32,34 +32,22 @@ export default function sitemap(): MetadataRoute.Sitemap {
       priority: 0.3,
     },
     {
-      url: `${artefactoUrl}/blog`,
+      url: artefactoUrl,
       lastModified: new Date(),
       changeFrequency: "weekly",
       priority: 0.9,
     },
     {
-      url: `${artefactoUrl}/guias`,
+      url: `${artefactoUrl}/insights`,
       lastModified: new Date(),
       changeFrequency: "weekly",
       priority: 0.8,
     },
     {
-      url: `${artefactoUrl}/faq`,
-      lastModified: new Date(),
-      changeFrequency: "monthly",
-      priority: 0.7,
-    },
-    {
-      url: `${artefactoUrl}/comparativos`,
+      url: `${artefactoUrl}/conteudos`,
       lastModified: new Date(),
       changeFrequency: "weekly",
       priority: 0.7,
-    },
-    {
-      url: `${artefactoUrl}/institucional`,
-      lastModified: new Date(),
-      changeFrequency: "monthly",
-      priority: 0.6,
     },
   ];
 }

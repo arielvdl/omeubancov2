@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=430, initial-scale=1.0">
+<title>Paywall</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { width: 430px; height: 932px; overflow: hidden; }
+  body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    background: #f8f8f5;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .status-bar {
+    height: 54px;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    padding: 0 28px 8px;
+    font-size: 16px;
+    font-weight: 600;
+    color: #1a1a0e;
+  }
+  .status-bar-icons { display: flex; gap: 6px; align-items: center; }
+
+  .content { padding: 0 28px 28px; }
+
+  .header {
+    display: flex;
+    align-items: center;
+    padding: 8px 0 16px;
+    gap: 12px;
+  }
+  .header-back {
+    width: 36px; height: 36px; border-radius: 12px;
+    background: #eeeedf; display: flex; align-items: center;
+    justify-content: center; font-size: 20px; color: #1a1a0e;
+  }
+  .header-title { font-size: 18px; font-weight: 700; color: #1a1a0e; }
+
+  .hero { text-align: center; margin-bottom: 24px; }
+  .hero-icon {
+    width: 76px; height: 76px; border-radius: 50%; background: #FFD600;
+    display: flex; align-items: center; justify-content: center;
+    margin: 0 auto 14px; font-size: 38px; line-height: 1;
+  }
+  .hero-title { font-size: 24px; font-weight: 700; color: #1a1a0e; }
+  .hero-subtitle { font-size: 15px; color: #888; margin-top: 6px; padding: 0 12px; }
+
+  .toggle {
+    display: flex; background: #eeeedf; border-radius: 16px;
+    padding: 5px; margin-bottom: 24px;
+  }
+  .toggle-btn {
+    flex: 1; padding: 11px; border-radius: 12px; text-align: center;
+    font-size: 15px; font-weight: 600; color: #999; border: none;
+    background: transparent; font-family: inherit;
+  }
+  .toggle-btn.active { background: #FFD600; color: #1a1a0e; }
+
+  .tier-card { border-radius: 24px; padding: 22px; margin-bottom: 16px; }
+  .tier-card.highlighted { background: #fffbe6; border: 2px solid #FFD600; }
+  .tier-card.normal { background: #fff; box-shadow: 0 2px 12px rgba(0,0,0,0.06); }
+
+  .badge {
+    display: inline-block; background: #FFD600; padding: 4px 12px;
+    border-radius: 999px; font-size: 12px; font-weight: 700;
+    color: #1a1a0e; margin-bottom: 10px;
+  }
+  .tier-name { font-size: 20px; font-weight: 700; color: #1a1a0e; }
+  .tier-price-row {
+    display: flex; align-items: baseline; margin-top: 4px;
+    margin-bottom: 14px; gap: 4px;
+  }
+  .tier-price { font-size: 28px; font-weight: 700; color: #1a1a0e; }
+  .tier-period { font-size: 14px; color: #888; }
+  .tier-discount {
+    background: #dcfce7; padding: 2px 8px; border-radius: 999px;
+    font-size: 12px; font-weight: 600; color: #15803d; margin-left: 8px;
+  }
+
+  .feature-row { display: flex; align-items: center; gap: 10px; padding: 6px 0; }
+  .check-icon { width: 20px; height: 20px; flex-shrink: 0; }
+  .feature-text { font-size: 14px; color: #555; }
+
+  .subscribe-btn {
+    width: 100%; padding: 14px; border-radius: 16px; background: #FFD600;
+    border: none; font-size: 16px; font-weight: 700; color: #1a1a0e;
+    margin-top: 14px; font-family: inherit;
+  }
+
+  .restore-link {
+    text-align: center; padding: 14px; font-size: 14px;
+    color: #888; text-decoration: underline;
+  }
+
+  .home-indicator {
+    width: 134px; height: 5px; background: #1a1a0e;
+    border-radius: 3px; margin: 4px auto 0;
+  }
+</style>
+</head>
+<body>
+
+<div class="status-bar">
+  <span>9:41</span>
+  <div class="status-bar-icons">
+    <svg width="17" height="12" viewBox="0 0 17 12"><path d="M1 3.5C3.5 1 6.5 0 8.5 0s5 1 7.5 3.5" stroke="#1a1a0e" stroke-width="1.5" fill="none"/><path d="M3.5 6C5 4.5 6.5 3.5 8.5 3.5s3.5 1 5 2.5" stroke="#1a1a0e" stroke-width="1.5" fill="none"/><circle cx="8.5" cy="10" r="2" fill="#1a1a0e"/></svg>
+    <svg width="16" height="12" viewBox="0 0 16 12"><rect x="0" y="3" width="3" height="9" rx="1" fill="#1a1a0e"/><rect x="4.5" y="1.5" width="3" height="10.5" rx="1" fill="#1a1a0e"/><rect x="9" y="0" width="3" height="12" rx="1" fill="#1a1a0e"/></svg>
+    <svg width="27" height="13" viewBox="0 0 27 13"><rect x="0" y="1" width="23" height="11" rx="3.5" stroke="#1a1a0e" stroke-width="1" fill="none"/><rect x="2" y="3" width="18" height="7" rx="1.5" fill="#1a1a0e"/><rect x="24" y="4.5" width="2.5" height="4" rx="1" fill="#1a1a0e"/></svg>
+  </div>
+</div>
+
+<div class="content">
+  <div class="header">
+    <div class="header-back">&#8249;</div>
+    <div class="header-title">Assinar</div>
+  </div>
+
+  <div class="hero">
+    <div class="hero-icon">&#9733;</div>
+    <div class="hero-title">Desbloqueie tudo</div>
+    <div class="hero-subtitle">Acesse todas as funcionalidades para sua familia</div>
+  </div>
+
+  <div class="toggle">
+    <div class="toggle-btn" id="btn-monthly">Mensal</div>
+    <div class="toggle-btn" id="btn-yearly">Anual</div>
+  </div>
+
+  <!-- Familia -->
+  <div class="tier-card highlighted">
+    <div class="badge">Mais popular</div>
+    <div class="tier-name">Familia</div>
+    <div class="tier-price-row">
+      <span class="tier-price" id="price-familia"></span>
+      <span class="tier-period" id="period-familia"></span>
+      <span class="tier-discount" id="discount-familia" style="display:none">-24%</span>
+    </div>
+    <div class="feature-row"><svg class="check-icon" viewBox="0 0 20 20"><circle cx="10" cy="10" r="10" fill="#22c55e"/><path d="M6 10l3 3 5-6" stroke="#fff" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg><span class="feature-text">Ate 3 criancas</span></div>
+    <div class="feature-row"><svg class="check-icon" viewBox="0 0 20 20"><circle cx="10" cy="10" r="10" fill="#22c55e"/><path d="M6 10l3 3 5-6" stroke="#fff" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg><span class="feature-text">Fotos ilimitadas</span></div>
+    <div class="feature-row"><svg class="check-icon" viewBox="0 0 20 20"><circle cx="10" cy="10" r="10" fill="#22c55e"/><path d="M6 10l3 3 5-6" stroke="#fff" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg><span class="feature-text">Desejos ilimitados</span></div>
+    <div class="feature-row"><svg class="check-icon" viewBox="0 0 20 20"><circle cx="10" cy="10" r="10" fill="#22c55e"/><path d="M6 10l3 3 5-6" stroke="#fff" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg><span class="feature-text">Agendamento diario e semanal</span></div>
+    <div class="feature-row"><svg class="check-icon" viewBox="0 0 20 20"><circle cx="10" cy="10" r="10" fill="#22c55e"/><path d="M6 10l3 3 5-6" stroke="#fff" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg><span class="feature-text">Adicionar pessoas da familia</span></div>
+    <div class="feature-row"><svg class="check-icon" viewBox="0 0 20 20"><circle cx="10" cy="10" r="10" fill="#22c55e"/><path d="M6 10l3 3 5-6" stroke="#fff" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg><span class="feature-text">Sem publicidade</span></div>
+    <button class="subscribe-btn">Assinar</button>
+  </div>
+
+  <!-- Familia+ -->
+  <div class="tier-card normal">
+    <div class="tier-name">Familia+</div>
+    <div class="tier-price-row">
+      <span class="tier-price" id="price-familia-plus"></span>
+      <span class="tier-period" id="period-familia-plus"></span>
+      <span class="tier-discount" id="discount-familia-plus" style="display:none">-22%</span>
+    </div>
+    <div class="feature-row"><svg class="check-icon" viewBox="0 0 20 20"><circle cx="10" cy="10" r="10" fill="#22c55e"/><path d="M6 10l3 3 5-6" stroke="#fff" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg><span class="feature-text">Ate 5 criancas</span></div>
+    <div class="feature-row"><svg class="check-icon" viewBox="0 0 20 20"><circle cx="10" cy="10" r="10" fill="#22c55e"/><path d="M6 10l3 3 5-6" stroke="#fff" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg><span class="feature-text">Fotos ilimitadas</span></div>
+    <div class="feature-row"><svg class="check-icon" viewBox="0 0 20 20"><circle cx="10" cy="10" r="10" fill="#22c55e"/><path d="M6 10l3 3 5-6" stroke="#fff" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg><span class="feature-text">Desejos ilimitados</span></div>
+    <div class="feature-row"><svg class="check-icon" viewBox="0 0 20 20"><circle cx="10" cy="10" r="10" fill="#22c55e"/><path d="M6 10l3 3 5-6" stroke="#fff" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg><span class="feature-text">Agendamento diario e semanal</span></div>
+    <div class="feature-row"><svg class="check-icon" viewBox="0 0 20 20"><circle cx="10" cy="10" r="10" fill="#22c55e"/><path d="M6 10l3 3 5-6" stroke="#fff" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg><span class="feature-text">Adicionar pessoas da familia</span></div>
+    <div class="feature-row"><svg class="check-icon" viewBox="0 0 20 20"><circle cx="10" cy="10" r="10" fill="#22c55e"/><path d="M6 10l3 3 5-6" stroke="#fff" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg><span class="feature-text">Sem publicidade</span></div>
+    <button class="subscribe-btn">Assinar</button>
+  </div>
+
+  <div class="restore-link">Restaurar compras</div>
+  <div class="home-indicator"></div>
+</div>
+
+</body>
+</html>

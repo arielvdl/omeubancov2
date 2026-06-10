@@ -1,10 +1,10 @@
 # Content Signals preferences for AI and search crawlers.
 # search=yes allows indexing for traditional search results.
-# ai-input=no disallows use as live input for AI-generated answers.
-# ai-train=no disallows AI model training and fine-tuning.
+# ai-input=yes allows use as live input for AI-generated answers (GEO).
+# ai-train=yes allows AI model training and fine-tuning.
 
 User-agent: *
 Allow: /
-Content-Signal: ai-train=no, search=yes, ai-input=no
+Content-Signal: ai-train=yes, search=yes, ai-input=yes
 
 Sitemap: https://omeubanco.xyz/sitemap.xml

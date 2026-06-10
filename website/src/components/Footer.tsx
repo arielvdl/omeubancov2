@@ -1,6 +1,6 @@
 import Link from "next/link";
 
-const artefactoUrl = "https://artefacto.omeubanco.xyz";
+const artefactoUrl = "https://blog.omeubanco.xyz";
 
 export default function Footer() {
   const currentYear = new Date().getFullYear();
@@ -24,42 +24,10 @@ export default function Footer() {
             <ul className="mt-3 space-y-2 text-sm">
               <li>
                 <a
-                  href={`${artefactoUrl}/blog`}
+                  href={artefactoUrl}
                   className="hover:text-white transition-colors"
                 >
                   Blog
-                </a>
-              </li>
-              <li>
-                <a
-                  href={`${artefactoUrl}/guias`}
-                  className="hover:text-white transition-colors"
-                >
-                  Guias
-                </a>
-              </li>
-              <li>
-                <a
-                  href={`${artefactoUrl}/faq`}
-                  className="hover:text-white transition-colors"
-                >
-                  FAQ
-                </a>
-              </li>
-              <li>
-                <a
-                  href={`${artefactoUrl}/comparativos`}
-                  className="hover:text-white transition-colors"
-                >
-                  Comparativos
-                </a>
-              </li>
-              <li>
-                <a
-                  href={`${artefactoUrl}/institucional`}
-                  className="hover:text-white transition-colors"
-                >
-                  Institucional
                 </a>
               </li>
             </ul>

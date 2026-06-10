@@ -1,0 +1,58 @@
+{
+  "agentsJson": "1.0.0",
+  "baseUrl": "https://omeubanco.xyz",
+  "info": {
+    "title": "O Meu Banco",
+    "description": "App iOS de educação financeira infantil. Simulador educacional de mesada, cofrinho digital e metas de poupança para famílias no Brasil — sem dinheiro real.",
+    "version": "1.0.0",
+    "contact": {
+      "name": "Suporte O Meu Banco",
+      "url": "https://omeubanco.xyz/suporte"
+    }
+  },
+  "sources": [
+    {
+      "id": "omeubanco-public-api",
+      "path": "https://omeubanco.xyz/docs/api/openapi.json",
+      "description": "API pública do backend O Meu Banco (OpenAPI 3.1)."
+    }
+  ],
+  "flows": [
+    {
+      "id": "check-api-health",
+      "title": "Verificar disponibilidade da API",
+      "description": "Consulta o endpoint de health check público para confirmar que a API está operacional.",
+      "actions": [
+        {
+          "id": "get-health",
+          "sourceId": "omeubanco-public-api",
+          "operationId": "getHealth",
+          "method": "GET",
+          "path": "/health"
+        }
+      ],
+      "links": [],
+      "fields": {
+        "parameters": [],
+        "requestBody": null,
+        "responses": {
+          "success": "200 com status da API"
+        }
+      }
+    }
+  ],
+  "links": [
+    {
+      "rel": "service-doc",
+      "href": "https://omeubanco.xyz/docs/api"
+    },
+    {
+      "rel": "api-catalog",
+      "href": "https://omeubanco.xyz/.well-known/api-catalog"
+    },
+    {
+      "rel": "llms-txt",
+      "href": "https://omeubanco.xyz/llms.txt"
+    }
+  ]
+}

@@ -109,7 +109,7 @@ export default function RootLayout({
                 "@type": "Organization",
                 name: "E-Commerce Experience Servicos da Informatica LTDA",
               },
-              sameAs: [`https://artefacto.omeubanco.xyz`],
+              sameAs: [`https://blog.omeubanco.xyz`],
               contactPoint: {
                 "@type": "ContactPoint",
                 email: "suporte@omeubanco.xyz",

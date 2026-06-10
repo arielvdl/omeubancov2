@@ -1,5 +1,48 @@
 import HeroCarousel from "@/components/HeroCarousel";
 
+const faqItems = [
+  {
+    question: "Qual o melhor app de mesada infantil?",
+    answer:
+      "Para famílias com iPhone que querem simular mesada sem dinheiro real, O Meu Banco é uma opção direta: une mesada, cofrinho digital, metas, extrato, contrato familiar e controle dos pais.",
+  },
+  {
+    question: "Mesada educativa vale a pena?",
+    answer:
+      "Sim, quando vem com regra clara. A mesada educativa ensina escolha, espera, planejamento e consequência. Sem conversa, ela vira só transferência de dinheiro.",
+  },
+  {
+    question: "Como ensinar criança a poupar?",
+    answer:
+      "Comece por um desejo concreto. Dê nome à meta, defina valor, acompanhe o progresso e converse sobre pequenas escolhas da semana.",
+  },
+  {
+    question: "Cofrinho digital infantil vale a pena?",
+    answer:
+      "Vale quando a criança consegue ver o progresso. O cofrinho digital ajuda a transformar poupança em algo concreto, visual e acompanhado pelos responsáveis.",
+  },
+  {
+    question: "Como funciona mesada com tarefas?",
+    answer:
+      "A família define tarefas, frequência, valor e regra de uso. O ideal é separar colaboração da casa, que não precisa ser paga, de metas extras que podem entrar no combinado.",
+  },
+  {
+    question: "O Meu Banco movimenta dinheiro real?",
+    answer:
+      "Não. O app é um simulador educacional e não realiza transações financeiras reais, não faz pagamentos e não se conecta à conta bancária da criança.",
+  },
+  {
+    question: "O app tem anúncios para crianças?",
+    answer:
+      "Não. Zero publicidade na área infantil, sem analytics de terceiros e sem compartilhamento comercial de dados.",
+  },
+  {
+    question: "Existem planos pagos?",
+    answer:
+      "Sim. Há plano Gratuito (1 criança), Família (até 4 crianças e mesada automática) e Família+ (crianças ilimitadas). Os valores devem ser conferidos na App Store antes da assinatura.",
+  },
+];
+
 export default function Home() {
   return (
     <>
@@ -18,7 +61,10 @@ export default function Home() {
                 Finanças divertidas para toda família
               </h1>
               <p className="mt-4 text-lg leading-relaxed text-black/70 sm:text-xl">
-                Ensine seus filhos sobre dinheiro de um jeito lúdico e seguro
+                O Meu Banco é um app de mesada infantil que funciona como um
+                banco virtual da família: a criança acompanha saldo, extrato,
+                metas e desejos, e os pais definem as regras. 100% educativo,
+                sem dinheiro real.
               </p>
               <div className="mt-8" id="download">
                 <a
@@ -239,6 +285,128 @@ export default function Home() {
         </div>
       </section>
 
+      {/* Mesada educativa na prática */}
+      <section id="mesada-educativa" className="bg-white py-20 sm:py-28">
+        <div className="mx-auto max-w-6xl px-6">
+          <div className="text-center">
+            <h2 className="text-3xl font-bold tracking-tight text-brand-dark sm:text-4xl">
+              Mesada educativa na prática
+            </h2>
+            <p className="mt-4 text-lg text-gray-600 max-w-2xl mx-auto">
+              A criança aprende que dinheiro tem origem, limite, escolha e
+              espera
+            </p>
+          </div>
+
+          <div className="mt-16 grid grid-cols-1 gap-8 sm:grid-cols-3">
+            <div className="rounded-3xl border border-gray-200 bg-white p-8">
+              <h3 className="text-lg font-bold text-brand-dark">
+                Mesada educativa vale a pena?
+              </h3>
+              <p className="mt-3 text-gray-600 leading-relaxed">
+                Vale quando vem com regra clara. A mesada pode ser manual ou
+                automática, com extrato visível e combinados feitos em
+                família. Sem conversa, mesada vira só transferência de
+                dinheiro.
+              </p>
+            </div>
+            <div className="rounded-3xl border border-gray-200 bg-white p-8">
+              <h3 className="text-lg font-bold text-brand-dark">
+                Cofrinho digital para aprender a poupar
+              </h3>
+              <p className="mt-3 text-gray-600 leading-relaxed">
+                O cofrinho digital transforma &ldquo;quero comprar&rdquo; em
+                objetivo: a criança cria metas, acompanha o progresso e
+                entende por que guardar hoje realiza um desejo depois.
+              </p>
+            </div>
+            <div className="rounded-3xl border border-gray-200 bg-white p-8">
+              <h3 className="text-lg font-bold text-brand-dark">
+                Mesada com tarefas e contrato familiar
+              </h3>
+              <p className="mt-3 text-gray-600 leading-relaxed">
+                A família define tarefas, frequência e valor em um contrato
+                financeiro criado por pais e filhos. Colaboração da casa é
+                separada de metas extras que entram no combinado.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Planos */}
+      <section id="planos" className="bg-brand-beige py-20 sm:py-28">
+        <div className="mx-auto max-w-6xl px-6">
+          <div className="text-center">
+            <h2 className="text-3xl font-bold tracking-tight text-brand-dark sm:text-4xl">
+              Planos para cada família
+            </h2>
+            <p className="mt-4 text-lg text-gray-600">
+              Comece grátis e evolua quando a família crescer
+            </p>
+          </div>
+
+          <div className="mt-16 grid grid-cols-1 gap-8 sm:grid-cols-3">
+            <PlanCard
+              name="Gratuito"
+              description="1 criança e funcionalidades básicas para começar a educação financeira."
+            />
+            <PlanCard
+              name="Família"
+              description="Até 4 crianças, mesada automática e convites para outros responsáveis."
+            />
+            <PlanCard
+              name="Família+"
+              description="Crianças ilimitadas e todos os recursos premium do app."
+            />
+          </div>
+          <p className="mt-8 text-center text-sm text-gray-500">
+            Confira os valores atuais na App Store antes de assinar.
+          </p>
+        </div>
+      </section>
+
+      {/* FAQ */}
+      <section id="faq" className="bg-white py-20 sm:py-28">
+        <div className="mx-auto max-w-3xl px-6">
+          <div className="text-center">
+            <h2 className="text-3xl font-bold tracking-tight text-brand-dark sm:text-4xl">
+              Perguntas Frequentes
+            </h2>
+          </div>
+
+          <div className="mt-12 space-y-4">
+            {faqItems.map((item) => (
+              <details
+                key={item.question}
+                className="group rounded-2xl border border-gray-200 bg-white p-6"
+              >
+                <summary className="cursor-pointer list-none text-base font-bold text-brand-dark marker:hidden">
+                  {item.question}
+                </summary>
+                <p className="mt-3 text-gray-600 leading-relaxed">
+                  {item.answer}
+                </p>
+              </details>
+            ))}
+          </div>
+        </div>
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              "@context": "https://schema.org",
+              "@type": "FAQPage",
+              mainEntity: faqItems.map((item) => ({
+                "@type": "Question",
+                name: item.question,
+                acceptedAnswer: { "@type": "Answer", text: item.answer },
+              })),
+            }),
+          }}
+        />
+      </section>
+
       {/* CTA Final */}
       <section className="bg-brand-yellow py-20 sm:py-28">
         <div className="mx-auto max-w-6xl px-6 text-center">
@@ -304,6 +472,21 @@ function FeatureCard({
       </div>
       <h3 className="mt-4 text-lg font-bold text-brand-dark">{title}</h3>
       <p className="mt-2 text-gray-600 leading-relaxed">{description}</p>
+    </div>
+  );
+}
+
+function PlanCard({
+  name,
+  description,
+}: {
+  name: string;
+  description: string;
+}) {
+  return (
+    <div className="rounded-3xl border border-gray-200 bg-white p-8 text-center">
+      <h3 className="text-xl font-bold text-brand-dark">{name}</h3>
+      <p className="mt-3 text-gray-600 leading-relaxed">{description}</p>
     </div>
   );
 }

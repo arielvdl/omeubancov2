@@ -1,0 +1,397 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>O Meu Banco - Paywall Screenshot</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    background: #f8f8f5;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    min-height: 100vh;
+    padding: 20px;
+  }
+
+  .phone-frame {
+    width: 430px;
+    height: 932px;
+    background: #f8f8f5;
+    border-radius: 48px;
+    overflow: hidden;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.15);
+    position: relative;
+    border: 4px solid #222;
+  }
+
+  .status-bar {
+    height: 54px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 14px 28px 0;
+    font-size: 15px;
+    font-weight: 600;
+    color: #1a1a0e;
+  }
+
+  .status-bar-icons {
+    display: flex;
+    gap: 5px;
+    align-items: center;
+  }
+
+  .notch {
+    width: 126px;
+    height: 34px;
+    background: #222;
+    border-radius: 0 0 20px 20px;
+    position: absolute;
+    top: 0;
+    left: 50%;
+    transform: translateX(-50%);
+  }
+
+  .content {
+    padding: 0 28px 28px;
+    overflow-y: auto;
+    height: calc(100% - 54px);
+  }
+
+  /* Header */
+  .header {
+    display: flex;
+    align-items: center;
+    padding: 12px 0 20px;
+    gap: 12px;
+  }
+
+  .header-back {
+    width: 36px;
+    height: 36px;
+    border-radius: 12px;
+    background: #f0f0e8;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    color: #1a1a0e;
+  }
+
+  .header-title {
+    font-size: 18px;
+    font-weight: 700;
+    color: #1a1a0e;
+  }
+
+  /* Hero */
+  .hero {
+    text-align: center;
+    margin-bottom: 28px;
+  }
+
+  .hero-icon {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    background: #FFD600;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 16px;
+    font-size: 40px;
+  }
+
+  .hero-title {
+    font-size: 24px;
+    font-weight: 700;
+    color: #1a1a0e;
+  }
+
+  .hero-subtitle {
+    font-size: 15px;
+    color: #888;
+    margin-top: 8px;
+    padding: 0 16px;
+  }
+
+  /* Toggle */
+  .toggle {
+    display: flex;
+    background: #f0f0e8;
+    border-radius: 16px;
+    padding: 6px;
+    margin-bottom: 28px;
+  }
+
+  .toggle-btn {
+    flex: 1;
+    padding: 12px;
+    border-radius: 12px;
+    text-align: center;
+    font-size: 15px;
+    font-weight: 600;
+    color: #888;
+    cursor: pointer;
+    transition: all 0.2s;
+    border: none;
+    background: transparent;
+    font-family: inherit;
+  }
+
+  .toggle-btn.active {
+    background: #FFD600;
+    color: #1a1a0e;
+  }
+
+  /* Tier card */
+  .tier-card {
+    border-radius: 24px;
+    padding: 24px;
+    margin-bottom: 20px;
+  }
+
+  .tier-card.highlighted {
+    background: #fffbe6;
+    border: 2px solid #FFD600;
+  }
+
+  .tier-card.normal {
+    background: #fff;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+  }
+
+  .badge {
+    display: inline-block;
+    background: #FFD600;
+    padding: 4px 12px;
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 700;
+    color: #1a1a0e;
+    margin-bottom: 12px;
+  }
+
+  .tier-name {
+    font-size: 20px;
+    font-weight: 700;
+    color: #1a1a0e;
+  }
+
+  .tier-price-row {
+    display: flex;
+    align-items: baseline;
+    margin-top: 4px;
+    margin-bottom: 16px;
+    gap: 4px;
+  }
+
+  .tier-price {
+    font-size: 28px;
+    font-weight: 700;
+    color: #1a1a0e;
+  }
+
+  .tier-period {
+    font-size: 14px;
+    color: #888;
+  }
+
+  .tier-discount {
+    background: #dcfce7;
+    padding: 2px 8px;
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 600;
+    color: #15803d;
+    margin-left: 8px;
+  }
+
+  .feature-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 8px 0;
+  }
+
+  .feature-check {
+    width: 20px;
+    height: 20px;
+    color: #22c55e;
+    flex-shrink: 0;
+  }
+
+  .feature-text {
+    font-size: 14px;
+    color: #666;
+  }
+
+  .subscribe-btn {
+    width: 100%;
+    padding: 14px;
+    border-radius: 16px;
+    background: #FFD600;
+    border: none;
+    font-size: 16px;
+    font-weight: 700;
+    color: #1a1a0e;
+    cursor: pointer;
+    margin-top: 16px;
+    font-family: inherit;
+  }
+
+  .restore-link {
+    text-align: center;
+    padding: 16px;
+    font-size: 14px;
+    color: #888;
+    text-decoration: underline;
+  }
+
+  /* State toggling */
+  .yearly-content { display: none; }
+  body.yearly .monthly-content { display: none; }
+  body.yearly .yearly-content { display: flex; }
+  body.yearly .yearly-block { display: block !important; }
+  body.yearly .monthly-block { display: none !important; }
+  .yearly-block { display: none; }
+
+  .home-indicator {
+    width: 134px;
+    height: 5px;
+    background: #1a1a0e;
+    border-radius: 3px;
+    margin: 8px auto 6px;
+  }
+</style>
+</head>
+<body>
+
+<div class="phone-frame">
+  <div class="notch"></div>
+  <div class="status-bar">
+    <span>9:41</span>
+    <div class="status-bar-icons">
+      <svg width="17" height="12" viewBox="0 0 17 12"><path d="M1 3.5C3.5 1 6.5 0 8.5 0s5 1 7.5 3.5" stroke="#1a1a0e" stroke-width="1.5" fill="none"/><path d="M3.5 6C5 4.5 6.5 3.5 8.5 3.5s3.5 1 5 2.5" stroke="#1a1a0e" stroke-width="1.5" fill="none"/><circle cx="8.5" cy="10" r="2" fill="#1a1a0e"/></svg>
+      <svg width="16" height="12" viewBox="0 0 16 12"><rect x="0" y="3" width="3" height="9" rx="1" fill="#1a1a0e"/><rect x="4.5" y="1.5" width="3" height="10.5" rx="1" fill="#1a1a0e"/><rect x="9" y="0" width="3" height="12" rx="1" fill="#1a1a0e"/></svg>
+      <svg width="27" height="13" viewBox="0 0 27 13"><rect x="0" y="1" width="23" height="11" rx="3.5" stroke="#1a1a0e" stroke-width="1" fill="none"/><rect x="2" y="3" width="18" height="7" rx="1.5" fill="#1a1a0e"/><rect x="24" y="4.5" width="2.5" height="4" rx="1" fill="#1a1a0e"/></svg>
+    </div>
+  </div>
+
+  <div class="content">
+    <div class="header">
+      <div class="header-back">‹</div>
+      <div class="header-title">Assinar</div>
+    </div>
+
+    <div class="hero">
+      <div class="hero-icon">★</div>
+      <div class="hero-title">Desbloqueie tudo</div>
+      <div class="hero-subtitle">Acesse todas as funcionalidades para sua família</div>
+    </div>
+
+    <div class="toggle">
+      <button class="toggle-btn active" id="btn-monthly" onclick="setMonthly()">Mensal</button>
+      <button class="toggle-btn" id="btn-yearly" onclick="setYearly()">Anual</button>
+    </div>
+
+    <!-- Família - highlighted -->
+    <div class="tier-card highlighted">
+      <div class="badge">Mais popular</div>
+      <div class="tier-name">Família</div>
+      <div class="tier-price-row">
+        <span class="tier-price monthly-block" style="display:block">R$ 9,90</span>
+        <span class="tier-price yearly-block">R$ 89,90</span>
+        <span class="tier-period monthly-block" style="display:block">/mês</span>
+        <span class="tier-period yearly-block">/ano</span>
+        <span class="tier-discount yearly-content" style="display:none">-24%</span>
+      </div>
+      <div class="feature-row">
+        <svg class="feature-check" viewBox="0 0 20 20"><circle cx="10" cy="10" r="10" fill="#22c55e"/><path d="M6 10l3 3 5-6" stroke="#fff" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        <span class="feature-text">Até 3 crianças</span>
+      </div>
+      <div class="feature-row">
+        <svg class="feature-check" viewBox="0 0 20 20"><circle cx="10" cy="10" r="10" fill="#22c55e"/><path d="M6 10l3 3 5-6" stroke="#fff" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        <span class="feature-text">Fotos ilimitadas</span>
+      </div>
+      <div class="feature-row">
+        <svg class="feature-check" viewBox="0 0 20 20"><circle cx="10" cy="10" r="10" fill="#22c55e"/><path d="M6 10l3 3 5-6" stroke="#fff" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        <span class="feature-text">Desejos ilimitados</span>
+      </div>
+      <div class="feature-row">
+        <svg class="feature-check" viewBox="0 0 20 20"><circle cx="10" cy="10" r="10" fill="#22c55e"/><path d="M6 10l3 3 5-6" stroke="#fff" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        <span class="feature-text">Agendamento diário e semanal</span>
+      </div>
+      <div class="feature-row">
+        <svg class="feature-check" viewBox="0 0 20 20"><circle cx="10" cy="10" r="10" fill="#22c55e"/><path d="M6 10l3 3 5-6" stroke="#fff" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        <span class="feature-text">Adicionar pessoas da família</span>
+      </div>
+      <div class="feature-row">
+        <svg class="feature-check" viewBox="0 0 20 20"><circle cx="10" cy="10" r="10" fill="#22c55e"/><path d="M6 10l3 3 5-6" stroke="#fff" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        <span class="feature-text">Sem publicidade</span>
+      </div>
+      <button class="subscribe-btn">Assinar</button>
+    </div>
+
+    <!-- Família+ -->
+    <div class="tier-card normal">
+      <div class="tier-name">Família+</div>
+      <div class="tier-price-row">
+        <span class="tier-price monthly-block" style="display:block">R$ 14,90</span>
+        <span class="tier-price yearly-block">R$ 139,90</span>
+        <span class="tier-period monthly-block" style="display:block">/mês</span>
+        <span class="tier-period yearly-block">/ano</span>
+        <span class="tier-discount yearly-content" style="display:none">-22%</span>
+      </div>
+      <div class="feature-row">
+        <svg class="feature-check" viewBox="0 0 20 20"><circle cx="10" cy="10" r="10" fill="#22c55e"/><path d="M6 10l3 3 5-6" stroke="#fff" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        <span class="feature-text">Até 5 crianças</span>
+      </div>
+      <div class="feature-row">
+        <svg class="feature-check" viewBox="0 0 20 20"><circle cx="10" cy="10" r="10" fill="#22c55e"/><path d="M6 10l3 3 5-6" stroke="#fff" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        <span class="feature-text">Fotos ilimitadas</span>
+      </div>
+      <div class="feature-row">
+        <svg class="feature-check" viewBox="0 0 20 20"><circle cx="10" cy="10" r="10" fill="#22c55e"/><path d="M6 10l3 3 5-6" stroke="#fff" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        <span class="feature-text">Desejos ilimitados</span>
+      </div>
+      <div class="feature-row">
+        <svg class="feature-check" viewBox="0 0 20 20"><circle cx="10" cy="10" r="10" fill="#22c55e"/><path d="M6 10l3 3 5-6" stroke="#fff" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        <span class="feature-text">Agendamento diário e semanal</span>
+      </div>
+      <div class="feature-row">
+        <svg class="feature-check" viewBox="0 0 20 20"><circle cx="10" cy="10" r="10" fill="#22c55e"/><path d="M6 10l3 3 5-6" stroke="#fff" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        <span class="feature-text">Adicionar pessoas da família</span>
+      </div>
+      <div class="feature-row">
+        <svg class="feature-check" viewBox="0 0 20 20"><circle cx="10" cy="10" r="10" fill="#22c55e"/><path d="M6 10l3 3 5-6" stroke="#fff" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        <span class="feature-text">Sem publicidade</span>
+      </div>
+      <button class="subscribe-btn">Assinar</button>
+    </div>
+
+    <div class="restore-link">Restaurar compras</div>
+    <div class="home-indicator"></div>
+  </div>
+</div>
+
+<script>
+function setMonthly() {
+  document.body.classList.remove('yearly');
+  document.getElementById('btn-monthly').classList.add('active');
+  document.getElementById('btn-yearly').classList.remove('active');
+}
+function setYearly() {
+  document.body.classList.add('yearly');
+  document.getElementById('btn-yearly').classList.add('active');
+  document.getElementById('btn-monthly').classList.remove('active');
+}
+</script>
+</body>
+</html>
