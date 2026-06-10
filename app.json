@@ -9,9 +9,7 @@
     "userInterfaceStyle": "automatic",
     "backgroundColor": "#f8f8f5",
     "newArchEnabled": true,
-    "runtimeVersion": {
-      "policy": "appVersion"
-    },
+    "runtimeVersion": "1.0.3",
     "updates": {
       "url": "https://u.expo.dev/36e73d9b-2c6e-481b-b916-53c4650beeed",
       "fallbackToCacheTimeout": 0,
