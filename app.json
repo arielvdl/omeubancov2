@@ -21,6 +21,7 @@
       "supportsTablet": false,
       "bundleIdentifier": "com.omeubanco-app",
       "appleTeamId": "8TA8YQY457",
+      "buildNumber": "37",
       "usesAppleSignIn": true,
       "infoPlist": {
         "ITSAppUsesNonExemptEncryption": false,

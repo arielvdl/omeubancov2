@@ -135,18 +135,37 @@ echo -e "${YELLOW}[4/8] Incrementando build number...${NC}"
 
 INFO_PLIST="$IOS_DIR/OMeuBanco/Info.plist"
 CURRENT_BUILD=$(/usr/libexec/PlistBuddy -c "Print :CFBundleVersion" "$INFO_PLIST")
+APP_VERSION=$(/usr/libexec/PlistBuddy -c "Print :CFBundleShortVersionString" "$INFO_PLIST")
 
 # Buscar o último build number do histórico no TESTFLIGHT.md
-LAST_BUILD=$(grep -oE '\(([0-9]+)\)' "$PROJECT_ROOT/docs/TESTFLIGHT.md" | grep -oE '[0-9]+' | sort -n | tail -1)
+LAST_BUILD=$(grep -oE '\(([0-9]+)\)' "$PROJECT_ROOT/docs/TESTFLIGHT.md" | grep -oE '[0-9]+' | sort -n | tail -1 || true)
 
-# Usar o maior entre o atual e o do histórico
-if [ -n "$LAST_BUILD" ] && [ "$LAST_BUILD" -gt "$CURRENT_BUILD" ]; then
+# Usar o build atual como candidato. Se ele ja existe no histórico,
+# avancar para o próximo numero disponivel.
+if [ -n "$LAST_BUILD" ] && [ "$LAST_BUILD" -ge "$CURRENT_BUILD" ]; then
     NEXT_BUILD=$((LAST_BUILD + 1))
 else
-    NEXT_BUILD=$((CURRENT_BUILD + 1))
+    NEXT_BUILD=$CURRENT_BUILD
 fi
 
 /usr/libexec/PlistBuddy -c "Set :CFBundleVersion $NEXT_BUILD" "$INFO_PLIST"
+APP_JSON="$PROJECT_ROOT/app.json" NEXT_BUILD="$NEXT_BUILD" node <<'NODE'
+const fs = require('fs');
+
+const appJsonPath = process.env.APP_JSON;
+const nextBuild = process.env.NEXT_BUILD;
+const content = fs.readFileSync(appJsonPath, 'utf8');
+const buildNumberPattern = /("buildNumber"\s*:\s*")\d+(")/;
+
+if (!buildNumberPattern.test(content)) {
+  throw new Error('ios.buildNumber not found in app.json');
+}
+
+const updated = content.replace(buildNumberPattern, `$1${nextBuild}$2`);
+if (updated !== content) {
+  fs.writeFileSync(appJsonPath, updated);
+}
+NODE
 echo -e "${GREEN}[OK] Build number: $CURRENT_BUILD -> $NEXT_BUILD${NC}"
 
 # --- Step 5: Limpar DerivedData e Archive ---
@@ -229,25 +248,31 @@ cat > "$EXPORT_OPTIONS" << 'PLIST'
 PLIST
 
 rm -rf "$EXPORT_PATH"
+EXPORT_LOG="/tmp/xcodebuild_export.log"
+rm -f "$EXPORT_LOG"
+
+set +e
 xcodebuild -exportArchive \
     -archivePath "$ARCHIVE_PATH" \
     -exportOptionsPlist "$EXPORT_OPTIONS" \
     -exportPath "$EXPORT_PATH" \
     -allowProvisioningUpdates \
-    2>&1 | tail -5
+    2>&1 | tee "$EXPORT_LOG" | tail -5
+EXPORT_STATUS=${PIPESTATUS[0]}
+set -e
 
-if ! xcodebuild -exportArchive \
-    -archivePath "$ARCHIVE_PATH" \
-    -exportOptionsPlist "$EXPORT_OPTIONS" \
-    -exportPath "$EXPORT_PATH" \
-    -allowProvisioningUpdates 2>&1 | grep -q "EXPORT SUCCEEDED"; then
-    # Check if already uploaded (the first call above already did it)
-    if [ -f "$EXPORT_PATH/OMeuBanco.ipa" ] || [ -f "$EXPORT_PATH/DistributionSummary.plist" ]; then
-        echo -e "${GREEN}[OK] Upload concluído${NC}"
-    fi
+if [ "$EXPORT_STATUS" -ne 0 ]; then
+    echo -e "${RED}[ERRO] Export/upload falhou! Verifique $EXPORT_LOG${NC}"
+    grep -E "error:|ITMS-|Transporter|App Store Connect" "$EXPORT_LOG" | tail -20 || true
+    exit 1
 fi
 
 echo -e "${GREEN}[OK] Build enviado para App Store Connect${NC}"
+
+if ! grep -qE "\\| ${APP_VERSION} \\(${NEXT_BUILD}\\) \\|" "$PROJECT_ROOT/docs/TESTFLIGHT.md"; then
+    printf '| %s (%s) | %s | Upload TestFlight registrado automaticamente pelo script. Atualize esta nota se o build incluir mudancas especificas. |\n' \
+        "$APP_VERSION" "$NEXT_BUILD" "$(date '+%Y-%m-%d %H:%M')" >> "$PROJECT_ROOT/docs/TESTFLIGHT.md"
+fi
 
 # --- Step 8: Resumo ---
 echo ""
@@ -255,7 +280,7 @@ echo "=========================================="
 echo -e "${GREEN} BUILD CONCLUÍDO COM SUCESSO${NC}"
 echo "=========================================="
 echo ""
-echo "  Versão:     1.0.0 ($NEXT_BUILD)"
+echo "  Versão:     $APP_VERSION ($NEXT_BUILD)"
 echo "  API URL:    $PROD_API_URL"
 echo "  RevenueCat: ${RC_KEY:0:10}... (produção)"
 echo "  TestFlight: disponível em ~5-15 minutos"
