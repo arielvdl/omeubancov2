@@ -3,6 +3,11 @@ import { Geist } from "next/font/google";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import AgentCapabilities from "@/components/agent/AgentCapabilities";
+import {
+  creatorJsonLdId,
+  O_MEU_BANCO_CREATORS,
+} from "@/lib/people";
+import { serializeJsonLd } from "@/lib/json-ld";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -97,9 +102,10 @@ export default function RootLayout({
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{
-            __html: JSON.stringify({
+            __html: serializeJsonLd({
               "@context": "https://schema.org",
               "@type": "Organization",
+              "@id": `${siteUrl}/#organization`,
               name: "O Meu Banco",
               url: siteUrl,
               logo: `${siteUrl}/icon.png`,
@@ -110,6 +116,14 @@ export default function RootLayout({
                 name: "E-Commerce Experience Servicos da Informatica LTDA",
               },
               sameAs: [`https://blog.omeubanco.xyz`],
+              founder: O_MEU_BANCO_CREATORS.map((person) => ({
+                "@type": "Person",
+                "@id": creatorJsonLdId(person.id),
+                name: person.name,
+                description: person.description,
+                url: person.websiteUrl,
+                sameAs: person.links.map((link) => link.href),
+              })),
               contactPoint: {
                 "@type": "ContactPoint",
                 email: "suporte@omeubanco.xyz",

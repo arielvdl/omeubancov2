@@ -23,6 +23,7 @@ Landing page do app O Meu Banco, hospedada no Google Cloud Run.
 | Rota | Descricao |
 |------|-----------|
 | `/` | Landing page principal |
+| `/quem-somos` | História do produto e seus criadores |
 | `/privacidade` | Politica de Privacidade (LGPD/COPPA) |
 | `/termos` | Termos de Uso |
 | `/suporte` | Pagina de Suporte + FAQ |
@@ -123,6 +124,7 @@ website/
 │   ├── app/
 │   │   ├── layout.tsx     # Layout com SEO/OG metadata
 │   │   ├── page.tsx       # Landing page
+│   │   ├── quem-somos/
 │   │   ├── privacidade/
 │   │   ├── termos/
 │   │   └── suporte/

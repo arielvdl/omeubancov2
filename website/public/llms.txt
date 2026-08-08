@@ -8,6 +8,7 @@ O app ensina crianças a poupar, planejar e administrar mesada de forma lúdica:
 
 - [Página inicial](https://omeubanco.xyz/): apresentação do app, benefícios e download
 - [Download na App Store](https://apps.apple.com/app/o-meu-banco-mesada-infantil/id6761734592): O Meu Banco — Mesada Infantil (iOS)
+- [Quem somos](https://omeubanco.xyz/quem-somos): Ariel Alexandre e Vanessa Caldas, criadores do O Meu Banco
 - [Suporte](https://omeubanco.xyz/suporte): atendimento, exclusão de conta e contato
 - [Política de Privacidade](https://omeubanco.xyz/privacidade): coleta e proteção de dados, LGPD e COPPA
 - [Termos de Uso](https://omeubanco.xyz/termos): regras de uso da plataforma
@@ -30,6 +31,7 @@ O app ensina crianças a poupar, planejar e administrar mesada de forma lúdica:
 
 - Todas as páginas principais servem Markdown via content negotiation (header `Accept: text/markdown`)
 - [Home em Markdown](https://omeubanco.xyz/__markdown/index.md)
+- [Quem somos em Markdown](https://omeubanco.xyz/__markdown/quem-somos.md)
 - [Suporte em Markdown](https://omeubanco.xyz/__markdown/suporte.md)
 - [Privacidade em Markdown](https://omeubanco.xyz/__markdown/privacidade.md)
 - [Termos em Markdown](https://omeubanco.xyz/__markdown/termos.md)

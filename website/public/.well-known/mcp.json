@@ -1,0 +1,41 @@
+{
+  "mcpVersion": "2025-06-18",
+  "serverInfo": {
+    "name": "omeubanco-website-webmcp",
+    "version": "1.0.0",
+    "title": "O Meu Banco",
+    "description": "App iOS de educação financeira infantil. Simulador educacional de mesada, cofrinho digital e metas de poupança para famílias no Brasil — sem dinheiro real."
+  },
+  "transport": {
+    "type": "webmcp",
+    "endpoint": "https://omeubanco.xyz/"
+  },
+  "serverCard": "https://omeubanco.xyz/.well-known/mcp/server-card.json",
+  "capabilities": {
+    "tools": [
+      {
+        "name": "scroll-to-download",
+        "description": "Scrolls to the public download call to action and returns the App Store URL."
+      },
+      {
+        "name": "open-information-page",
+        "description": "Navigates to support, privacy policy, terms, or API documentation."
+      },
+      {
+        "name": "contact-support",
+        "description": "Opens the public support email for O Meu Banco."
+      }
+    ],
+    "markdownNegotiation": true,
+    "linkHeaders": true
+  },
+  "links": [
+    { "rel": "server-card", "href": "https://omeubanco.xyz/.well-known/mcp/server-card.json" },
+    { "rel": "agents-json", "href": "https://omeubanco.xyz/.well-known/agents.json" },
+    { "rel": "llms-txt", "href": "https://omeubanco.xyz/llms.txt" }
+  ],
+  "contact": {
+    "name": "Suporte O Meu Banco",
+    "url": "https://omeubanco.xyz/suporte"
+  }
+}

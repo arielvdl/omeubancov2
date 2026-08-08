@@ -4,50 +4,43 @@ export const dynamic = "force-static";
 
 export default function sitemap(): MetadataRoute.Sitemap {
   const baseUrl = "https://omeubanco.xyz";
-  const artefactoUrl = "https://blog.omeubanco.xyz";
 
   return [
     {
       url: baseUrl,
-      lastModified: new Date(),
+      lastModified: "2026-06-10",
       changeFrequency: "weekly",
       priority: 1,
     },
     {
       url: `${baseUrl}/suporte`,
-      lastModified: new Date(),
+      lastModified: "2026-03-21",
       changeFrequency: "monthly",
       priority: 0.8,
     },
     {
+      url: `${baseUrl}/quem-somos`,
+      lastModified: "2026-08-08",
+      changeFrequency: "yearly",
+      priority: 0.7,
+    },
+    {
       url: `${baseUrl}/termos`,
-      lastModified: new Date(),
+      lastModified: "2026-04-19",
       changeFrequency: "yearly",
       priority: 0.3,
     },
     {
       url: `${baseUrl}/privacidade`,
-      lastModified: new Date(),
+      lastModified: "2026-04-19",
       changeFrequency: "yearly",
       priority: 0.3,
     },
     {
-      url: artefactoUrl,
-      lastModified: new Date(),
-      changeFrequency: "weekly",
-      priority: 0.9,
-    },
-    {
-      url: `${artefactoUrl}/insights`,
-      lastModified: new Date(),
-      changeFrequency: "weekly",
-      priority: 0.8,
-    },
-    {
-      url: `${artefactoUrl}/conteudos`,
-      lastModified: new Date(),
-      changeFrequency: "weekly",
-      priority: 0.7,
+      url: `${baseUrl}/docs/api`,
+      lastModified: "2026-04-18",
+      changeFrequency: "monthly",
+      priority: 0.6,
     },
   ];
 }

@@ -4,6 +4,14 @@ export const metadata: Metadata = {
   title: "Documentação da API",
   description:
     "Visão geral da API pública do O Meu Banco, incluindo catálogo, OpenAPI e endpoints de descoberta para agentes.",
+  alternates: { canonical: "/docs/api" },
+  openGraph: {
+    title: "Documentação da API",
+    description:
+      "Visão geral da API pública do O Meu Banco, incluindo catálogo, OpenAPI e endpoints de descoberta para agentes.",
+    type: "website",
+    url: "/docs/api",
+  },
 };
 
 const endpointGroups = [

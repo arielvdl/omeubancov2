@@ -3,6 +3,13 @@ import type { Metadata } from "next";
 export const metadata: Metadata = {
   title: "Termos de Uso",
   description: "Termos de Uso do app O Meu Banco - Controle de Mesada Infantil",
+  alternates: { canonical: "/termos" },
+  openGraph: {
+    title: "Termos de Uso",
+    description: "Termos de Uso do app O Meu Banco - Controle de Mesada Infantil",
+    type: "website",
+    url: "/termos",
+  },
 };
 
 export default function TermosPage() {

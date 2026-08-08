@@ -40,6 +40,14 @@ export default function Footer() {
             <ul className="mt-3 space-y-2 text-sm">
               <li>
                 <Link
+                  href="/quem-somos"
+                  className="hover:text-white transition-colors"
+                >
+                  Quem somos
+                </Link>
+              </li>
+              <li>
+                <Link
                   href="/privacidade"
                   className="hover:text-white transition-colors"
                 >

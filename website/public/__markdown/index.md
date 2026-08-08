@@ -79,6 +79,7 @@ Sim. Gratuito, Família e Família+. Valores na App Store.
 
 ## Links úteis
 
+- Quem somos: https://omeubanco.xyz/quem-somos
 - Suporte: https://omeubanco.xyz/suporte
 - Política de Privacidade: https://omeubanco.xyz/privacidade
 - Termos de Uso: https://omeubanco.xyz/termos

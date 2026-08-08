@@ -1,4 +1,5 @@
 import HeroCarousel from "@/components/HeroCarousel";
+import { serializeJsonLd } from "@/lib/json-ld";
 
 const faqItems = [
   {
@@ -394,7 +395,7 @@ export default function Home() {
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{
-            __html: JSON.stringify({
+            __html: serializeJsonLd({
               "@context": "https://schema.org",
               "@type": "FAQPage",
               mainEntity: faqItems.map((item) => ({

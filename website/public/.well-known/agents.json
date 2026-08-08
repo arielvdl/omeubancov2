@@ -43,6 +43,19 @@
   ],
   "links": [
     {
+      "rel": "about",
+      "href": "https://omeubanco.xyz/quem-somos"
+    },
+    {
+      "rel": "alternate",
+      "href": "https://omeubanco.xyz/__markdown/quem-somos.md",
+      "type": "text/markdown"
+    },
+    {
+      "rel": "sitemap",
+      "href": "https://omeubanco.xyz/sitemap.xml"
+    },
+    {
       "rel": "service-doc",
       "href": "https://omeubanco.xyz/docs/api"
     },

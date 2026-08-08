@@ -4,6 +4,14 @@ export const metadata: Metadata = {
   title: "Política de Privacidade",
   description:
     "Política de Privacidade do app O Meu Banco - Controle de Mesada Infantil",
+  alternates: { canonical: "/privacidade" },
+  openGraph: {
+    title: "Política de Privacidade",
+    description:
+      "Política de Privacidade do app O Meu Banco - Controle de Mesada Infantil",
+    type: "website",
+    url: "/privacidade",
+  },
 };
 
 export default function PrivacidadePage() {

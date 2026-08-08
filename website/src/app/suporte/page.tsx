@@ -5,6 +5,14 @@ export const metadata: Metadata = {
   title: "Suporte",
   description:
     "Central de ajuda e suporte do app O Meu Banco - Controle de Mesada Infantil",
+  alternates: { canonical: "/suporte" },
+  openGraph: {
+    title: "Suporte",
+    description:
+      "Central de ajuda e suporte do app O Meu Banco - Controle de Mesada Infantil",
+    type: "website",
+    url: "/suporte",
+  },
 };
 
 const faqs = [
