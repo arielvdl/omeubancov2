@@ -1,5 +1,32 @@
 import HeroCarousel from "@/components/HeroCarousel";
 import { serializeJsonLd } from "@/lib/json-ld";
+import type { Metadata } from "next";
+
+const siteUrl = "https://omeubanco.xyz";
+
+export const metadata: Metadata = {
+  alternates: {
+    canonical: "/",
+    languages: { "pt-BR": "/" },
+  },
+  openGraph: {
+    title: "O Meu Banco - Controle de mesada infantil",
+    description:
+      "Transforme a mesada dos seus filhos em uma experiência educativa e divertida! Sem banco real, sem cartão. Educação financeira para toda a família.",
+    type: "website",
+    locale: "pt_BR",
+    url: siteUrl,
+    siteName: "O Meu Banco",
+    images: [
+      {
+        url: "/icon.png",
+        width: 512,
+        height: 512,
+        alt: "O Meu Banco - Controle de mesada infantil",
+      },
+    ],
+  },
+};
 
 const faqItems = [
   {

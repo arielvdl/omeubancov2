@@ -39,19 +39,12 @@ export const metadata: Metadata = {
   ],
   authors: [{ name: "E-Commerce Experience Servicos da Informatica LTDA" }],
   metadataBase: new URL(siteUrl),
-  alternates: {
-    canonical: "/",
-    languages: {
-      "pt-BR": "/",
-    },
-  },
   openGraph: {
     title: "O Meu Banco - Controle de mesada infantil",
     description:
       "Transforme a mesada dos seus filhos em uma experiencia educativa e divertida! Sem banco real, sem cartao. Educacao financeira para toda a familia.",
     type: "website",
     locale: "pt_BR",
-    url: siteUrl,
     siteName: "O Meu Banco",
     images: [
       {
