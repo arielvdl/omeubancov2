@@ -31,6 +31,12 @@ export default function sitemap(): MetadataRoute.Sitemap {
       priority: 0.3,
     },
     {
+      url: `${baseUrl}/marca`,
+      lastModified: "2026-09-14",
+      changeFrequency: "yearly",
+      priority: 0.5,
+    },
+    {
       url: `${baseUrl}/privacidade`,
       lastModified: "2026-04-19",
       changeFrequency: "yearly",

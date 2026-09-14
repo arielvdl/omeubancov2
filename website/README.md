@@ -25,6 +25,7 @@ Landing page do app O Meu Banco, hospedada no Google Cloud Run.
 | `/` | Landing page principal |
 | `/conceitos` | Laboratório visual interno com três alternativas de landing |
 | `/quem-somos` | História do produto e seus criadores |
+| `/marca` | Prévia e downloads da marca em SVG, PNG e ZIP |
 | `/privacidade` | Politica de Privacidade (LGPD/COPPA) |
 | `/termos` | Termos de Uso |
 | `/suporte` | Pagina de Suporte + FAQ |
@@ -43,6 +44,15 @@ para comparar as três direções criadas durante a exploração:
 O comparador reutiliza conteúdo, CTAs e molduras de produto compartilhados em
 `src/components/landing-concepts/`. A rota aponta o canonical para `/` e
 permanece fora do sitemap e dos artefatos públicos em Markdown.
+
+## Arquivos da Marca
+
+A página `/marca` reutiliza o header e o footer do site. Os downloads estáticos em
+`public/brand/` são cópias fiéis de `../assets/logos/icon-o-meu-banco.svg` e dos
+PNGs de 192, 512 e 1024 pixels dessa mesma pasta. O SVG contém formas vetoriais,
+sem fontes ou imagens externas. O ZIP reúne somente esses quatro arquivos.
+Ao atualizar a marca, mantenha essas cópias e o ZIP sincronizados com os originais;
+os tamanhos apresentados na página são calculados no build.
 
 ## Descoberta Para Agentes
 

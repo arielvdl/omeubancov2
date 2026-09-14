@@ -30,6 +30,11 @@ export default function Footer() {
                   Blog
                 </a>
               </li>
+              <li>
+                <Link href="/marca" className="hover:text-white transition-colors">
+                  Marca e downloads
+                </Link>
+              </li>
             </ul>
           </div>
 

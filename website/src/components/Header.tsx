@@ -47,14 +47,14 @@ export default function Header() {
 
         <ul className="hidden md:flex items-center gap-8 text-sm font-medium text-gray-600">
           <li>
-            <a href="#como-funciona" className="hover:text-brand-dark transition-colors">
+            <Link href="/#como-funciona" className="hover:text-brand-dark transition-colors">
               Como Funciona
-            </a>
+            </Link>
           </li>
           <li>
-            <a href="#seguranca" className="hover:text-brand-dark transition-colors">
+            <Link href="/#seguranca" className="hover:text-brand-dark transition-colors">
               Segurança
-            </a>
+            </Link>
           </li>
           <li>
             <Link href="/suporte" className="hover:text-brand-dark transition-colors">
@@ -62,12 +62,12 @@ export default function Header() {
             </Link>
           </li>
           <li>
-            <a
-              href="#download"
+            <Link
+              href="/#download"
               className="inline-flex items-center gap-2 rounded-full bg-brand-yellow px-5 py-2.5 text-sm font-semibold text-black hover:bg-brand-yellow-dark transition-colors"
             >
               Baixar App
-            </a>
+            </Link>
           </li>
         </ul>
       </nav>
@@ -76,22 +76,22 @@ export default function Header() {
         <div className="md:hidden border-t border-gray-100 bg-white px-6 pb-4">
           <ul className="flex flex-col gap-4 pt-4 text-sm font-medium text-gray-600">
             <li>
-              <a
-                href="#como-funciona"
+              <Link
+                href="/#como-funciona"
                 className="block py-2 hover:text-brand-dark transition-colors"
                 onClick={() => setMenuOpen(false)}
               >
                 Como Funciona
-              </a>
+              </Link>
             </li>
             <li>
-              <a
-                href="#seguranca"
+              <Link
+                href="/#seguranca"
                 className="block py-2 hover:text-brand-dark transition-colors"
                 onClick={() => setMenuOpen(false)}
               >
                 Segurança
-              </a>
+              </Link>
             </li>
             <li>
               <Link
@@ -103,13 +103,13 @@ export default function Header() {
               </Link>
             </li>
             <li>
-              <a
-                href="#download"
+              <Link
+                href="/#download"
                 className="inline-flex items-center gap-2 rounded-full bg-brand-yellow px-5 py-2.5 text-sm font-semibold text-black hover:bg-brand-yellow-dark transition-colors"
                 onClick={() => setMenuOpen(false)}
               >
                 Baixar App
-              </a>
+              </Link>
             </li>
           </ul>
         </div>
