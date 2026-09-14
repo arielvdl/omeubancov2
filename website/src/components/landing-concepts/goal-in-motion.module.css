@@ -1,0 +1,913 @@
+/* Meta em Movimento — production landing */
+
+.motionLanding {
+  --motion-ink: #101713;
+  --motion-paper: #f5f0e7;
+  --motion-yellow: #ffd600;
+  --motion-yellow-soft: #ffe768;
+  --motion-mint: #a5f1b7;
+  background: var(--motion-ink);
+  color: #fff;
+}
+
+.motionJourneySection,
+.motionTraceSection,
+.motionFinalCta {
+  scroll-margin-top: 9rem;
+}
+
+.motionHero {
+  position: relative;
+  min-height: 51rem;
+  overflow: hidden;
+  background:
+    radial-gradient(circle at 72% 35%, rgb(94 255 141 / 13%), transparent 23rem),
+    radial-gradient(circle at 16% 15%, rgb(255 214 0 / 9%), transparent 22rem),
+    var(--motion-ink);
+}
+
+.motionGrid {
+  position: absolute;
+  inset: 0;
+  opacity: 0.13;
+  background-image:
+    linear-gradient(rgb(255 255 255 / 26%) 1px, transparent 1px),
+    linear-gradient(90deg, rgb(255 255 255 / 26%) 1px, transparent 1px);
+  background-size: 4.5rem 4.5rem;
+  mask-image: linear-gradient(to bottom, #000, transparent 82%);
+}
+
+.motionOrbOne,
+.motionOrbTwo {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(1px);
+}
+
+.motionOrbOne {
+  top: 8%;
+  right: 8%;
+  width: 4rem;
+  height: 4rem;
+  border: 0.8rem solid var(--motion-yellow);
+  animation: orbit-float 5s ease-in-out infinite;
+}
+
+.motionOrbTwo {
+  bottom: 18%;
+  left: 5%;
+  width: 1.25rem;
+  height: 1.25rem;
+  background: var(--motion-mint);
+  box-shadow: 2rem -1rem 0 var(--motion-yellow);
+  animation: orbit-float 4s ease-in-out 900ms infinite reverse;
+}
+
+.motionHeroGrid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.08fr) minmax(22rem, 0.92fr);
+  align-items: center;
+  gap: clamp(3rem, 6vw, 6rem);
+  min-height: 48rem;
+  padding-block: clamp(5rem, 8vw, 8rem) 7rem;
+}
+
+.motionHeroCopy {
+  position: relative;
+  z-index: 3;
+}
+
+.motionEyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.65rem;
+  color: var(--motion-yellow);
+  font-size: 0.72rem;
+  font-weight: 780;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+}
+
+.motionEyebrow span {
+  display: grid;
+  width: 1.7rem;
+  height: 1.7rem;
+  place-items: center;
+  border-radius: 50%;
+  background: var(--motion-yellow);
+  color: var(--motion-ink);
+  font-size: 0.75rem;
+}
+
+.motionHeroCopy h1 {
+  max-width: 11ch;
+  margin: 1.5rem 0 0;
+  font-size: clamp(3.5rem, 6.2vw, 6.3rem);
+  font-weight: 830;
+  letter-spacing: -0.075em;
+  line-height: 0.86;
+  text-transform: uppercase;
+  text-wrap: balance;
+}
+
+.motionHeroCopy > p {
+  max-width: 35rem;
+  margin: 2rem 0 0;
+  color: rgb(255 255 255 / 67%);
+  font-size: clamp(1rem, 1.6vw, 1.22rem);
+  line-height: 1.65;
+}
+
+.motionActions {
+  display: flex;
+  align-items: center;
+  gap: 1.3rem;
+  margin-top: 2.3rem;
+}
+
+.motionSecondaryLink {
+  display: inline-flex;
+  align-items: center;
+  min-height: 3rem;
+  border-bottom: 1px solid rgb(255 255 255 / 40%);
+  color: #fff;
+  font-size: 0.84rem;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.motionSecondaryLink:focus-visible {
+  outline: 3px solid #3b82f6;
+  outline-offset: 4px;
+}
+
+.motionDisclaimer {
+  display: block;
+  max-width: 31rem;
+  margin-top: 1.15rem;
+  color: rgb(255 255 255 / 46%);
+  font-size: 0.68rem;
+  line-height: 1.5;
+}
+
+.motionStage {
+  position: relative;
+  z-index: 2;
+  display: grid;
+  min-height: 40rem;
+  place-items: center;
+}
+
+.motionTrail {
+  position: absolute;
+  width: min(100%, 33rem);
+  aspect-ratio: 1;
+  border: 1px dashed rgb(255 255 255 / 24%);
+  border-radius: 50%;
+  box-shadow:
+    0 0 0 4rem rgb(255 255 255 / 2%),
+    0 0 0 4.05rem rgb(255 255 255 / 10%);
+  animation: slow-spin 26s linear infinite;
+}
+
+.motionPhone {
+  z-index: 2;
+  width: min(68%, 18rem);
+  box-shadow:
+    1.7rem 2.2rem 0 var(--motion-yellow),
+    0 3rem 7rem rgb(0 0 0 / 48%);
+  transform: rotate(4deg);
+}
+
+.motionGoalLabel {
+  position: absolute;
+  top: 7%;
+  right: -1.5rem;
+  z-index: 4;
+  display: flex;
+  flex-direction: column;
+  width: 13rem;
+  padding: 1rem 1.1rem;
+  border: 2px solid var(--motion-ink);
+  background: var(--motion-mint);
+  color: var(--motion-ink);
+  box-shadow: 0.5rem 0.5rem 0 var(--motion-yellow);
+  transform: rotate(4deg);
+}
+
+.motionGoalLabel span {
+  font-size: 0.62rem;
+  font-weight: 750;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.motionGoalLabel strong {
+  margin-top: 0.3rem;
+  font-size: 1rem;
+  letter-spacing: -0.03em;
+}
+
+.motionProgressCard {
+  position: absolute;
+  right: -1.5rem;
+  bottom: 8%;
+  z-index: 5;
+  width: 14rem;
+  padding: 1.1rem;
+  border: 2px solid var(--motion-ink);
+  background: var(--motion-yellow);
+  color: var(--motion-ink);
+  box-shadow: 0.6rem 0.6rem 0 #fff;
+  transform: rotate(-3deg);
+}
+
+.motionProgressCard > div {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.motionProgressCard span,
+.motionProgressCard small {
+  font-size: 0.67rem;
+  font-weight: 650;
+}
+
+.motionProgressCard strong {
+  font-size: 1.35rem;
+  letter-spacing: -0.06em;
+}
+
+.motionProgressTrack {
+  display: block;
+  overflow: hidden;
+  width: 100%;
+  height: 0.55rem;
+  margin-block: 0.75rem 0.45rem;
+  border: 1px solid var(--motion-ink);
+  background: rgb(16 23 19 / 15%);
+}
+
+.motionProgressTrack span {
+  display: block;
+  width: 68%;
+  height: 100%;
+  background: var(--motion-ink);
+}
+
+.motionSticker {
+  position: absolute;
+  bottom: 19%;
+  left: -0.5rem;
+  z-index: 5;
+  display: grid;
+  width: 4.8rem;
+  height: 4.8rem;
+  place-items: center;
+  border-radius: 50%;
+  background: var(--motion-yellow-soft);
+  color: var(--motion-ink);
+  font-size: 0.88rem;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  box-shadow: 0.4rem 0.4rem 0 var(--motion-yellow);
+  transform: rotate(-12deg);
+  animation: sticker-bounce 3.4s ease-in-out infinite;
+}
+
+.motionTicker {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  overflow: hidden;
+  border-block: 1px solid rgb(255 255 255 / 13%);
+  background: var(--motion-yellow);
+  color: var(--motion-ink);
+}
+
+.motionTicker div {
+  display: flex;
+  width: max-content;
+  animation: ticker-slide 22s linear infinite;
+}
+
+.motionTicker span {
+  display: inline-flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.95rem 1.6rem;
+  font-size: 0.72rem;
+  font-weight: 840;
+  letter-spacing: 0.13em;
+}
+
+.motionTicker span::after {
+  color: var(--motion-ink);
+  font-size: 1rem;
+  content: "●";
+}
+
+.motionJourneySection {
+  padding-block: clamp(6rem, 10vw, 10rem);
+  background: var(--motion-paper);
+  color: var(--motion-ink);
+}
+
+.motionSectionTitle {
+  display: grid;
+  grid-template-columns: 0.7fr 1.8fr;
+  gap: 2rem;
+  align-items: start;
+}
+
+.motionSectionTitle > span {
+  color: #6a6e58;
+  font-size: 0.7rem;
+  font-weight: 780;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+.motionSectionTitle h2 {
+  max-width: 13ch;
+  margin: 0;
+  font-size: clamp(3rem, 6.5vw, 6.6rem);
+  font-weight: 840;
+  letter-spacing: -0.075em;
+  line-height: 0.88;
+  text-transform: uppercase;
+}
+
+.motionJourney {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1rem;
+  margin: 4.5rem 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.motionJourney li {
+  display: flex;
+  min-height: 25rem;
+  flex-direction: column;
+  padding: 1.5rem;
+  border: 2px solid var(--motion-ink);
+  background: #fff;
+  box-shadow: 0.55rem 0.55rem 0 var(--motion-ink);
+}
+
+.motionJourney li[data-accent="sun"] {
+  background: var(--motion-yellow-soft);
+}
+
+.motionJourney li[data-accent="yellow"] {
+  margin-top: 2.3rem;
+  background: var(--motion-yellow);
+}
+
+.motionJourney li[data-accent="mint"] {
+  margin-top: 4.6rem;
+  background: var(--motion-mint);
+}
+
+.motionStepTopline {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-bottom: 1.1rem;
+  border-bottom: 1px solid rgb(16 23 19 / 25%);
+}
+
+.motionStepTopline span {
+  display: grid;
+  width: 2.7rem;
+  height: 2.7rem;
+  place-items: center;
+  border: 1px solid var(--motion-ink);
+  border-radius: 50%;
+  font-size: 0.72rem;
+  font-weight: 800;
+}
+
+.motionStepTopline small {
+  font-size: 0.68rem;
+  font-weight: 820;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.motionJourney h3 {
+  max-width: 11ch;
+  margin: auto 0 0;
+  font-size: clamp(2rem, 3.6vw, 3.3rem);
+  font-weight: 820;
+  letter-spacing: -0.065em;
+  line-height: 0.94;
+  text-transform: uppercase;
+}
+
+.motionJourney p {
+  margin: 1rem 0 0;
+  font-size: 0.91rem;
+  line-height: 1.6;
+}
+
+.motionTraceSection {
+  padding-block: clamp(6rem, 10vw, 10rem);
+  overflow: hidden;
+  background: #d7e6e0;
+  color: var(--motion-ink);
+}
+
+.motionTraceGrid {
+  display: grid;
+  grid-template-columns: minmax(20rem, 0.9fr) minmax(0, 1.1fr);
+  align-items: center;
+  gap: clamp(4rem, 8vw, 8rem);
+}
+
+.motionTraceVisual {
+  position: relative;
+  display: grid;
+  min-height: 42rem;
+  place-items: center;
+}
+
+.motionTraceWord {
+  position: absolute;
+  top: 8%;
+  left: -9%;
+  color: rgb(16 23 19 / 7%);
+  font-size: clamp(5rem, 11vw, 10rem);
+  font-weight: 900;
+  letter-spacing: -0.08em;
+  line-height: 1;
+  writing-mode: vertical-rl;
+}
+
+.motionTracePhone {
+  z-index: 2;
+  width: min(75%, 19rem);
+  box-shadow:
+    -1.5rem 1.5rem 0 var(--motion-yellow),
+    0 3rem 7rem rgb(16 23 19 / 27%);
+  transform: rotate(-3deg);
+}
+
+.motionTraceCopy h2 {
+  max-width: 10ch;
+  margin: 1.4rem 0 0;
+  font-size: clamp(3rem, 6.3vw, 6.3rem);
+  font-weight: 840;
+  letter-spacing: -0.075em;
+  line-height: 0.88;
+  text-transform: uppercase;
+}
+
+.motionTraceCopy > p {
+  max-width: 37rem;
+  margin: 1.8rem 0 0;
+  color: rgb(16 23 19 / 66%);
+  font-size: 1.05rem;
+  line-height: 1.7;
+}
+
+.motionTraceCopy ul {
+  display: grid;
+  margin: 2.4rem 0 0;
+  padding: 0;
+  border-top: 2px solid var(--motion-ink);
+  list-style: none;
+}
+
+.motionTraceCopy li {
+  display: grid;
+  grid-template-columns: 10rem 1fr;
+  gap: 1rem;
+  padding-block: 1.1rem;
+  border-bottom: 1px solid rgb(16 23 19 / 34%);
+}
+
+.motionTraceCopy li strong {
+  font-size: 0.82rem;
+}
+
+.motionTraceCopy li span {
+  color: rgb(16 23 19 / 64%);
+  font-size: 0.86rem;
+}
+
+.motionFaqSection {
+  padding-block: clamp(6rem, 10vw, 10rem);
+  background: var(--motion-ink);
+  color: #fff;
+}
+
+.motionFaqHeading {
+  display: grid;
+  grid-template-columns: minmax(8rem, 0.6fr) minmax(0, 1.4fr);
+  gap: 1rem 2rem;
+  align-items: start;
+}
+
+.motionFaqHeading > span {
+  color: var(--motion-yellow);
+  font-size: 0.7rem;
+  font-weight: 780;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+.motionFaqHeading h2 {
+  max-width: 12ch;
+  margin: 0;
+  font-size: clamp(3rem, 6.5vw, 6.4rem);
+  font-weight: 840;
+  letter-spacing: -0.075em;
+  line-height: 0.88;
+  text-transform: uppercase;
+}
+
+.motionFaqHeading p {
+  grid-column: 2;
+  max-width: 35rem;
+  margin: 0.6rem 0 0;
+  color: rgb(255 255 255 / 62%);
+  font-size: 1rem;
+  line-height: 1.65;
+}
+
+.motionFaqList {
+  margin-top: 4.5rem;
+  border-top: 1px solid rgb(255 255 255 / 24%);
+}
+
+.motionFaqList details {
+  border-bottom: 1px solid rgb(255 255 255 / 24%);
+}
+
+.motionFaqList summary {
+  display: grid;
+  grid-template-columns: 3.5rem minmax(0, 1fr) auto;
+  gap: 1rem;
+  align-items: center;
+  min-height: 6rem;
+  padding-block: 1rem;
+  cursor: pointer;
+  list-style: none;
+}
+
+.motionFaqList summary::-webkit-details-marker {
+  display: none;
+}
+
+.motionFaqList summary:focus-visible {
+  outline: 3px solid var(--motion-yellow);
+  outline-offset: 0.35rem;
+}
+
+.motionFaqList summary > span:first-child {
+  color: var(--motion-yellow);
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+}
+
+.motionFaqList summary strong {
+  font-size: clamp(1.15rem, 2.2vw, 1.8rem);
+  letter-spacing: -0.035em;
+}
+
+.motionFaqList summary > span:last-child {
+  display: grid;
+  width: 2.2rem;
+  height: 2.2rem;
+  place-items: center;
+  border: 1px solid rgb(255 255 255 / 32%);
+  border-radius: 50%;
+  color: var(--motion-yellow);
+  font-size: 1.25rem;
+  transition: transform 180ms ease;
+}
+
+.motionFaqList details[open] summary > span:last-child {
+  transform: rotate(45deg);
+}
+
+.motionFaqList details > p {
+  max-width: 47rem;
+  margin: -0.5rem 3.5rem 2rem;
+  padding-left: 1rem;
+  color: rgb(255 255 255 / 65%);
+  font-size: 0.96rem;
+  line-height: 1.7;
+}
+
+.motionFinalCta {
+  position: relative;
+  overflow: hidden;
+  padding-block: clamp(6rem, 10vw, 10rem);
+  background: var(--motion-yellow);
+  color: var(--motion-ink);
+}
+
+.motionFinalBackdrop {
+  position: absolute;
+  inset: -80% -20%;
+  border: 1.3rem solid rgb(16 23 19 / 10%);
+  border-radius: 50%;
+  box-shadow:
+    0 0 0 5rem rgb(255 214 0 / 15%),
+    0 0 0 11rem rgb(16 23 19 / 6%);
+  transform: rotate(-9deg);
+}
+
+.motionFinalInner {
+  position: relative;
+  z-index: 2;
+  width: min(100% - 3rem, 58rem);
+  margin-inline: auto;
+  text-align: center;
+}
+
+.motionFinalInner > span {
+  display: inline-block;
+  padding: 0.45rem 0.75rem;
+  border: 1px solid var(--motion-ink);
+  border-radius: 999px;
+  font-size: 0.68rem;
+  font-weight: 850;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  transform: rotate(-3deg);
+}
+
+.motionFinalInner h2 {
+  margin: 1.3rem auto 0;
+  font-size: clamp(3.5rem, 8.5vw, 8rem);
+  font-weight: 900;
+  letter-spacing: -0.085em;
+  line-height: 0.82;
+  text-transform: uppercase;
+}
+
+.motionFinalInner p {
+  max-width: 35rem;
+  margin: 1.8rem auto 2.1rem;
+  font-size: 1.05rem;
+  line-height: 1.65;
+}
+
+
+@media (max-width: 1080px) {
+  .motionHeroGrid {
+    gap: 3rem;
+  }
+
+  .motionGoalLabel {
+    right: auto;
+    left: 0;
+  }
+
+  .motionProgressCard {
+    right: 0;
+  }
+}
+
+@media (max-width: 900px) {
+  .motionHeroGrid,
+  .motionTraceGrid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .motionHeroGrid {
+    padding-top: 5rem;
+  }
+
+  .motionHeroCopy {
+    max-width: 46rem;
+    text-align: center;
+  }
+
+  .motionHeroCopy h1,
+  .motionHeroCopy > p,
+  .motionDisclaimer {
+    margin-inline: auto;
+  }
+
+  .motionActions {
+    justify-content: center;
+  }
+
+  .motionStage {
+    width: min(100%, 36rem);
+    margin-inline: auto;
+  }
+
+  .motionSectionTitle,
+  .motionFaqHeading {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .motionSectionTitle h2,
+  .motionFaqHeading h2 {
+    max-width: 14ch;
+  }
+
+  .motionFaqHeading p {
+    grid-column: 1;
+  }
+
+  .motionTraceVisual {
+    grid-row: 2;
+    width: min(100%, 35rem);
+    margin-inline: auto;
+  }
+
+  .motionTraceCopy {
+    grid-row: 1;
+  }
+
+  .motionTraceCopy h2 {
+    max-width: 12ch;
+  }
+}
+
+@media (max-width: 720px) {
+  .motionHeroCopy h1 {
+    font-size: clamp(3rem, 14vw, 5rem);
+  }
+
+  .motionActions {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .motionPrimaryCta {
+    width: 100%;
+  }
+
+  .motionSecondaryLink {
+    align-self: center;
+  }
+
+  .motionStage {
+    min-height: 34rem;
+  }
+
+  .motionPhone {
+    width: min(66%, 16rem);
+  }
+
+  .motionGoalLabel,
+  .motionProgressCard {
+    transform: none;
+  }
+
+  .motionGoalLabel {
+    top: 3%;
+  }
+
+  .motionProgressCard {
+    bottom: 4%;
+  }
+
+  .motionJourney {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .motionJourney li,
+  .motionJourney li[data-accent="yellow"],
+  .motionJourney li[data-accent="mint"] {
+    min-height: 21rem;
+    margin-top: 0;
+  }
+
+  .motionTraceVisual {
+    min-height: 35rem;
+  }
+
+  .motionTraceCopy li {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 0.35rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .motionHeroGrid {
+    padding-block: 4rem 5rem;
+  }
+
+  .motionHeroCopy h1 {
+    font-size: clamp(2.75rem, 14vw, 4rem);
+  }
+
+  .motionHeroCopy > p {
+    font-size: 0.98rem;
+  }
+
+  .motionStage {
+    min-height: 30rem;
+  }
+
+  .motionGoalLabel {
+    width: 10.5rem;
+  }
+
+  .motionProgressCard {
+    right: -0.5rem;
+    width: 11rem;
+  }
+
+  .motionSticker {
+    left: 0;
+    width: 3.8rem;
+    height: 3.8rem;
+  }
+
+  .motionJourneySection,
+  .motionTraceSection,
+  .motionFaqSection {
+    padding-block: 5rem;
+  }
+
+  .motionSectionTitle h2,
+  .motionTraceCopy h2,
+  .motionFaqHeading h2 {
+    font-size: clamp(2.5rem, 12vw, 4rem);
+  }
+
+  .motionTraceVisual {
+    min-height: 31rem;
+  }
+
+  .motionTracePhone {
+    width: min(75%, 15rem);
+  }
+
+  .motionJourney,
+  .motionFaqList {
+    margin-top: 3rem;
+  }
+
+  .motionFaqList summary {
+    grid-template-columns: 2rem minmax(0, 1fr) auto;
+    min-height: 5.25rem;
+  }
+
+  .motionFaqList details > p {
+    margin-right: 0;
+    margin-left: 2rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .motionOrbOne,
+  .motionOrbTwo,
+  .motionTrail,
+  .motionSticker,
+  .motionTicker div {
+    animation: none;
+  }
+
+  .motionFaqList summary > span:last-child {
+    scroll-behavior: auto;
+    transition-duration: 0.01ms;
+  }
+}
+
+@keyframes orbit-float {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0) rotate(0deg);
+  }
+  50% {
+    transform: translate3d(0.6rem, -0.8rem, 0) rotate(9deg);
+  }
+}
+
+@keyframes slow-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes sticker-bounce {
+  0%,
+  100% {
+    transform: translateY(0) rotate(-12deg);
+  }
+  50% {
+    transform: translateY(-0.75rem) rotate(-8deg);
+  }
+}
+
+@keyframes ticker-slide {
+  to {
+    transform: translateX(-50%);
+  }
+}

@@ -1,0 +1,178 @@
+.conceptContainer {
+  position: relative;
+  width: min(100% - 3rem, 76rem);
+  margin-inline: auto;
+}
+
+.appStoreCta {
+  display: inline-grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 0.75rem;
+  min-height: 4.1rem;
+  padding: 0.72rem 0.9rem 0.72rem 1rem;
+  border: 1px solid transparent;
+  border-radius: 1.2rem;
+  text-decoration: none;
+  box-shadow: 0 14px 30px rgb(0 0 0 / 12%);
+  transition:
+    transform 180ms ease,
+    box-shadow 180ms ease,
+    background-color 180ms ease;
+}
+
+.appStoreCta:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 18px 36px rgb(0 0 0 / 18%);
+}
+
+.appStoreCta:focus-visible {
+  outline: 3px solid #3b82f6;
+  outline-offset: 4px;
+}
+
+.appStoreCta[data-variant="ink"] {
+  background: #171711;
+  color: #fff;
+}
+
+.appStoreCta[data-variant="ink"]:hover {
+  background: #29291f;
+}
+
+.appStoreCta[data-variant="yellow"] {
+  background: #ffd600;
+  color: #16160f;
+}
+
+.appStoreCta[data-variant="yellow"]:hover {
+  background: #ffe03e;
+}
+
+.appStoreCta[data-variant="light"] {
+  background: #fff;
+  color: #13221e;
+}
+
+.appStoreCta[data-variant="light"]:hover {
+  background: #f3f6f4;
+}
+
+.appStoreCta[data-variant="outline"] {
+  border-color: currentColor;
+  background: transparent;
+  color: inherit;
+  box-shadow: none;
+}
+
+.appleMark {
+  width: 1.45rem;
+  height: 1.45rem;
+  flex: 0 0 auto;
+}
+
+.appStoreCopy {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  line-height: 1.05;
+}
+
+.appStoreCopy span {
+  font-size: 0.62rem;
+  font-weight: 550;
+  letter-spacing: 0.035em;
+  opacity: 0.68;
+}
+
+.appStoreCopy strong {
+  margin-top: 0.22rem;
+  font-size: 0.9rem;
+  font-weight: 720;
+  white-space: nowrap;
+}
+
+.ctaArrow {
+  display: grid;
+  width: 2.35rem;
+  height: 2.35rem;
+  place-items: center;
+  border-radius: 0.8rem;
+  background: rgb(255 255 255 / 12%);
+  font-size: 1.05rem;
+}
+
+.appStoreCta[data-variant="yellow"] .ctaArrow,
+.appStoreCta[data-variant="light"] .ctaArrow {
+  background: rgb(0 0 0 / 7%);
+}
+
+.phoneFrame {
+  position: relative;
+  width: min(100%, 20rem);
+  margin: 0;
+  padding: 0.55rem;
+  border: 1px solid rgb(255 255 255 / 15%);
+  border-radius: 3.25rem;
+  background: linear-gradient(145deg, #38383b, #111113 60%);
+  box-shadow:
+    0 2rem 5rem rgb(21 21 16 / 28%),
+    inset 0 1px 0 rgb(255 255 255 / 16%);
+}
+
+.phoneSpeaker {
+  position: absolute;
+  top: 1.12rem;
+  left: 50%;
+  z-index: 3;
+  width: 5.5rem;
+  height: 1.45rem;
+  border-radius: 999px;
+  background: #09090a;
+  transform: translateX(-50%);
+}
+
+.phoneSideTop,
+.phoneSideBottom {
+  position: absolute;
+  left: -0.2rem;
+  width: 0.22rem;
+  border-radius: 0.2rem 0 0 0.2rem;
+  background: #2b2b2e;
+}
+
+.phoneSideTop {
+  top: 7rem;
+  height: 3.8rem;
+}
+
+.phoneSideBottom {
+  top: 11.5rem;
+  height: 5.6rem;
+}
+
+.phoneScreen {
+  overflow: hidden;
+  border-radius: 2.7rem;
+  background: #f8f8f5;
+}
+
+.phoneScreen picture,
+.phoneScreen img {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+@media (max-width: 720px) {
+  .conceptContainer {
+    width: min(100% - 2rem, 76rem);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .appStoreCta {
+    scroll-behavior: auto;
+    transition-duration: 0.01ms;
+  }
+}

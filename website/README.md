@@ -23,11 +23,26 @@ Landing page do app O Meu Banco, hospedada no Google Cloud Run.
 | Rota | Descricao |
 |------|-----------|
 | `/` | Landing page principal |
+| `/conceitos` | Laboratório visual interno com três alternativas de landing |
 | `/quem-somos` | História do produto e seus criadores |
 | `/privacidade` | Politica de Privacidade (LGPD/COPPA) |
 | `/termos` | Termos de Uso |
 | `/suporte` | Pagina de Suporte + FAQ |
 | `/docs/api` | Documentacao humana da API publica |
+
+## Laboratório de Landing Page
+
+**Meta em Movimento** foi escolhida como a landing principal em `/`. A rota
+`/conceitos` permanece como um laboratório histórico, com `noindex, nofollow`,
+para comparar as três direções criadas durante a exploração:
+
+1. **Família Primeiro** — acolhedora, madura e orientada à confiança.
+2. **Meta em Movimento** — expressiva, visual e centrada em conquistas.
+3. **Duas Visões** — demonstra as experiências da criança e do responsável.
+
+O comparador reutiliza conteúdo, CTAs e molduras de produto compartilhados em
+`src/components/landing-concepts/`. A rota aponta o canonical para `/` e
+permanece fora do sitemap e dos artefatos públicos em Markdown.
 
 ## Descoberta Para Agentes
 
@@ -124,11 +139,13 @@ website/
 │   ├── app/
 │   │   ├── layout.tsx     # Layout com SEO/OG metadata
 │   │   ├── page.tsx       # Landing page
+│   │   ├── conceitos/     # Laboratório visual noindex
 │   │   ├── quem-somos/
 │   │   ├── privacidade/
 │   │   ├── termos/
 │   │   └── suporte/
 │   └── components/
+│       ├── landing-concepts/ # Comparador, variantes e primitivas compartilhadas
 │       ├── Header.tsx
 │       └── Footer.tsx
 ├── next.config.ts         # output: "export"
