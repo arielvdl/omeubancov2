@@ -63,14 +63,14 @@ const tools: ToolDefinition[] = [
   {
     name: "open-information-page",
     description:
-      "Navigates to a public information page such as support, privacy policy, terms, or API documentation.",
+      "Navigates to support, privacy policy, terms, API documentation, or the brand and editorial image downloads page.",
     inputSchema: {
       type: "object",
       additionalProperties: false,
       properties: {
         page: {
           type: "string",
-          enum: ["support", "privacy", "terms", "api-docs"],
+          enum: ["support", "privacy", "terms", "api-docs", "brand"],
           description: "The public page to open.",
         },
       },
@@ -83,6 +83,7 @@ const tools: ToolDefinition[] = [
         privacy: "/privacidade",
         terms: "/termos",
         "api-docs": "/docs/api",
+        brand: "/marca",
       };
       const path = destinations[page] ?? "/suporte";
       navigateTo(path);

@@ -71,9 +71,14 @@ simulador educacional, sem transações reais.
 
 Os três JPGs quadrados são cópias dos arquivos originais fornecidos. O pacote
 [o-meu-banco-imagens.zip](public/brand/o-meu-banco-imagens.zip) contém somente os
-quatro JPGs, idênticos aos downloads individuais. Mantenha os títulos e descrições
+quatro JPGs, idênticos aos downloads individuais. Mantenha os títulos, descrições e alts
 de `src/app/marca/page.tsx` e `public/__markdown/marca.md` alinhados e atualize o
 ZIP quando houver mudança nos arquivos. A página não estabelece licença de uso.
+
+A versão Markdown inclui os textos alternativos da marca e das quatro imagens.
+O alt pertence à imagem na página e não acompanha os JPGs ou PNGs baixados;
+quem republicar deve copiá-lo para o campo de texto alternativo do seu CMS.
+Essa documentação não altera os arquivos originais nem os metadados dos downloads.
 
 ## Descoberta Para Agentes
 
@@ -84,6 +89,10 @@ O website publica artefatos de descoberta para agentes e integradores:
 - `/.well-known/mcp/server-card.json` - card do servidor MCP/WebMCP
 - `/docs/api/openapi.json` - descricao OpenAPI da API publica
 - `nginx.conf` - headers `Link`, content types e negociacao `Accept: text/markdown`
+
+A ferramenta WebMCP `open-information-page` aceita `page: "brand"` para abrir
+`/marca`. Os artefatos de descoberta apontam para a página e sua versão Markdown,
+que oferece links de download, títulos, descrições e textos alternativos.
 
 ### Teste Local da Negociacao Markdown
 

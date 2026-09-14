@@ -43,6 +43,16 @@
   ],
   "links": [
     {
+      "rel": "related",
+      "href": "https://omeubanco.xyz/marca",
+      "type": "text/html"
+    },
+    {
+      "rel": "alternate",
+      "href": "https://omeubanco.xyz/__markdown/marca.md",
+      "type": "text/markdown"
+    },
+    {
       "rel": "about",
       "href": "https://omeubanco.xyz/quem-somos"
     },

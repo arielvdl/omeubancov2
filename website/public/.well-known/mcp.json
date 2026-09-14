@@ -19,7 +19,7 @@
       },
       {
         "name": "open-information-page",
-        "description": "Navigates to support, privacy policy, terms, or API documentation."
+        "description": "Navigates to support, privacy policy, terms, API documentation, or brand and editorial image downloads (page: brand, /marca)."
       },
       {
         "name": "contact-support",

@@ -68,7 +68,7 @@ const editorialImages = [
     filename: "imagens/escolhas-e-recompensas.jpg",
     title: "Escolhas e recompensas: o dinheiro no universo das crianças",
     description: "Moedas coloridas e elementos lúdicos ilustram uma conversa sobre escolhas, recompensas e educação financeira infantil.",
-    alt: "Mãos de uma criança com uma ficha verde diante de uma ilustração de celular com moedas coloridas e um cachorro.",
+    alt: "Uma criança segura uma ficha verde com apoio da mão de um adulto, diante de um celular com moedas coloridas e um cachorro.",
     width: 1200,
     height: 1200,
     layout: "Quadrada",
