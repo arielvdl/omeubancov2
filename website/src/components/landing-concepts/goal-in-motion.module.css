@@ -279,51 +279,81 @@
 
 .motionTicker {
   position: absolute;
+  z-index: 6;
   right: 0;
   bottom: 0;
   left: 0;
   overflow: hidden;
   border-block: 1px solid rgb(255 255 255 / 13%);
-  background: var(--motion-yellow);
-  color: var(--motion-ink);
+  background: #000;
+  color: #fff;
 }
 
-.motionTicker div {
+.motionTickerTrack {
   display: flex;
   width: max-content;
-  animation: ticker-slide 22s linear infinite;
+  animation: ticker-slide 32s linear infinite;
+  will-change: transform;
 }
 
-.motionTicker span {
-  display: inline-flex;
+.motionTickerGroup {
+  display: grid;
+  flex: 0 0 auto;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  width: max(100vw, 64rem);
+}
+
+.motionTickerGroup > span {
+  position: relative;
+  display: flex;
   align-items: center;
-  gap: 1rem;
-  padding: 0.95rem 1.6rem;
-  font-size: 0.72rem;
+  justify-content: center;
+  padding: 1.2rem 2rem;
+  font-size: clamp(0.95rem, 1.2vw, 1.2rem);
   font-weight: 840;
   letter-spacing: 0.13em;
+  line-height: 1;
+  text-transform: uppercase;
+  white-space: nowrap;
 }
 
-.motionTicker span::after {
-  color: var(--motion-ink);
-  font-size: 1rem;
-  content: "●";
+.motionTickerGroup > span::after {
+  position: absolute;
+  top: 50%;
+  right: 0;
+  width: 0.35rem;
+  height: 0.35rem;
+  border-radius: 50%;
+  background: currentColor;
+  transform: translate(50%, -50%);
+  content: "";
 }
 
 .motionJourneySection {
-  padding-block: clamp(6rem, 10vw, 10rem);
-  background: var(--motion-paper);
+  padding-bottom: clamp(6rem, 10vw, 10rem);
+  background: #fff;
   color: var(--motion-ink);
+}
+
+.motionJourneyLead {
+  position: relative;
 }
 
 .motionSectionTitle {
   display: grid;
-  grid-template-columns: 0.7fr 1.8fr;
-  gap: 2rem;
-  align-items: start;
+  grid-template-columns: minmax(0, 1.15fr) minmax(0, 0.85fr);
+  min-height: 50vw;
+  padding-block: 3rem;
+  align-items: center;
 }
 
-.motionSectionTitle > span {
+.motionJourneyIntro {
+  grid-column: 2;
+}
+
+.motionJourneyIntro > span {
+  display: block;
+  margin-bottom: 1.75rem;
   color: #6a6e58;
   font-size: 0.7rem;
   font-weight: 780;
@@ -334,11 +364,25 @@
 .motionSectionTitle h2 {
   max-width: 13ch;
   margin: 0;
-  font-size: clamp(3rem, 6.5vw, 6.6rem);
+  font-size: clamp(3rem, 5.2vw, 5.3rem);
   font-weight: 840;
   letter-spacing: -0.075em;
   line-height: 0.88;
   text-transform: uppercase;
+}
+
+.motionJourneyVisual {
+  position: absolute;
+  inset: 0;
+  mask-image: linear-gradient(to bottom, #000 88%, transparent 100%);
+}
+
+.motionJourneyVisual img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: left center;
 }
 
 .motionJourney {
@@ -713,6 +757,25 @@
     grid-template-columns: minmax(0, 1fr);
   }
 
+  .motionJourneyVisual {
+    position: relative;
+    aspect-ratio: 1.15;
+  }
+
+  .motionJourneyVisual img {
+    position: absolute;
+    inset: 0;
+  }
+
+  .motionSectionTitle {
+    min-height: 0;
+    padding-block: 1.5rem 0;
+  }
+
+  .motionJourneyIntro {
+    grid-column: 1;
+  }
+
   .motionSectionTitle h2,
   .motionFaqHeading h2 {
     max-width: 14ch;
@@ -829,10 +892,13 @@
     height: 3.8rem;
   }
 
-  .motionJourneySection,
   .motionTraceSection,
   .motionFaqSection {
     padding-block: 5rem;
+  }
+
+  .motionJourneySection {
+    padding-bottom: 5rem;
   }
 
   .motionSectionTitle h2,
@@ -870,13 +936,38 @@
   .motionOrbTwo,
   .motionTrail,
   .motionSticker,
-  .motionTicker div {
+  .motionTickerTrack {
     animation: none;
+  }
+
+  .motionTickerTrack,
+  .motionTickerGroup {
+    width: 100%;
+    will-change: auto;
+  }
+
+  .motionTickerGroup + .motionTickerGroup,
+  .motionTickerGroup > span:last-child::after {
+    display: none;
   }
 
   .motionFaqList summary > span:last-child {
     scroll-behavior: auto;
     transition-duration: 0.01ms;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) and (max-width: 720px) {
+  .motionTickerGroup {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .motionTickerGroup > span {
+    padding: 0.85rem 0.75rem;
+  }
+
+  .motionTickerGroup > span:nth-child(2)::after {
+    display: none;
   }
 }
 
@@ -907,7 +998,11 @@
 }
 
 @keyframes ticker-slide {
+  from {
+    transform: translate3d(0, 0, 0);
+  }
   to {
-    transform: translateX(-50%);
+    /* Two equal groups make the end frame identical to the first frame. */
+    transform: translate3d(-50%, 0, 0);
   }
 }

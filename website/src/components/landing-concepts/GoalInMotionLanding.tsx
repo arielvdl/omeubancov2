@@ -1,9 +1,12 @@
+import Image from "next/image";
 import { AppStoreCTA, PhoneFrame } from "./ConceptPrimitives";
 import { landingFaqItems } from "@/lib/landing-content";
 import motionStyles from "./goal-in-motion.module.css";
 import sharedStyles from "./landing-shared.module.css";
 
 const styles = { ...sharedStyles, ...motionStyles };
+
+const tickerWords = ["Planejar", "Escolher", "Aprender", "Conquistar"];
 
 const journeySteps = [
   {
@@ -98,24 +101,40 @@ export default function GoalInMotionLanding() {
         </div>
 
         <div className={styles.motionTicker} aria-hidden="true">
-          <div>
-            <span>PLANEJAR</span>
-            <span>ESCOLHER</span>
-            <span>APRENDER</span>
-            <span>CONQUISTAR</span>
-            <span>PLANEJAR</span>
-            <span>ESCOLHER</span>
+          <div className={styles.motionTickerTrack}>
+            {[0, 1].map((copy) => (
+              <div className={styles.motionTickerGroup} key={copy}>
+                {tickerWords.map((word) => (
+                  <span key={word}>{word}</span>
+                ))}
+              </div>
+            ))}
           </div>
         </div>
       </section>
 
       <section id="como-funciona" className={styles.motionJourneySection}>
-        <div className={styles.conceptContainer}>
-          <div className={styles.motionSectionTitle}>
-            <span>Do combinado à conquista</span>
-            <h2>Três momentos. Uma habilidade para a vida toda.</h2>
+        <div className={styles.motionJourneyLead}>
+          <div className={styles.motionJourneyVisual}>
+            <Image
+              src="/images/jornada-em-familia.webp"
+              alt="Mãe e filho organizam moedas em potes para aprender a poupar juntos."
+              width={1774}
+              height={887}
+              loading="lazy"
+              decoding="async"
+              unoptimized
+            />
           </div>
+          <div className={`${styles.conceptContainer} ${styles.motionSectionTitle}`}>
+            <div className={styles.motionJourneyIntro}>
+              <span>Do combinado à conquista</span>
+              <h2>Três momentos. Uma habilidade para a vida toda.</h2>
+            </div>
+          </div>
+        </div>
 
+        <div className={styles.conceptContainer}>
           <ol className={styles.motionJourney}>
             {journeySteps.map((step, index) => (
               <li key={step.label} data-accent={step.accent}>
