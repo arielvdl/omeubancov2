@@ -1,4 +1,5 @@
 import { Hono } from 'hono';
+import { z } from 'zod';
 import {
   registerSchema,
   loginSchema,
@@ -11,7 +12,16 @@ import { familyRepo } from '../repositories/family.repo.js';
 import { childRepo } from '../repositories/child.repo.js';
 import { guardianRepo } from '../repositories/guardian.repo.js';
 import { familyInvitationRepo } from '../repositories/family-invitation.repo.js';
-import { generateToken, hashPassword, comparePassword } from '../auth/index.js';
+import {
+  generateSessionTokens,
+  generateToken,
+  hashPassword,
+  comparePassword,
+  verifyRefreshToken,
+  type SessionIdentity,
+  type TokenPayload,
+} from '../auth/index.js';
+import { authMiddleware } from '../auth/guards.js';
 import { auditLogRepo } from '../repositories/audit-log.repo.js';
 import { authRateLimit } from '../middleware/rate-limit.js';
 import { AppError } from '../middleware/error-handler.js';
@@ -49,6 +59,77 @@ setInterval(() => {
 export const authRoutes = new Hono();
 
 authRoutes.use('/*', authRateLimit);
+
+const refreshSessionSchema = z.object({
+  refreshToken: z.string().min(1).max(4096),
+});
+
+async function validateSessionIdentity(payload: TokenPayload): Promise<SessionIdentity> {
+  const family = await familyRepo.findById(payload.familyId);
+  if (!family) {
+    throw new AppError(401, 'Invalid session');
+  }
+
+  if (payload.role === 'child') {
+    if (!payload.childId) {
+      throw new AppError(401, 'Invalid session');
+    }
+    const child = await childRepo.findById(payload.childId);
+    if (!child || child.familyId !== payload.familyId) {
+      throw new AppError(401, 'Invalid session');
+    }
+    return {
+      familyId: payload.familyId,
+      role: 'child',
+      childId: child.id,
+    };
+  }
+
+  if (payload.guardianId) {
+    const guardian = await guardianRepo.findById(payload.guardianId);
+    if (
+      !guardian ||
+      guardian.status !== 'active' ||
+      guardian.familyId !== payload.familyId
+    ) {
+      throw new AppError(401, 'Access revoked');
+    }
+    return {
+      familyId: payload.familyId,
+      role: 'parent',
+      guardianId: guardian.id,
+      guardianAccessLevel: guardian.accessLevel === 'admin' ? 'admin' : 'member',
+    };
+  }
+
+  return {
+    familyId: payload.familyId,
+    role: 'parent',
+  };
+}
+
+// One-year session renewal. The refresh token is kept only in the
+// device secure store and can never be used directly on protected endpoints.
+authRoutes.post('/refresh', async (c) => {
+  const body = refreshSessionSchema.parse(await c.req.json());
+
+  let payload: TokenPayload;
+  try {
+    payload = await verifyRefreshToken(body.refreshToken);
+  } catch {
+    throw new AppError(401, 'Invalid or expired refresh token');
+  }
+
+  const identity = await validateSessionIdentity(payload);
+  return c.json(await generateSessionTokens(identity));
+});
+
+// Upgrades still-valid sessions created by older app versions so users do not
+// have to sign in again merely to receive a refresh token.
+authRoutes.post('/upgrade-session', authMiddleware, async (c) => {
+  const identity = await validateSessionIdentity(c.get('user'));
+  return c.json(await generateSessionTokens(identity));
+});
 
 authRoutes.post('/register', async (c) => {
   const body = await c.req.json();
