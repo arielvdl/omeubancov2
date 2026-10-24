@@ -70,11 +70,26 @@ export async function generateSessionTokens(payload: SessionIdentity): Promise<{
   return { token, refreshToken };
 }
 
+// Sessões legítimas sempre carregam role; os JWTs de desafio do passkey
+// (claim `type`) são assinados com a mesma chave e não podem valer como sessão.
+function assertSessionShape(payload: Record<string, unknown>): void {
+  if (payload.type !== undefined) {
+    throw new Error('Challenge token cannot be used as a session token');
+  }
+  if (payload.role !== 'parent' && payload.role !== 'child') {
+    throw new Error('Token without a valid role');
+  }
+}
+
 export async function verifyToken(token: string): Promise<TokenPayload> {
   const payload = await verify(token, env.JWT_SECRET, 'HS256');
   if (payload.tokenType === 'refresh') {
     throw new Error('Refresh token cannot be used as an access token');
   }
+  if (payload.tokenType !== undefined && payload.tokenType !== 'access') {
+    throw new Error('Unknown token type');
+  }
+  assertSessionShape(payload);
   return payload as unknown as TokenPayload;
 }
 
@@ -83,6 +98,7 @@ export async function verifyRefreshToken(token: string): Promise<TokenPayload> {
   if (payload.tokenType !== 'refresh') {
     throw new Error('Invalid refresh token');
   }
+  assertSessionShape(payload);
   return payload as unknown as TokenPayload;
 }
 

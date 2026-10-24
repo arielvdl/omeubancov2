@@ -85,6 +85,10 @@ async function validateSessionIdentity(payload: TokenPayload): Promise<SessionId
     };
   }
 
+  if (payload.role !== 'parent') {
+    throw new AppError(401, 'Invalid session');
+  }
+
   if (payload.guardianId) {
     const guardian = await guardianRepo.findById(payload.guardianId);
     if (
