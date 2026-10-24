@@ -136,3 +136,18 @@ test('refresh token antigo nao vale depois do bump (regra usada por /auth/refres
 test('bump de familia inexistente falha fechado', async () => {
   await assert.rejects(bumpSessionVersion('00000000-0000-4000-8000-0000000000dd'), SessionRevokedError);
 });
+
+test('multiinstancia: cache em 0, banco em 1 (bump em outra instancia), token sv=1 passa e sv=0 e recusado', async () => {
+  // Aquece o cache desta instancia com a versao 0.
+  await assertSessionCurrent({ familyId: FAM, sv: 0 });
+  // Outra instancia fez o bump: so o banco muda, o cache local segue em 0.
+  versions.set(FAM, 1);
+  await assertSessionCurrent({ familyId: FAM, sv: 1 });
+  await assert.rejects(assertSessionCurrent({ familyId: FAM, sv: 0 }), SessionRevokedError);
+});
+
+test('cache que aceita o token nao consulta o banco', async () => {
+  await assertSessionCurrent({ familyId: FAM, sv: 0 });
+  failReads = true;
+  await assertSessionCurrent({ familyId: FAM, sv: 0 });
+});

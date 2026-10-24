@@ -76,14 +76,18 @@ export async function assertSessionCurrent(payload: {
 }): Promise<void> {
   let current: number | undefined;
   const hit = cache.get(payload.familyId);
-  if (hit && hit.expiresAt > Date.now()) {
-    current = hit.version;
-  } else {
-    try {
-      current = await readSessionVersionFresh(payload.familyId);
-    } catch {
-      throw new SessionStoreUnavailableError();
-    }
+  const cached = hit && hit.expiresAt > Date.now() ? hit.version : undefined;
+  if (cached !== undefined && isSessionVersionCurrent(payload.sv, cached)) {
+    return;
+  }
+  // Sem cache, ou cache que rejeitaria o token: decide pelo banco. Assim o
+  // aparelho que acabou de pedir logout-all (token com sv novo) nao e recusado
+  // por uma instancia com versao antiga em cache. Paga-se uma consulta so
+  // quando o token seria rejeitado.
+  try {
+    current = await readSessionVersionFresh(payload.familyId);
+  } catch {
+    throw new SessionStoreUnavailableError();
   }
   if (current === undefined || !isSessionVersionCurrent(payload.sv, current)) {
     throw new SessionRevokedError();
