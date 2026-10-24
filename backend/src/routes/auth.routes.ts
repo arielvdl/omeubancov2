@@ -21,7 +21,8 @@ import {
   type SessionIdentity,
   type TokenPayload,
 } from '../auth/index.js';
-import { authMiddleware } from '../auth/guards.js';
+import { authMiddleware, requireFamilyOwner } from '../auth/guards.js';
+import { bumpSessionVersion, isSessionVersionCurrent } from '../auth/session-version.js';
 import { auditLogRepo } from '../repositories/audit-log.repo.js';
 import { authRateLimit } from '../middleware/rate-limit.js';
 import { AppError } from '../middleware/error-handler.js';
@@ -68,6 +69,11 @@ async function validateSessionIdentity(payload: TokenPayload): Promise<SessionId
   const family = await familyRepo.findById(payload.familyId);
   if (!family) {
     throw new AppError(401, 'Invalid session');
+  }
+
+  // Revogacao de sessao: token sem `sv` vale como versao 0.
+  if (!isSessionVersionCurrent(payload.sv, family.sessionVersion)) {
+    throw new AppError(401, 'Session revoked');
   }
 
   if (payload.role === 'child') {
@@ -133,6 +139,22 @@ authRoutes.post('/refresh', async (c) => {
 authRoutes.post('/upgrade-session', authMiddleware, async (c) => {
   const identity = await validateSessionIdentity(c.get('user'));
   return c.json(await generateSessionTokens(identity));
+});
+
+// Encerra a sessao em todos os aparelhos da familia (donos, responsaveis e
+// criancas): incrementa a versao de sessao e devolve tokens novos so para o
+// aparelho que pediu. Somente o dono da familia.
+authRoutes.post('/logout-all', authMiddleware, requireFamilyOwner, async (c) => {
+  const user = c.get('user');
+  await bumpSessionVersion(user.familyId);
+
+  await auditLogRepo.create({
+    familyId: user.familyId,
+    action: 'family.sessions_revoked',
+    actor: 'parent',
+  });
+
+  return c.json(await generateSessionTokens({ familyId: user.familyId, role: 'parent' }));
 });
 
 authRoutes.post('/register', async (c) => {

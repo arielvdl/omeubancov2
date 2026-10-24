@@ -6,6 +6,9 @@ import {
   verifyRefreshToken,
   verifyToken,
 } from '../src/auth/index.js';
+import { setSessionVersionStoreForTests } from '../src/auth/session-version.js';
+
+setSessionVersionStoreForTests({ get: async () => 0, bump: async () => 1 });
 
 const FAMILY_ID = '00000000-0000-4000-8000-000000000001';
 const DAY_SECONDS = 24 * 60 * 60;

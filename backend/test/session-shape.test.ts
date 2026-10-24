@@ -3,6 +3,9 @@ import test from 'node:test';
 import { sign } from 'hono/jwt';
 import { env } from '../src/config/index.js';
 import { generateToken, generateRefreshToken, verifyToken, verifyRefreshToken } from '../src/auth/index.js';
+import { setSessionVersionStoreForTests } from '../src/auth/session-version.js';
+
+setSessionVersionStoreForTests({ get: async () => 0, bump: async () => 1 });
 
 const now = Math.floor(Date.now() / 1000);
 

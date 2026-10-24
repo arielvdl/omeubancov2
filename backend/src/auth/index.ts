@@ -2,6 +2,7 @@ import { sign, verify } from 'hono/jwt';
 import type { JWTPayload } from 'hono/utils/jwt/types';
 import bcrypt from 'bcryptjs';
 import { env } from '../config/index.js';
+import { readSessionVersionFresh } from './session-version.js';
 
 export interface TokenPayload {
   familyId: string;
@@ -10,6 +11,8 @@ export interface TokenPayload {
   guardianId?: string;
   guardianAccessLevel?: 'admin' | 'member';
   tokenType?: 'access' | 'refresh';
+  // Versao de sessao da familia na emissao; ausente em tokens anteriores a Fase 1 (= versao 0).
+  sv?: number;
   exp: number;
   iat: number;
 }
@@ -29,6 +32,7 @@ const REFRESH_TOKEN_SECONDS = 365 * 24 * 60 * 60;
 async function signSessionToken(
   payload: SessionIdentity,
   tokenType: 'access' | 'refresh',
+  sessionVersion?: number,
 ): Promise<string> {
   const now = Math.floor(Date.now() / 1000);
   const expiresIn = tokenType === 'refresh'
@@ -44,6 +48,7 @@ async function signSessionToken(
     guardianId: payload.guardianId,
     guardianAccessLevel: payload.guardianAccessLevel,
     tokenType,
+    sv: sessionVersion,
     iat: now,
     exp: now + expiresIn,
   };
@@ -52,20 +57,21 @@ async function signSessionToken(
 }
 
 export async function generateToken(payload: SessionIdentity): Promise<string> {
-  return signSessionToken(payload, 'access');
+  return signSessionToken(payload, 'access', await readSessionVersionFresh(payload.familyId));
 }
 
 export async function generateRefreshToken(payload: SessionIdentity): Promise<string> {
-  return signSessionToken(payload, 'refresh');
+  return signSessionToken(payload, 'refresh', await readSessionVersionFresh(payload.familyId));
 }
 
 export async function generateSessionTokens(payload: SessionIdentity): Promise<{
   token: string;
   refreshToken: string;
 }> {
+  const sessionVersion = await readSessionVersionFresh(payload.familyId);
   const [token, refreshToken] = await Promise.all([
-    generateToken(payload),
-    generateRefreshToken(payload),
+    signSessionToken(payload, 'access', sessionVersion),
+    signSessionToken(payload, 'refresh', sessionVersion),
   ]);
   return { token, refreshToken };
 }

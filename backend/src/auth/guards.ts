@@ -2,6 +2,11 @@ import type { Context, Next } from 'hono';
 import { verifyToken, type TokenPayload } from './index.js';
 import { guardianRepo } from '../repositories/guardian.repo.js';
 import { env } from '../config/index.js';
+import {
+  assertSessionCurrent,
+  SessionRevokedError,
+  SessionStoreUnavailableError,
+} from './session-version.js';
 
 type GuardianAccessLevel = 'admin' | 'member';
 type AuthedUser = TokenPayload & { guardianAccessLevel?: GuardianAccessLevel };
@@ -35,6 +40,7 @@ export async function authMiddleware(c: Context, next: Next): Promise<Response |
 
   try {
     const payload = await verifyToken(token);
+    await assertSessionCurrent(payload);
     const authedUser = payload as AuthedUser;
 
     // If token belongs to a guardian, verify they are still active
@@ -48,7 +54,14 @@ export async function authMiddleware(c: Context, next: Next): Promise<Response |
 
     c.set('user', authedUser);
     await next();
-  } catch {
+  } catch (err) {
+    if (err instanceof SessionStoreUnavailableError) {
+      // Falha de infraestrutura nao pode virar 401: o app deslogaria o usuario.
+      return c.json({ error: 'Service temporarily unavailable' }, 503);
+    }
+    if (err instanceof SessionRevokedError) {
+      return unauthorized('Session revoked');
+    }
     return unauthorized('Invalid or expired token');
   }
 }

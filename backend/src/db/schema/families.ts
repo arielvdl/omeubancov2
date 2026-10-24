@@ -1,4 +1,4 @@
-import { pgTable, uuid, varchar, text, timestamp } from 'drizzle-orm/pg-core';
+import { pgTable, uuid, varchar, text, timestamp, integer } from 'drizzle-orm/pg-core';
 
 export const families = pgTable('families', {
   id: uuid('id').defaultRandom().primaryKey(),
@@ -12,6 +12,8 @@ export const families = pgTable('families', {
   googleName: varchar('google_name', { length: 255 }),
   googlePhoto: text('google_photo'),
   appleUserId: varchar('apple_user_id', { length: 255 }).unique(),
+  // Versao de sessao: tokens emitidos carregam `sv`; incrementar revoga todos os anteriores.
+  sessionVersion: integer('session_version').notNull().default(0),
   createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
   updatedAt: timestamp('updated_at', { withTimezone: true }).defaultNow().notNull(),
 });

@@ -1,4 +1,4 @@
-import { eq } from 'drizzle-orm';
+import { eq, sql } from 'drizzle-orm';
 import { db } from '../db/index.js';
 import { families } from '../db/schema/families.js';
 
@@ -9,6 +9,24 @@ export const familyRepo = {
   async findById(id: string): Promise<SelectFamily | undefined> {
     const results = await db.select().from(families).where(eq(families.id, id)).limit(1);
     return results[0];
+  },
+
+  async getSessionVersion(id: string): Promise<number | undefined> {
+    const rows = await db
+      .select({ sessionVersion: families.sessionVersion })
+      .from(families)
+      .where(eq(families.id, id))
+      .limit(1);
+    return rows[0]?.sessionVersion;
+  },
+
+  async bumpSessionVersion(id: string): Promise<number | undefined> {
+    const rows = await db
+      .update(families)
+      .set({ sessionVersion: sql`${families.sessionVersion} + 1`, updatedAt: new Date() })
+      .where(eq(families.id, id))
+      .returning({ sessionVersion: families.sessionVersion });
+    return rows[0]?.sessionVersion;
   },
 
   async findByEmail(email: string): Promise<SelectFamily | undefined> {
