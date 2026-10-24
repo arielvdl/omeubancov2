@@ -196,9 +196,13 @@ export const passkeyLoginVerifySchema = z.object({
   credential: z.any(),
 });
 
+// Cheap length gate first: an oversized array fails with a single issue instead of
+// having every element validated (and one issue allocated per element).
 export const reorderWishItemsSchema = z.object({
-  items: z.array(z.object({
-    id: z.string().uuid(),
-    sortOrder: z.number().int().min(0),
-  })).min(1).max(100),
+  items: z.array(z.unknown()).max(100).pipe(
+    z.array(z.object({
+      id: z.string().uuid(),
+      sortOrder: z.number().int().min(0),
+    })).min(1).max(100),
+  ),
 });

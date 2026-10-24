@@ -5,6 +5,7 @@ import { securityHeaders } from './middleware/security-headers.js';
 import { errorHandler } from './middleware/error-handler.js';
 import { generalRateLimit } from './middleware/rate-limit.js';
 import { localeMiddleware } from './middleware/locale.js';
+import { bodyLimitMiddleware } from './middleware/body-limit.js';
 import { authRoutes } from './routes/auth.routes.js';
 import { familiesRoutes } from './routes/families.routes.js';
 import { childrenRoutes } from './routes/children.routes.js';
@@ -27,6 +28,7 @@ export const app = new Hono();
 
 app.use('*', corsMiddleware);
 app.use('*', securityHeaders);
+app.use('*', bodyLimitMiddleware);
 app.use('*', loggerMiddleware);
 app.use('*', localeMiddleware);
 
