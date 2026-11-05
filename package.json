@@ -84,6 +84,7 @@
   "private": true,
   "overrides": {
     "source-map-js": "1.2.2",
-    "@xmldom/xmldom": "0.8.15"
+    "@xmldom/xmldom": "0.8.15",
+    "form-data": "4.0.6"
   }
 }
